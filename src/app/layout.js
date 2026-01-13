@@ -1,7 +1,20 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
+const wixMadefor = localFont({
+  src: [
+    {
+      path: "./fonts/WixMadeforDisplay-VariableFont_wght.ttf",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-wix-madefor",
+  display: "swap",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
