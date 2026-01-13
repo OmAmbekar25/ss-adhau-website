@@ -25,10 +25,13 @@ const companies = [
 export default function TrustedCompanies() {
   return (
     <section className="bg-brand-light w-full py-16 px-4">
-      <h3 className="text-center text-2xl md:text-3xl font-bold text-brand-navy">
+      <h3 className="text-center text-4xl md:text-5xl font-bold text-brand-navy">
         Trusted by Leading Indian Organizations
       </h3>
+<div className="w-full flex justify-center mt-2">
+       <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
 
+</div>
       <div className="max-w-6xl mx-auto mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
         {companies.map((company, index) => (
             // can add grayscale--> grayscale hover:grayscale-0

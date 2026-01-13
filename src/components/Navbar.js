@@ -22,7 +22,7 @@ const Navbar = () => {
       {/* desktop */}
       <div className="flex relative h-24 bg-gray-300 z-[100]   text-black md:text-lg flex-row justify-between px-6  sm:px-10 md:px-5 lg:px-20 py-3 items-center  ">
         <div className="text-primary flex items-center flex-col font-extrabold">
-          <Image src={SSAdhauLogo} width={120} className="w-16 lg:w-28 " alt="SSAdhau Logo" />
+          <Image src={SSAdhauLogo} width={160} height={40} className="w-16 lg:w-32 " alt="SSAdhau Logo" />
         </div>
         <ul className="hidden md:flex flex-row justify-between items-center gap-20 sm:gap-8 md:gap-10 lg:gap-20 font-semibold ">
           {itemArray.map((x, index) => {

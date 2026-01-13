@@ -5,13 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const wixMadefor = localFont({
-  src: [
-    {
-      path: "./fonts/WixMadeforDisplay-VariableFont_wght.ttf",
-      weight: "400",
-      style: "normal",
-    },
-  ],
+  src: "./fonts/WixMadeforDisplay-VariableFont_wght.ttf",
   variable: "--font-wix-madefor",
   display: "swap",
 });
@@ -35,7 +29,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${wixMadefor.variable} antialiased`}
       >
         <Navbar />
         {children}

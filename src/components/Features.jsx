@@ -13,7 +13,8 @@ import {
 
 export default function BouncyCardsFeatures() {
   return (
-    <section id="services" className="mx-auto max-w-7xl px-4 py-16 text-slate-800">
+    <div className="w-full bg-gray-200 ">
+      <section id="services" className="mx-auto max-w-7xl px-4 py-16 text-slate-800">
       <div className="mb-12 md:px-8">
         <h2 className="max-w-3xl text-4xl font-bold md:text-5xl">
           Professional Valuation Services{" "}
@@ -78,6 +79,7 @@ export default function BouncyCardsFeatures() {
         </BounceCard>
       </div>
     </section>
+    </div>
   );
 }
 

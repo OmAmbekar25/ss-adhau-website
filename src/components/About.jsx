@@ -11,7 +11,7 @@ export default function About() {
     <section className="flex bg-brand-light flex-col md:flex-row items-center justify-center gap-10 max-md:px-4">
       
       {/* Image Card */}
-      <div className="relative shadow-2xl mt-10 mb-40 shadow-indigo-600/40 rounded-2xl overflow-hidden shrink-0">
+      <div className="relative shadow-2xl mt-10 mb-10 shadow-indigo-600/40 rounded-2xl overflow-hidden shrink-0">
         <Image
           src={AboutImage}
           alt="Team collaboration"
@@ -41,7 +41,7 @@ export default function About() {
 
       {/* Content */}
       <div className="text-lg text-slate-600 max-w-lg">
-        <h1 className="text-4xl uppercase font-semibold text-slate-700">
+        <h1 className="text-4xl md:text-5xl uppercase font-semibold text-slate-700">
           About Us
         </h1>
 
