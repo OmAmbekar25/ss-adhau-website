@@ -20,14 +20,14 @@ const Navbar = () => {
   return (
     <>
       {/* desktop */}
-      <div className="flex relative h-24 z-[100]  text-black md:text-lg flex-row justify-between px-6  sm:px-10 md:px-5 lg:px-20 py-3 items-center  ">
+      <div className="flex relative h-24 bg-gray-300 z-[100]   text-black md:text-lg flex-row justify-between px-6  sm:px-10 md:px-5 lg:px-20 py-3 items-center  ">
         <div className="text-primary flex items-center flex-col font-extrabold">
           <Image src={SSAdhauLogo} width={120} className="w-16 lg:w-28 " alt="SSAdhau Logo" />
         </div>
         <ul className="hidden md:flex flex-row justify-between items-center gap-20 sm:gap-8 md:gap-10 lg:gap-20 font-semibold ">
           {itemArray.map((x, index) => {
             return (
-              <li key={index} className="hover:text-primary duration-200">
+              <li key={index} className="hover:text-brand-orange md:text-xl duration-200">
                 <Link href={x.url}> {x.title}</Link>
               </li>
             );
@@ -87,13 +87,13 @@ const Navbar = () => {
       <div>
         {
           <ul
-            className={`flex absolute w-full z-50 bg-black text-white md:hidden flex-col  items-center gap-4 font-bold text-sm duration-700 overflow-hidden transition-all ${
+            className={`flex absolute w-full z-50 bg-gray-300 text-black md:hidden flex-col  items-center gap-4 font-bold text-sm duration-700 overflow-hidden transition-all ${
               isOpen ? "h-44  border-b-[1px]" : "h-0"
             } `}
           >
             {itemArray.map((x, index) => {
               return (
-                <li key={index} className="hover:text-primary duration-200 py-1 font-bold">
+                <li key={index} className="hover:text-brand-light duration-200 py-1 font-bold">
                   <Link href={x.url} onClick={handleClick}>
                     {" "}
                     {x.title}
