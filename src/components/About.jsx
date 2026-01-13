@@ -11,13 +11,13 @@ export default function About() {
     <section className="flex bg-brand-light flex-col md:flex-row items-center justify-center gap-10 max-md:px-4">
       
       {/* Image Card */}
-      <div className="relative shadow-2xl mt-10 shadow-indigo-600/40 rounded-2xl overflow-hidden shrink-0">
+      <div className="relative shadow-2xl mt-10 mb-40 shadow-indigo-600/40 rounded-2xl overflow-hidden shrink-0">
         <Image
           src={AboutImage}
           alt="Team collaboration"
           width={400}
           height={300}
-          className="max-w-md w-full object-cover rounded-2xl"
+          className="max-w-md w-full  object-cover rounded-2xl"
           priority
         />
 

@@ -1,6 +1,7 @@
 import About from "@/components/About";
 import { GridBackgroundDemo } from "@/components/BackgroundBoxes";
 import  BouncyCardsFeatures  from "@/components/Features";
+import TrustedCompanies from "@/components/TrustedCompanies";
 import { div } from "motion/react-client";
 import Image from "next/image";
 
@@ -11,6 +12,7 @@ export default function Home() {
       <GridBackgroundDemo />
       <BouncyCardsFeatures />
       <About />
+      <TrustedCompanies />
     </main>
     </>
   );
