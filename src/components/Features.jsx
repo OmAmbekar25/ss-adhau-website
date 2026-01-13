@@ -17,7 +17,7 @@ export default function BouncyCardsFeatures() {
       <div className="mb-12 md:px-8">
         <h2 className="max-w-3xl text-4xl font-bold md:text-5xl">
           Professional Valuation Services{" "}
-          <span className="text-slate-400">You Can Trust</span>
+          <span className="text-slate-400 block">You Can Trust</span>
         </h2>
       </div>
 
