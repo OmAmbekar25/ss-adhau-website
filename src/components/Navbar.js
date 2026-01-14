@@ -5,8 +5,8 @@ import { useState } from "react";
 import SSAdhauLogo from "@/app/assets/images/SSAdhauBG.png";
 const itemArray = [
   { title: "Home", url: "/" },
-  { title: "Services", url: "/Services" },
-  { title: "About", url: "/About" },
+  { title: "Services", url: "/services" },
+  { title: "About", url: "/about" },
 //   { title: "Blog", url: "/Blog" },
 ];
 
