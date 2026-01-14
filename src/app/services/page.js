@@ -153,7 +153,7 @@ export default function ServicesPage() {
       <ServiceHero />
       <div className="flex flex-col items-center mb-10 ">
          <h1 className="text-4xl md:text-5xl uppercase font-semibold text-slate-700">
-          About Us
+          We Provide
         </h1>
 
         <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
