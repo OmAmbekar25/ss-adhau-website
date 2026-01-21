@@ -69,13 +69,13 @@ export default function Footer() {
             </h3>
             <div className="space-y-2 text-md">
               <a
-                href="tel:+12124567890"
+                href="tel:+91 8793000929"
                 className="block hover:text-brand-orange"
               >
                 +91 8793000929
               </a>
               <a
-                href="mailto:contact@example.com"
+                href="mailto:ssadhauvaluers@gmail.com"
                 className="block hover:text-brand-orange"
               >
                 ssadhauvaluers@gmail.com
