@@ -1,4 +1,5 @@
 import ServiceHero from "@/components/ui/Servicehero";
+import WhyChooseUs from "@/components/WhyChooseUs";
 import {
   Building2,
   Factory,
@@ -159,7 +160,7 @@ export default function ServicesPage() {
         <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
       </div>
       {/* <div className="flex justify-center"> */}
-        <div className="grid  px-20 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative">
+        <div className="grid  lg:px-44 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative">
         {/* Background blur – unchanged */}
         <div className="size-[520px] top-0 left-1/2 -translate-x-1/2 rounded-full absolute blur-[300px] -z-10 bg-[#FBFFE1]/70" />
 
@@ -178,11 +179,11 @@ export default function ServicesPage() {
               </div>
 
               <div className="mt-5 space-y-2 text-center">
-                <h3 className="text-base font-semibold text-slate-700">
+                <h3 className="text-lg font-semibold text-slate-700">
                   {service.title}
                 </h3>
 
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-md text-slate-600 leading-relaxed">
                   {service.description}
                 </p>
               </div>
@@ -191,6 +192,7 @@ export default function ServicesPage() {
         })}
       </div>
       {/* </div> */}
+      <WhyChooseUs />
     </>
   );
 }

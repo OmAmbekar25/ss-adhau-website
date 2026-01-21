@@ -1,9 +1,10 @@
 "use client";
 
-import { MoveRight, PhoneCall } from "lucide-react";
+import { MapPinCheckInside, MoveRight, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+
 
 export default function ServiceHero() {
   return (
@@ -12,7 +13,7 @@ export default function ServiceHero() {
         <div className="grid grid-cols-1 gap-8 items-center md:grid-cols-2">
           {/* Left Content */}
           <div className="flex flex-col gap-6">
-            {/* <Badge variant="outline">your </Badge> */}
+            <Badge variant="outline"><MapPinCheckInside /> Chhindwara,Betul, Seoni, Balaghat, Jabalpur, Bhopal, Indore, Nagpur, Pandhurna  </Badge>
 
             <div className="flex flex-col gap-4">
               <h1 className="text-5xl md:text-7xl max-w-lg tracking-tight font-normal">

@@ -72,14 +72,17 @@ export default function Footer() {
                 href="tel:+12124567890"
                 className="block hover:text-brand-orange"
               >
-                +1-212-456-7890
+                +91 8793000929
               </a>
               <a
                 href="mailto:contact@example.com"
                 className="block hover:text-brand-orange"
               >
-                contact@example.com
+                ssadhauvaluers@gmail.com
               </a>
+              {/* <p>
+                F 02,First Floor,Jail Bagicha Complex,Above Pasha Travels,
+              </p> */}
             </div>
           </div>
         </div>
