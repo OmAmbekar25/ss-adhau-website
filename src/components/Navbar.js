@@ -34,7 +34,7 @@ const Navbar = () => {
           })}
         </ul>
         <div>
-          <Link href={`/#contact`}>
+          <Link href={`/contact`}>
           <button
             type="button"
             className="text-white hidden md:flex bg-[#F85122] border-[1px] border-white hover:bg-[#f93e0a]  focus:ring-4 focus:outline-none  font-medium rounded-lg  px-1 md:px-4 py-2 text-center transition-all ease-in-out"
