@@ -47,6 +47,9 @@ export default function FAQ() {
       <h2 className="text-4xl md:text-5xl font-semibold text-center mx-auto">
         Looking for answers?
       </h2>
+      <div className="w-full flex justify-center mt-2">
+        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+      </div>
 
       <p className="text-lg text-slate-500 mt-2 pb-8 text-center">
         Common questions about our valuation services, process, and expertise.

@@ -15,6 +15,9 @@ export default function TeamSection() {
       <h1 className="text-4xl md:text-5xl font-semibold text-center mx-auto">
         Meet Our Team
       </h1>
+      <div className="w-full flex justify-center mt-2">
+        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+      </div>
       <p className="text-slate-500 text-lg text-center mt-2">
         The people behind the firm, driven by expertise and integrity.
       </p>
