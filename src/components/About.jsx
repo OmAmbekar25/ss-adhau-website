@@ -60,7 +60,7 @@ export default function About() {
         </p>
 
         <Link
-          href="/About"
+          href="/about"
           className="flex items-center w-max gap-2 mt-8 hover:-translate-y-0.5 transition bg-gradient-to-r from-indigo-600 to-indigo-400 py-3 px-8 rounded-full text-white"
         >
           <span>Read more</span>
