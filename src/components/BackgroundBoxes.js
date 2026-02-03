@@ -7,7 +7,7 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export function GridBackgroundDemo() {
   return (
-    <div className="relative flex md:min-h-[80vh]  w-full items-center justify-center bg-brand-light dark:bg-black px-6">
+    <div className="relative flex   md:min-h-[80vh]  w-full items-center justify-center bg-brand-light dark:bg-black px-6">
       {/* Grid background */}
       <div
         className={cn(
@@ -22,9 +22,9 @@ export function GridBackgroundDemo() {
       <div className="pointer-events-none absolute inset-0 bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black" />
 
       {/* Content */}
-      <div className="relative z-20 grid w-full max-w-7xl grid-cols-1 items-center gap-12 md:grid-cols-2">
+      <div className="relative  z-20 grid w-full max-w-7xl grid-cols-1 items-center  gap-12 md:grid-cols-2">
         {/* LEFT — Typewriter */}
-        <div className="text-center md:text-left">
+        <div className="text-center mt-20 md:mt-0 md:ml-10 md:text-left">
           <div className="py-8 text-4xl font-bold sm:text-7xl">
             <span className="bg-gradient-to-b from-neutral-200 to-neutral-500 bg-clip-text text-transparent">
               <TypewriterEffectSmoothDemo />

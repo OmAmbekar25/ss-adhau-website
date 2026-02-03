@@ -37,7 +37,7 @@ export default function ServiceHero() {
           </div>
 
           {/* Right Visual Grid */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="hidden md:grid grid-cols-2 gap-6">
             <div className="relative aspect-square rounded-lg overflow-hidden">
               <Image
                 src="/images/consulting.jpg"

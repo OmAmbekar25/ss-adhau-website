@@ -151,7 +151,8 @@ export const metadata = {
 export default function ServicesPage() {
   return (
     <>
-      <ServiceHero />
+     <div className="overflow-x-hidden">
+       <ServiceHero />
       <div className="flex flex-col items-center mb-10 ">
          <h1 className="text-4xl md:text-5xl uppercase font-semibold text-slate-700">
           We Provide
@@ -193,6 +194,7 @@ export default function ServicesPage() {
       </div>
       {/* </div> */}
       <WhyChooseUs />
+     </div>
     </>
   );
 }

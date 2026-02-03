@@ -22,7 +22,7 @@ export function TypewriterEffectSmoothDemo() {
     },
   ];
   return (
-    <div className="flex flex-col mt-10 md:mt-0 items-center md:justify-center min-h-[60vh]  ">
+    <div className="flex  flex-col mt-10 md:mt-0 items-center md:justify-center min-h-[60vh]  ">
       <p className="text-neutral-600 dark:text-neutral-200 text-xl md:text-xl   ">
         Precision in assessment , Integrity in Value
       </p>

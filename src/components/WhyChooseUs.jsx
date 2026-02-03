@@ -13,7 +13,7 @@ export default function WhyChooseUs() {
             <div className="w-full flex justify-center ">
               <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
             </div>
-            <p className="text-lg max-w-xl leading-relaxed tracking-tight text-muted-foreground">
+            <p className="text-lg p-4 md:p-0 max-w-xl leading-relaxed tracking-tight text-muted-foreground">
               Trusted valuation professionals delivering accuracy, compliance,
               and timely insights across diverse asset classes.
             </p>
@@ -21,7 +21,7 @@ export default function WhyChooseUs() {
 
           {/* Features */}
           <div className="flex flex-col gap-10 pt-12 w-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div className="grid grid-cols-1 p-4 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
                 {
                   title: "Multi-Disciplinary Experts",

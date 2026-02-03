@@ -11,7 +11,7 @@ export default function AboutHero() {
       <div className="w-full flex justify-center mt-2">
         <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
       </div>
-      <p className="text-lg text-slate-500 text-center mt-2 max-w-7xl  mx-auto">
+      <p className="text-lg p-4 text-slate-500 text-center mt-2 max-w-7xl  mx-auto">
         SS Adhau Valuers is a professionally managed valuation firm providing
         accurate, compliant, and independent valuation services across diverse
         asset classes. Backed by certified registered valuers and strong domain
