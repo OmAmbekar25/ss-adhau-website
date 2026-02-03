@@ -31,7 +31,7 @@ export default function HomeContact() {
       {/* Contact Grid */}
       <div className="grid md:grid-cols-3 gap-10 mt-16 ">
         {/* Email */}
-        <div>
+        <div className="flex flex-col items-center">
           <svg className="text-indigo-500 bg-indigo-500/20 p-2.5 aspect-square rounded-full size-10" width="24"
                         height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -51,7 +51,7 @@ export default function HomeContact() {
         </div>
 
         {/* Office */}
-        <div>
+        <div  className="flex flex-col items-center">
            <svg className="text-indigo-500 bg-indigo-500/20 p-2.5 aspect-square rounded-full size-10" width="24"
                         height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -68,7 +68,7 @@ export default function HomeContact() {
         </div>
 
         {/* Call */}
-        <div>
+        <div  className="flex flex-col items-center">
           <svg className=" text-indigo-500 bg-indigo-500/20 p-2.5 aspect-square rounded-full size-10" width="21"
                         height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -80,7 +80,7 @@ export default function HomeContact() {
             Available during working hours for urgent valuation needs.
           </p>
           <span className="text-indigo-600 font-semibold">
-            +91 XXXXX XXXXX
+            +91 879300092
           </span>
         </div>
       </div>
