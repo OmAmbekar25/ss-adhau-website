@@ -24,7 +24,7 @@ export function GridBackgroundDemo() {
       {/* Content */}
       <div className="relative  z-20 grid w-full max-w-7xl grid-cols-1 items-center  gap-12 md:grid-cols-2">
         {/* LEFT — Typewriter */}
-        <div className="text-center mt-20 md:mt-0 md:ml-10 md:text-left">
+        <div className="text-center mt-20 md:mt-0 md:ml-14 xl:ml-32 md:text-left">
           <div className="py-8 text-4xl font-bold sm:text-7xl">
             <span className="bg-gradient-to-b from-neutral-200 to-neutral-500 bg-clip-text text-transparent">
               <TypewriterEffectSmoothDemo />
