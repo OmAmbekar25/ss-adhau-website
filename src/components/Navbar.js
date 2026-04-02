@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import SSAdhauLogo from "@/app/assets/images/SSAdhauBG.png";
+// import SSAdhauLogo from "@/app/assets/images/SSAdhauBG.png";
 const itemArray = [
   { title: "Home", url: "/" },
   { title: "Services", url: "/services" },
@@ -25,7 +25,7 @@ const Navbar = () => {
           {/* <Image src={SSAdhauLogo} width={160} height={40} className="w-16 lg:w-32 " alt="SSAdhau Logo" /> */}
           <Link href="/" className="flex items-center font-extrabold">
             <Image
-              src={SSAdhauLogo}
+              src="/images/SSAdhauBG.png"
               width={160}
               height={40}
               className="w-16 lg:w-32"
@@ -33,9 +33,9 @@ const Navbar = () => {
             />
           </Link>
           <div className="font-bold text-xs md:text-[8px] xl:text-base text-gray-700  ">
-            <p>Chartered Engineers | Registered Valuers</p>
-            <p>(IBBI & Income Tax Department) |</p>
-            <p>Architectural and Structural Consultants</p>
+            <p>| Chartered Engineers | Registered Valuers |</p>
+            <p className="text-center text-sm">(IBBI & Income Tax Department) </p>
+            <p>| Architectural and Structural Consultants |</p>
           </div>
         </div>
         <ul className="hidden md:flex flex-row justify-between items-center gap-20 sm:gap-8 md:gap-4 lg:gap-20 font-semibold ">

@@ -51,7 +51,7 @@ export default function ContactForm() {
 
           <p className="text-lg text-gray-600 mb-8 max-w-md">
             Have a valuation requirement or query?  
-            Our experts at <strong>SS Adhau Valuation</strong> are ready to help.
+            Our experts at <strong>S S Adhau Valuers and Engineers</strong> are ready to help.
           </p>
 
           {/* SUCCESS MESSAGE */}

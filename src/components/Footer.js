@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import SSAdhauLogo from "@/app/assets/images/SSAdhauBG.png";
+// import SSAdhauLogo from "@/app/assets/images/SSAdhauBG.png";
 
 export default function Footer() {
   return (
@@ -11,7 +11,7 @@ export default function Footer() {
         <div>
           <Link href="/" aria-label="Go to homepage">
             <Image
-              src={SSAdhauLogo}
+              src="/images/SSAdhauBG.png"
               alt="Company Logo"
               width={160}
               height={40}
@@ -72,7 +72,7 @@ export default function Footer() {
               </p>
 
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Panchtara+Society+Manish+Nagar+Nagpur"
+                href="https://maps.app.goo.gl/AJYYMS3F3ok3SajR6"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mt-1 text-brand-orange hover:underline text-xs"
@@ -89,7 +89,7 @@ export default function Footer() {
               </p>
 
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Jail+Bagicha+Complex+Chhindwara"
+                href="https://maps.app.goo.gl/dFv8YyStPMFaygpUA"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mt-1 text-brand-orange hover:underline text-xs"
