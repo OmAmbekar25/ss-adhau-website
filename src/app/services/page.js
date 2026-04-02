@@ -144,7 +144,7 @@ const services = [
 ];
 
 export const metadata = {
-  title: "Services | SS Adhau Valuers",
+  title: "Services | SS Adhau Valuers and Engineers",
   description: "Professional valuation services across India",
 };
 

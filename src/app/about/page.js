@@ -4,7 +4,7 @@ import TeamSection from "@/components/TeamSection";
 import TrustedCompaniesAbout from "@/components/TrustedCompaniesAbout";
 
 export const metadata = {
-  title: "About Us | SS Adhau Valuers",
+  title: "About Us | SS Adhau Valuers and Engineers",
   description: "Government registered valuation professionals",
 };
 

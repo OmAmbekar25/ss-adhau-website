@@ -22,18 +22,29 @@ const Navbar = () => {
       {/* desktop */}
       <div className="flex relative h-24 bg-gray-300 z-[100]   text-black md:text-lg flex-row justify-between px-6  sm:px-10 md:px-5 lg:px-5 py-3 items-center  ">
         <div className="text-primary flex  items-center  font-extrabold">
-          <Image src={SSAdhauLogo} width={160} height={40} className="w-16 lg:w-32 " alt="SSAdhau Logo" />
-          <div className="font-light text-xs md:text-[8px] xl:text-base text-gray-700  ">
-            <p>Chartered Engineers,Registered Valuers</p>
-            <p>
-              (IBBI & Income Tax Department)
-            </p>
+          {/* <Image src={SSAdhauLogo} width={160} height={40} className="w-16 lg:w-32 " alt="SSAdhau Logo" /> */}
+          <Link href="/" className="flex items-center font-extrabold">
+            <Image
+              src={SSAdhauLogo}
+              width={160}
+              height={40}
+              className="w-16 lg:w-32"
+              alt="SSAdhau Logo"
+            />
+          </Link>
+          <div className="font-bold text-xs md:text-[8px] xl:text-base text-gray-700  ">
+            <p>Chartered Engineers | Registered Valuers</p>
+            <p>(IBBI & Income Tax Department) |</p>
+            <p>Architectural and Structural Consultants</p>
           </div>
         </div>
         <ul className="hidden md:flex flex-row justify-between items-center gap-20 sm:gap-8 md:gap-4 lg:gap-20 font-semibold ">
           {itemArray.map((x, index) => {
             return (
-              <li key={index} className="hover:text-brand-orange md:text-lg duration-200">
+              <li
+                key={index}
+                className="hover:text-brand-orange md:text-lg duration-200"
+              >
                 <Link href={x.url}> {x.title}</Link>
               </li>
             );
@@ -41,14 +52,13 @@ const Navbar = () => {
         </ul>
         <div>
           <Link href={`/contact`}>
-          <button
-            type="button"
-            className="text-white hidden md:flex  bg-[#F85122] border-[1px] border-white hover:bg-[#f93e0a]  focus:ring-4 focus:outline-none  font-medium rounded-lg  px-1 md:px-4 py-2 text-center transition-all ease-in-out"
-          >
-            Get in touch
-          </button>
+            <button
+              type="button"
+              className="text-white hidden md:flex  bg-[#F85122] border-[1px] border-white hover:bg-[#f93e0a]  focus:ring-4 focus:outline-none  font-medium rounded-lg  px-1 md:px-4 py-2 text-center transition-all ease-in-out"
+            >
+              Get in touch
+            </button>
           </Link>
-
         </div>
         {
           <button onClick={handleClick} className="md:hidden">
@@ -99,7 +109,10 @@ const Navbar = () => {
           >
             {itemArray.map((x, index) => {
               return (
-                <li key={index} className="hover:text-brand-light duration-200 py-1 font-bold">
+                <li
+                  key={index}
+                  className="hover:text-brand-light duration-200 py-1 font-bold"
+                >
                   <Link href={x.url} onClick={handleClick}>
                     {" "}
                     {x.title}
@@ -109,7 +122,6 @@ const Navbar = () => {
             })}
           </ul>
         }
-
       </div>
     </>
   );

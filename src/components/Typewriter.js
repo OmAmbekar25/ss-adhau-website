@@ -4,7 +4,11 @@ import { TypewriterEffectSmooth } from "./ui/typewriter-effect";
 export function TypewriterEffectSmoothDemo() {
   const words = [
     {
-      text: "S S\u00A0",
+      text: "S \u00A0",
+      className: "text-brand-orange  dark:text-blue-500",
+    },
+    {
+      text: "S \u00A0",
       className: "text-brand-orange  dark:text-blue-500",
     },
     {

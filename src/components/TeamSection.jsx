@@ -1,12 +1,12 @@
 import Image from "next/image";
 
 const teamMembers = [
-  { name: "John Doe", role: "Content Marketing", img: "/images/user.jpg" },
-  { name: "Jane Smith", role: "SEO Specialist", img: "/images/user.jpg" },
-  { name: "Rahul Verma", role: "UI/UX Designer", img: "/images/user.jpg" },
-  { name: "Anita Patel", role: "Business Analyst", img: "/images/user.jpg" },
-  { name: "Amit Shah", role: "Project Manager", img: "/images/user.jpg" },
-  { name: "Neha Kulkarni", role: "Digital Strategist", img: "/images/user.jpg" },
+  { name: "Er. Sudhakar S. Adhau", role: "Associate & Principal Advisor", img: "/images/dummyuser.jpg" },
+  { name: "Er. Sunil Sudhakar Adhau", role: "Associate", img: "/images/dummyuser.jpg" },
+  { name: "Er. Nishigandha Sunil Adhau", role: "Associate", img: "/images/dummyuser.jpg" },
+  { name: "Er. Prateek Agrawal", role: "Associate", img: "/images/dummyuser.jpg" },
+  { name: "Er. Renuka Trivedi", role: "Associate", img: "/images/dummyuser.jpg" },
+  // { name: "Neha Kulkarni", role: "Digital Strategist", img: "/images/user.jpg" },
 ];
 
 export default function TeamSection() {
