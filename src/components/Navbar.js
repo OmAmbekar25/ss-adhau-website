@@ -32,9 +32,13 @@ const Navbar = () => {
               alt="SSAdhau Logo"
             />
           </Link>
-          <div className="font-bold text-xs md:text-[8px] xl:text-base text-gray-700  ">
+          <div className="font-bold text-xs md:text-[10px] xl:text-base text-gray-700">
             <p>| Chartered Engineers | Registered Valuers |</p>
-            <p className="text-center text-sm">(IBBI & Income Tax Department) </p>
+
+            <p className="text-center text-[10px] md:text-[9px] xl:text-sm font-medium text-gray-500">
+              (IBBI & Income Tax Department)
+            </p>
+
             <p>| Architectural and Structural Consultants |</p>
           </div>
         </div>
