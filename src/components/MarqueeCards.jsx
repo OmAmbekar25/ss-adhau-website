@@ -4,23 +4,27 @@ import Image from "next/image";
 const cardsData = [
   {
     image: "/images/user.jpg",
-    name: "Briar Martin",
+    name: "Priyanka Singh",
     handle: "@neilstellar",
+    review: "The office staff is knowledgeable and responsive."
   },
   {
     image: "/images/user.jpg",
-    name: "Avery Johnson",
+    name: "Prateek Agrawal",
     handle: "@averywrites",
+    review: "Good knowledge. Satisfactory work. Thank you for your service sir."
   },
   {
     image: "/images/user.jpg",
-    name: "Jordan Lee",
+    name: "Subhash Kamti",
     handle: "@jordantalks",
+    review:"Best valuer of chhindwara"
   },
   {
     image: "/images/user.jpg",
-    name: "Avery Johnson",
+    name: "Anukul Singh",
     handle: "@averywrites",
+    review:"Best"
   },
 ];
 
@@ -36,7 +40,7 @@ const Card = ({ card }) => {
           className="rounded-full"
         />
 
-        <div className="flex flex-col">
+        <div className="flex align-middle">
           <div className="flex items-center gap-1">
             <p className="font-medium text-md">{card.name}</p>
 
@@ -55,12 +59,12 @@ const Card = ({ card }) => {
             </svg>
           </div>
 
-          <span className="text-sm text-slate-500">{card.handle}</span>
+          {/* <span className="text-sm text-slate-500">{card.handle}</span> */}
         </div>
       </div>
 
       <p className="text-md py-4 text-gray-800">
-        Radiant made undercutting all of our competitors an absolute breeze.
+        {card.review}
       </p>
     </div>
   );
