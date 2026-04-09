@@ -22,11 +22,11 @@ He is also a Chartered Engineer, further reinforcing his expertise and credibili
     qualifications:
       "B.E. Civil, M.Sc. Real Estate Valuation, M.Sc. Plant & Machinery Valuation, A.M.I.E., A.I.V, C.Eng.",
     role: "Associate & Partner",
-    description: `Graduate in Civil Engineering from Nagpur University with Master's degrees in Real Estate and Plant & Machinery Valuation from Sardar Patel University.
+    description: `He is a Graduate in Civil Engineering from Nagpur University along with a Full time Master’s Degree in Real Estate Valuation  and Plant and Machinery Valuation from Sardar Patel University, Gujarat. He brings a strong academic foundation to the field of valuation and engineering.
 
-Registered Valuer (IBBI) under Companies Act, 2013 and Category I Valuer under Income Tax Department.
+He is a Member of the of the IOV Registered Valuer Foundation ( IOV RVF ). As a Registered Valuer ( Land & Building ) with the Insolvency and Bankruptcy Board of India (IBBI) under the Companies Act, 2013. He is also registered under Category I ( Immovable Properties ) with Department of Income Tax, Govt. Of India. Sunil possesses the legal and professional credentials to conduct valuations with precision and credibility. With deep expertise in valuation of structures, he has worked as an Independent Engineer for lenders, investors, and property owners, ensuring accurate assessments and strategic insights.
 
-Plays a key leadership role in managing operations and brings strong technical and technological expertise.`,
+In S.S. Adhau Valuers & Engineers, he plays a key leadership role in managing overall business operations. A tech-savvy professional, he leverages his technological expertise to enhance business efficiency and innovation in valuation practices.`,
     img: "/images/dummyuser.jpg",
   },
   {
@@ -48,9 +48,9 @@ As an Associate, she contributes to valuation processes, documentation, and anal
     name: "Er. Prateek Agrawal",
     qualifications: "B.E. Civil, M.Tech (Structural Engineering), C.Eng., M.I.O.V.",
     role: "Associate",
-    description: `Specialist in Structural Engineering with over 7 years of experience.
-
-Expert in structural analysis, design, and engineering asset evaluation. Chartered Engineer and Member of Institution of Valuers.`,
+    description: `Er. Prateek Agrawal is a qualified Civil Engineer with a specialization in Structural Engineering, holding a Master’s degree (M.Tech) in the field. He possesses strong technical expertise in structural analysis, design, and evaluation of engineering assets.
+He is a Chartered Engineer (C.Eng.) and a Member of the Institution of Valuers (IOV), reflecting his professional competence and commitment to industry standards.
+With over 7 years of professional experience, he has developed strong capabilities in structural assessment and valuation support, contributing to accurate, reliable, and regulation-compliant engineering solutions.`,
     img: "/images/dummyuser.jpg",
   },
 
@@ -59,9 +59,9 @@ Expert in structural analysis, design, and engineering asset evaluation. Charter
     name: "Ar. Renuka Trivedi",
     qualifications: "B.Arch.",
     role: "Associate",
-    description: `Experienced Architect with 6+ years of experience and 500+ completed projects.
-
-Specializes in residential, hospital, and flat scheme designs with strong focus on functionality and compliance.`,
+    description: `Ar. Renuka Trivedi is a qualified Architect with extensive experience in planning, design, and execution of diverse architectural projects. She brings a creative yet practical approach to design, ensuring functionality, aesthetics, and compliance with regulatory standards.
+With over 6 years of professional experience, she has successfully completed 500+ projects, demonstrating her efficiency, consistency, and strong project management capabilities.
+She specializes in the design and planning of flat schemes, hospitals, and residential bungalows, delivering well-optimized layouts and client-focused solutions. Her expertise contributes significantly to achieving high-quality architectural outcomes across a wide range of developments.`,
     img: "/images/dummyuser.jpg",
   },
 ];
