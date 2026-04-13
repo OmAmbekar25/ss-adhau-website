@@ -43,10 +43,10 @@ export default function HomeContact() {
             Get professional valuation assistance from our experts.
           </p>
           <a
-            href="mailto:contact@yourvaluationfirm.com"
+            href="mailto:ssadhauvaluers@gmail.com"
             className="text-indigo-600 font-semibold"
           >
-            contact@yourvaluationfirm.com
+            ssadhauvaluers@gmail.com
           </a>
         </div>
 
@@ -80,7 +80,7 @@ export default function HomeContact() {
             Available during working hours for urgent valuation needs.
           </p>
           <span className="text-indigo-600 font-semibold">
-            +91 879300092
+            +91 8793000929
           </span>
         </div>
       </div>

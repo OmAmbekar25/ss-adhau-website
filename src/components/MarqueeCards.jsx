@@ -3,25 +3,25 @@ import Image from "next/image";
 
 const cardsData = [
   {
-    image: "/images/user.jpg",
+    image: "/images/dummyuser.jpg",
     name: "Priyanka Singh",
     handle: "@neilstellar",
     review: "The office staff is knowledgeable and responsive."
   },
   {
-    image: "/images/user.jpg",
+    image: "/images/dummyuser.jpg",
     name: "Prateek Agrawal",
     handle: "@averywrites",
     review: "Good knowledge. Satisfactory work. Thank you for your service sir."
   },
   {
-    image: "/images/user.jpg",
+    image: "/images/dummyuser.jpg",
     name: "Subhash Kamti",
     handle: "@jordantalks",
     review:"Best valuer of chhindwara"
   },
   {
-    image: "/images/user.jpg",
+    image: "/images/dummyuser.jpg",
     name: "Anukul Singh",
     handle: "@averywrites",
     review:"Best"
