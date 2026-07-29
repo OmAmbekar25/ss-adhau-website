@@ -640,13 +640,16 @@ export function createReportScene(container, opts = {}) {
   };
 
   /* ---------------- render loop ---------------- */
-  const clock = new THREE.Clock();
+  /* THREE.Clock is deprecated in this three.js version and is the source
+     of the dev-mode issue badge. Plain timing needs no replacement API. */
+  const t0 = performance.now();
+  const elapsed = () => (performance.now() - t0) / 1000;
   let raf = 0;
   let running = false;
 
   const render = () => {
     raf = requestAnimationFrame(render);
-    const t = clock.getElapsedTime();
+    const t = elapsed();
 
     if (dirty) {
       applyProgress(progress);

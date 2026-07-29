@@ -442,7 +442,10 @@ export function createMap3D(container, { polyMP, polyMH, cityPts, labelEls }) {
   };
 
   /* ---------- render loop ---------- */
-  const clock = new THREE.Clock();
+  /* THREE.Clock is deprecated in this three.js version — plain timing
+     needs no replacement API. */
+  const t0 = performance.now();
+  const elapsed = () => (performance.now() - t0) / 1000;
   const labelV = new THREE.Vector3();
   let raf;
   let w = 1;
@@ -450,7 +453,7 @@ export function createMap3D(container, { polyMP, polyMH, cityPts, labelEls }) {
 
   const render = () => {
     raf = requestAnimationFrame(render);
-    const t = clock.getElapsedTime();
+    const t = elapsed();
 
     // beacon idle spin
     diamond.rotation.y = t * 1.2;

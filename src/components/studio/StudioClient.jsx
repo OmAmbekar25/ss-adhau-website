@@ -294,12 +294,18 @@ export default function StudioClient() {
     const fine = window.matchMedia("(pointer: fine)").matches;
     const onMove = (e) => {
       if (!ribbon) return;
-      ribbon.setPointer(
-        (e.clientX / window.innerWidth) * 2 - 1,
-        (e.clientY / window.innerHeight) * 2 - 1
-      );
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+      ribbon.setPointer(nx, ny);          // whole-scene parallax
+      ribbon.setMouse(nx, ny, true);      // local repulsion
     };
-    if (fine) window.addEventListener("pointermove", onMove, { passive: true });
+    const onOut = () => ribbon && ribbon.setMouse(0, 0, false);
+    /* Fine pointers only. §3.5 is explicit that touch gets nothing: a
+       finger occludes the effect and binding it would fight scrolling. */
+    if (fine) {
+      window.addEventListener("pointermove", onMove, { passive: true });
+      document.addEventListener("pointerleave", onOut);
+    }
 
     const onVis = () => {
       if (!ribbon) return;
@@ -312,6 +318,7 @@ export default function StudioClient() {
       if ("cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
       else clearTimeout(idleId);
       window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", onOut);
       document.removeEventListener("visibilitychange", onVis);
       ctx.revert();
       attachField(null);

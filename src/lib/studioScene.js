@@ -292,6 +292,8 @@ function buildFormations(n, F) {
 const VERT = /* glsl */ `
 uniform float uTime, uSize, uAmp, uDisperse, uDpr, uSilk;
 uniform float uVel, uVelSlow, uScatter;
+uniform vec2 uMouse;
+uniform float uMouseStrength, uRepelRadius;
 attribute float aRand, aEdge, aDrag, aStiff;
 attribute vec3 aNormalDir, aDrift;
 varying float vGlow, vTone;
@@ -354,6 +356,18 @@ void main() {
   float lag = mix(uVel, uVelSlow, aStiff) * aDrag * uScatter;
   p.x -= lag;
   p.y += sin(aRand * 97.0) * abs(uVel) * 0.06 * aDrag * uScatter;
+
+  /* §3.5 cursor repulsion — a soft crater, not a hole. Quadratic falloff
+     so the push is strong only near the pointer and feathers to nothing
+     at the radius; aDrag is reused so heavy dots move less than light
+     ones. Displacement is capped well under the radius: the cursor
+     disturbs the structure, it must never destroy it. */
+  vec2 d = p.xy - uMouse;
+  float r = length(d);
+  if (r < uRepelRadius && r > 0.0001) {
+    float f = smoothstep(uRepelRadius, 0.0, r);
+    p.xy += normalize(d) * f * f * uMouseStrength * aDrag;
+  }
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
@@ -485,6 +499,9 @@ export function createStudioScene(container, opts = {}) {
     uVel: { value: 0 },
     uVelSlow: { value: 0 },
     uScatter: { value: 0.55 },
+    uMouse: { value: new THREE.Vector2(999, 999) },
+    uMouseStrength: { value: 0 },
+    uRepelRadius: { value: 0.42 },
     uBright: { value: 1 },
     uColor: { value: new THREE.Color(opts.accent ?? 0x9db6cc) },
     uColor2: { value: new THREE.Color(opts.accent2 ?? 0xffd7a0) },
@@ -589,7 +606,30 @@ export function createStudioScene(container, opts = {}) {
     ptr.ty = y;
   };
 
-  const clock = new THREE.Clock();
+  /* The pointer in normalised device coords, unprojected onto the field's
+     mid-plane (z = 0) so repulsion happens in the same space the points
+     live in. Eased, never teleported — the wake closing behind the cursor
+     is half the effect. */
+  const ndc = new THREE.Vector3();
+  const mouseTarget = new THREE.Vector2(999, 999);
+  let hovering = false;
+  const setMouse = (nx, ny, inside) => {
+    hovering = !!inside;
+    if (!inside) return;
+    ndc.set(nx, -ny, 0.5).unproject(camera);
+    ndc.sub(camera.position).normalize();
+    const dist = -camera.position.z / ndc.z;
+    const world = ndc.multiplyScalar(dist).add(camera.position);
+    /* into the object's local space — the stage carries tilt and spin */
+    tilt.updateMatrixWorld();
+    const local = tilt.worldToLocal(world.clone());
+    mouseTarget.set(local.x, local.y);
+  };
+
+  /* THREE.Clock is deprecated in this three.js version and is the source
+     of the dev-mode issue badge. Plain timing needs no replacement API. */
+  const t0 = performance.now();
+  const elapsed = () => (performance.now() - t0) / 1000;
   const BASE_SPIN = (Math.PI * 2) / 82;
   let spinAngle = 0;
   let lastT = 0;
@@ -597,7 +637,7 @@ export function createStudioScene(container, opts = {}) {
   let running = false;
 
   const step = (animate) => {
-    const t = clock.getElapsedTime();
+    const t = elapsed();
     const dt = Math.min(0.05, t - lastT);
     lastT = t;
     if (dirty) {
@@ -628,6 +668,18 @@ export function createStudioScene(container, opts = {}) {
     uniforms.uVel.value = lerp(uniforms.uVel.value, velTarget, 0.1);
     uniforms.uVelSlow.value = lerp(uniforms.uVelSlow.value, velTarget, 0.035);
     uniforms.uScatter.value = lerp(uniforms.uScatter.value, mode > 0.5 ? 0.55 : 0.12, 0.05);
+
+    /* repulsion easing: in over ~0.25s, out over ~0.6s */
+    const mv = uniforms.uMouse.value;
+    if (hovering) {
+      mv.x = lerp(mv.x > 100 ? mouseTarget.x : mv.x, mouseTarget.x, 0.12);
+      mv.y = lerp(mv.y > 100 ? mouseTarget.y : mv.y, mouseTarget.y, 0.12);
+    }
+    uniforms.uMouseStrength.value = lerp(
+      uniforms.uMouseStrength.value,
+      hovering ? 0.19 : 0,
+      hovering ? 0.13 : 0.055
+    );
     ptr.x = lerp(ptr.x, ptr.tx, 0.022);
     ptr.y = lerp(ptr.y, ptr.ty, 0.022);
 
@@ -662,7 +714,14 @@ export function createStudioScene(container, opts = {}) {
   const resize = () => {
     const w = container.clientWidth || window.innerWidth;
     const h = container.clientHeight || window.innerHeight;
-    renderer.setSize(w, h, false);
+    /* The third argument must NOT be false. With updateStyle off, three.js
+       leaves the canvas element unsized in CSS, so it displays at its
+       drawing-buffer size — viewport x devicePixelRatio. At DPR 1.75 that
+       is a 2240x1260 element in a 1280x720 window, anchored top-left and
+       overflowing 960px right and 540px down, which puts the scene's
+       centre at ~87%/87%: the bottom-right drift reported from a Mac and
+       invisible in any DPR-1 test. */
+    renderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   };
@@ -677,6 +736,7 @@ export function createStudioScene(container, opts = {}) {
     setSlide,
     setVelocity,
     setPointer,
+    setMouse,
     resume,
     pause,
     renderOnce: () => step(false),
