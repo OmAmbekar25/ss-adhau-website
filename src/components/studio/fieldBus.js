@@ -7,12 +7,15 @@
  * it can be: one setter, one command, no state.
  */
 
-let field = null;
+let fieldRef = null;
 
 export const attachField = (scene) => {
-  field = scene;
+  fieldRef = scene;
 };
 
 export const story = (s) => {
-  if (field) field.setStory(s);
+  if (fieldRef) fieldRef.setStory(s);
 };
+
+/* the identity beat needs more than one command, so it takes the scene */
+export const field = () => fieldRef;

@@ -2,6 +2,7 @@ import Link from "next/link";
 import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
 import StudioJourney from "@/components/studio/StudioJourney";
+import StudioIdentity from "@/components/studio/StudioIdentity";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -258,6 +259,8 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </ul>
           </div>
         </section>
+
+        <StudioIdentity />
 
         {/* ------------------------ 5.6 PROOF ------------------------- */}
         <section className="er-section" aria-labelledby="er-proof">

@@ -242,11 +242,57 @@ function buildPage(n, out) {
   fillSegments(n, out, segs);
 }
 
+/* --------------------------------------------------------- formations */
+/* The identity beat's four slides. Same points as everything else — the
+   ribbon condenses into these and re-forms afterwards. */
+
+function buildFormations(n, F) {
+  const r = rng(5150);
+  // 1 — tight luminous disc, left of centre
+  for (let i = 0; i < n; i++) {
+    const a = r() * Math.PI * 2;
+    const rad = Math.sqrt(r()) * 1.15;
+    F[0][i * 3] = -1.0 + Math.cos(a) * rad;
+    F[0][i * 3 + 1] = Math.sin(a) * rad;
+    F[0][i * 3 + 2] = (r() - 0.5) * 0.22;
+  }
+  // 2 — dense core with a thin orbiting halo, right of centre
+  for (let i = 0; i < n; i++) {
+    const core = r() < 0.62;
+    const a = r() * Math.PI * 2;
+    const rad = core ? Math.sqrt(r()) * 0.52 : 1.72 + r() * 0.16;
+    F[1][i * 3] = 1.0 + Math.cos(a) * rad;
+    F[1][i * 3 + 1] = Math.sin(a) * rad * (core ? 1 : 0.86);
+    F[1][i * 3 + 2] = (r() - 0.5) * (core ? 0.4 : 0.12);
+  }
+  // 3 — a constellation clustered around five label positions
+  const anchors = [
+    [-2.25, 0.55], [-1.05, -0.45], [0.15, 0.6], [1.35, -0.35], [2.35, 0.4],
+  ];
+  for (let i = 0; i < n; i++) {
+    const a = anchors[i % anchors.length];
+    F[2][i * 3] = a[0] + (r() - 0.5) * 0.9;
+    F[2][i * 3 + 1] = a[1] + (r() - 0.5) * 0.62;
+    F[2][i * 3 + 2] = (r() - 0.5) * 0.7;
+  }
+  // 4 — a stream pouring rightward and down, the exit ramp
+  for (let i = 0; i < n; i++) {
+    const t = r();
+    const x = -2.4 + t * 5.0;
+    const y = 1.15 - t * t * 2.6;
+    const spread = 0.12 + t * 0.55;
+    F[3][i * 3] = x + (r() - 0.5) * spread;
+    F[3][i * 3 + 1] = y + (r() - 0.5) * spread * 0.8;
+    F[3][i * 3 + 2] = (r() - 0.5) * spread;
+  }
+}
+
 /* ------------------------------------------------------------- shaders */
 
 const VERT = /* glsl */ `
 uniform float uTime, uSize, uAmp, uDisperse, uDpr, uSilk;
-attribute float aRand, aEdge;
+uniform float uVel, uVelSlow, uScatter;
+attribute float aRand, aEdge, aDrag, aStiff;
 attribute vec3 aNormalDir, aDrift;
 varying float vGlow, vTone;
 
@@ -302,13 +348,22 @@ void main() {
   p += aNormalDir * n * uAmp * uSilk;
   p += aDrift * uDisperse * (0.6 + aRand * 1.6);
 
+  /* Velocity coupling: each dot lags by its own aDrag, and settles at its
+     own rate — aStiff mixes between the fast and slow smoothed velocity,
+     so they neither smear nor return in unison. */
+  float lag = mix(uVel, uVelSlow, aStiff) * aDrag * uScatter;
+  p.x -= lag;
+  p.y += sin(aRand * 97.0) * abs(uVel) * 0.06 * aDrag * uScatter;
+
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
-  gl_PointSize = uSize * uDpr * (0.62 + 0.85 * aRand) * (6.0 / max(0.5, -mv.z));
+  /* the sprite stretches with speed — motion blur without a post pass */
+  gl_PointSize = uSize * uDpr * (0.62 + 0.85 * aRand)
+    * (1.0 + abs(uVel) * 1.5) * (6.0 / max(0.5, -mv.z));
 
   float lum = 0.12 + 1.5 * aRand;
   float weave = 0.35 + 0.65 * smoothstep(-0.8, 0.85, n);
-  vGlow = lum * mix(0.9, weave, uSilk) * mix(1.0, aEdge, uSilk);
+  vGlow = lum * mix(0.9, weave, uSilk) * mix(1.0, aEdge, uSilk) * (1.0 + abs(uVel) * 0.35);
   vTone = clamp(aRand * 1.5 + n * 0.25, 0.0, 1.0);
 }
 `;
@@ -357,12 +412,16 @@ export function createStudioScene(container, opts = {}) {
   const drift = new Float32Array(count * 3);
   const rand = new Float32Array(count);
   const edge = new Float32Array(count);
+  const dragA = new Float32Array(count);
+  const stiffA = new Float32Array(count);
+  const FORM = [0, 1, 2, 3].map(() => new Float32Array(count * 3));
 
   buildRibbon(count, RIBBON, nrm, edge, rand, threads, per);
   buildTornado(count, TORNADO, threads, per);
   buildSite(count, SITE);
   buildLattice(count, LATTICE);
   buildPage(count, PAGE);
+  buildFormations(count, FORM);
 
   /* Every form is centred on its own mass. The survey geometry was
      authored on a ground plane and the report as a standing sheet, so a
@@ -394,6 +453,8 @@ export function createStudioScene(container, opts = {}) {
     drift[i * 3 + 2] = dz;
     wPhase[i] = r() * Math.PI * 2;
     wRate[i] = 0.075 + r() * 0.14;
+    dragA[i] = 0.4 + r() * 1.2;   // how far this dot trails the motion
+    stiffA[i] = r();              // how slowly it settles back
   }
 
   /* the ordered spine the whole page travels along */
@@ -411,6 +472,8 @@ export function createStudioScene(container, opts = {}) {
   geo.setAttribute("aDrift", new THREE.BufferAttribute(drift, 3));
   geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
   geo.setAttribute("aEdge", new THREE.BufferAttribute(edge, 1));
+  geo.setAttribute("aDrag", new THREE.BufferAttribute(dragA, 1));
+  geo.setAttribute("aStiff", new THREE.BufferAttribute(stiffA, 1));
 
   const uniforms = {
     uTime: { value: 0 },
@@ -419,6 +482,9 @@ export function createStudioScene(container, opts = {}) {
     uDisperse: { value: 0 },
     uDpr: { value: Math.min(window.devicePixelRatio, 1.75) },
     uSilk: { value: 0.55 },
+    uVel: { value: 0 },
+    uVelSlow: { value: 0 },
+    uScatter: { value: 0.55 },
     uBright: { value: 1 },
     uColor: { value: new THREE.Color(opts.accent ?? 0x9db6cc) },
     uColor2: { value: new THREE.Color(opts.accent2 ?? 0xffd7a0) },
@@ -451,6 +517,9 @@ export function createStudioScene(container, opts = {}) {
 
   let story = 0;
   let disperse = 0;
+  let mode = 0;          // 0 = story spine, 1 = identity formations
+  let slide = 0;         // position along the four formations
+  let velTarget = 0;
   let dirty = true;
   let wander = 0.06;
   const ptr = { tx: 0, ty: 0, x: 0, y: 0 };
@@ -465,7 +534,21 @@ export function createStudioScene(container, opts = {}) {
     else if (t >= 1) base.set(B);
     else for (let k = 0; k < count * 3; k++) base[k] = A[k] + (B[k] - A[k]) * t;
 
-    uniforms.uSilk.value = lerp(SILK[i], SILK[i + 1], t);
+    /* the identity beat borrows the same points: blend the story form
+       toward the current formation pair rather than mounting anything new */
+    if (mode > 0) {
+      const fi = Math.min(FORM.length - 2, Math.floor(slide));
+      const ft = clamp01(slide - fi);
+      const Fa = FORM[fi];
+      const Fb = FORM[fi + 1];
+      const m = sstep(clamp01(mode));
+      for (let k = 0; k < count * 3; k++) {
+        const f = Fa[k] + (Fb[k] - Fa[k]) * ft;
+        base[k] += (f - base[k]) * m;
+      }
+    }
+
+    uniforms.uSilk.value = lerp(SILK[i], SILK[i + 1], t) * (1 - clamp01(mode));
     /* the document has to stay legible, so the wander dies as it forms */
     wander = lerp(0.06, 0.012, clamp01((s - 1.4) / 1.6));
   };
@@ -488,6 +571,18 @@ export function createStudioScene(container, opts = {}) {
   };
   const setDisperse = (v) => {
     disperse = clamp01(v);
+  };
+  /* identity beat: 0 = the page's own spine, 1 = the slide formations */
+  const setMode = (m) => {
+    mode = clamp01(m);
+    dirty = true;
+  };
+  const setSlide = (v) => {
+    slide = Math.max(0, Math.min(FORM.length - 1, v));
+    dirty = true;
+  };
+  const setVelocity = (v) => {
+    velTarget = Math.max(-1, Math.min(1, v));
   };
   const setPointer = (x, y) => {
     ptr.tx = x;
@@ -528,6 +623,11 @@ export function createStudioScene(container, opts = {}) {
     geo.attributes.position.needsUpdate = true;
 
     uniforms.uDisperse.value = disperse;
+    /* two smoothing rates: the fast one is the smear, the slow one is the
+       settle. Per-particle aStiff mixes between them. */
+    uniforms.uVel.value = lerp(uniforms.uVel.value, velTarget, 0.1);
+    uniforms.uVelSlow.value = lerp(uniforms.uVelSlow.value, velTarget, 0.035);
+    uniforms.uScatter.value = lerp(uniforms.uScatter.value, mode > 0.5 ? 0.55 : 0.12, 0.05);
     ptr.x = lerp(ptr.x, ptr.tx, 0.022);
     ptr.y = lerp(ptr.y, ptr.ty, 0.022);
 
@@ -573,6 +673,9 @@ export function createStudioScene(container, opts = {}) {
   return {
     setStory,
     setDisperse,
+    setMode,
+    setSlide,
+    setVelocity,
     setPointer,
     resume,
     pause,

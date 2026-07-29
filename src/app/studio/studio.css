@@ -901,3 +901,96 @@
     transition: none;
   }
 }
+
+/* ---------------- §5.6 identity: the horizontal beat ----------------- */
+.er-visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.er-idsec { padding-bottom: 0; }
+.er-idwrap { display: none; }
+@media (min-width: 901px) {
+  .er-idwrap { display: block; height: 400svh; }
+  .er-idstatic { display: none; }
+}
+.er-idpin {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+.er-idtrack {
+  display: flex;
+  height: 100%;
+  width: 400vw;
+  will-change: transform;
+}
+.er-idslide {
+  position: relative;
+  flex: 0 0 100vw;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  padding: 0 var(--gutter);
+  text-align: center;
+}
+.er-id__head { max-width: 15em; margin: 0 auto; }
+.er-id__caps,
+.er-id__constellation {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px clamp(20px, 3vw, 52px);
+}
+.er-id__constellation { margin-top: 28px; }
+.er-id__constellation li:nth-child(2n) { transform: translateY(-14px); }
+.er-id__constellation li:nth-child(3n) { transform: translateY(18px); }
+.er-idprog {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(28px, 5vh, 56px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.er-idprog__bar {
+  display: block;
+  width: 200px;
+  height: 1px;
+  background: var(--hairline);
+  position: relative;
+}
+.er-idprog__bar i {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.er-idprog__n { color: var(--ink-dim); }
+
+/* stacked fallback */
+.er-idlist {
+  list-style: none;
+  margin: clamp(40px, 6vh, 72px) 0 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(36px, 5vh, 56px);
+}
+.er-idlist__h {
+  margin: 14px 0 10px;
+  font-size: clamp(24px, 4vw, 40px);
+  line-height: 1.1;
+  color: var(--ink);
+}
+.er-idlist li .er-body { color: var(--ink-dim); }
