@@ -240,18 +240,21 @@ function ScrollJourney() {
       </div>
 
       <style jsx global>{`
+        /* Anchored under the copy rather than drawn across the whole left
+           half. The old full-height curtain muted the left side of the
+           field, which made a centred field read as pushed to the right. */
         .vj-scrim {
           background:
-            linear-gradient(
-              100deg,
-              rgba(7, 6, 6, 0.86) 0%,
-              rgba(7, 6, 6, 0.5) 34%,
-              transparent 62%
+            radial-gradient(
+              82% 62% at 4% 82%,
+              rgba(7, 6, 6, 0.95) 0%,
+              rgba(7, 6, 6, 0.66) 40%,
+              transparent 72%
             ),
             linear-gradient(
               to top,
-              rgba(7, 6, 6, 0.9) 0%,
-              transparent 38%
+              rgba(7, 6, 6, 0.82) 0%,
+              transparent 24%
             );
         }
         .vj-in {
