@@ -98,8 +98,11 @@ export default function StudioPage() {
           decides whether this visit gets the loader. Doing it here rather
           than on hydration is what stops the page flashing fully-revealed
           and then hiding itself. No JS → no class → finished static page.
-          The timeout is a failsafe: if hydration never happens, the loader
-          must not be able to trap the document. */}
+          The timeout is a failsafe against a broken hydration trapping the
+          document behind the overlay — but it must not fire while the
+          loader is legitimately running. It checks a flag the client sets
+          when it takes over, so a slow first compile no longer eats the
+          animation. */}
       <script
         dangerouslySetInnerHTML={{
           __html: `(function(){try{
@@ -108,7 +111,9 @@ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 h.classList.add('er-js');
 var seen=false;try{seen=sessionStorage.getItem('er-seen')==='1'}catch(e){}
 if(!seen){h.classList.add('er-loading');
-setTimeout(function(){h.classList.remove('er-loading')},2500);}
+setTimeout(function(){
+if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
+},6000);}
 }catch(e){}})()`,
         }}
       />

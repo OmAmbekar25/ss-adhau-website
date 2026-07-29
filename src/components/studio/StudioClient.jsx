@@ -283,6 +283,9 @@ export default function StudioClient() {
       };
 
       if (html.classList.contains("er-loading") && loader) {
+        /* Tell the pre-paint failsafe to stand down: the loader is running
+           for real, and a slow first compile must not cut it short. */
+        html.setAttribute("data-er-loader", "run");
         const mark = loader.querySelector("[data-mark]");
         const counter = { v: 0 };
         const done = () => {
