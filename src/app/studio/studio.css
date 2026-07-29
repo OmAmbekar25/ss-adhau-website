@@ -428,11 +428,9 @@
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: var(--bg-deep);
-}
-.er-jgl {
-  position: absolute;
-  inset: 0;
+  /* transparent: the page's one field lives behind everything now, and a
+     background here would hide the very thing this section is about */
+  background: transparent;
 }
 .er-jscrim {
   position: absolute;

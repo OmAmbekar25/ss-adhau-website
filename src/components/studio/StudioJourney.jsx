@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import valuationBeats from "@/data/valuationBeats";
+import { story } from "./fieldBus";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -11,16 +12,9 @@ if (typeof window !== "undefined") {
 
 const N = valuationBeats.length;
 
-/* The same scene as the homepage journey, in this page's palette: cool
-   steel for the field, warm gold for the accents, matching the ribbon.
-   One geometry, two dressings. */
-const STUDIO_PALETTE = {
-  ink: 0xb9c6d4,      // the field: cool steel
-  accent: 0xffd7a0,   // accents: warm, the same gold as the ribbon
-  draw: 0xdce5ee,     // drawn line work
-  hot: 0xffe9c6,      // the level line and the seal's impression
-  bg: 0x06080b,
-};
+/* The journey no longer owns a scene. The page has one field (see
+   lib/studioScene.js) and this section simply walks it along its spine:
+   ribbon -> site -> lattice -> page, through fieldBus. */
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 const subRM = (cb) => {
@@ -34,7 +28,6 @@ export default function StudioJourney() {
   const reduced = useSyncExternalStore(subRM, getRM, () => false);
   const wrapRef = useRef(null);
   const pinRef = useRef(null);
-  const glRef = useRef(null);
   const [active, setActive] = useState(0);
   const activeRef = useRef(0);
 
@@ -43,67 +36,29 @@ export default function StudioJourney() {
     const mm = gsap.matchMedia();
 
     mm.add("(min-width: 768px)", () => {
-      let scene = null;
-      let st = null;
-      let io = null;
-      let dead = false;
-      const el = pinRef.current;
-
-      const onPointer = (e) => {
-        if (!scene) return;
-        const r = el.getBoundingClientRect();
-        scene.setPointer(
-          ((e.clientX - r.left) / r.width) * 2 - 1,
-          ((e.clientY - r.top) / r.height) * 2 - 1
-        );
-      };
-      const onLeave = () => scene && scene.setPointer(0, 0);
-
-      import("@/lib/reportScene").then(({ createReportScene }) => {
-        if (dead || !glRef.current) return;
-        scene = createReportScene(glRef.current, STUDIO_PALETTE);
-        if (!scene) return; // no WebGL — the static list below stands in
-
-        el.addEventListener("pointermove", onPointer, { passive: true });
-        el.addEventListener("pointerleave", onLeave, { passive: true });
-
-        /* Two WebGL scenes live on this page. This one only runs while it
-           is on screen, and the ribbon behind it is parked at the same
-           time (see StudioClient), so they are never both drawing. */
-        io = new IntersectionObserver(
-          ([entry]) => (entry.isIntersecting ? scene.resume() : scene.pause()),
-          { threshold: 0 }
-        );
-        io.observe(el);
-
-        st = ScrollTrigger.create({
-          trigger: wrapRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          pin: pinRef.current,
-          onUpdate: (self) => {
-            const p = self.progress;
-            scene.setProgress(p);
-            const idx = Math.min(N - 1, Math.floor(p * N + 0.18));
-            if (idx !== activeRef.current) {
-              activeRef.current = idx;
-              setActive(idx);
-            }
-          },
-        });
-        ScrollTrigger.refresh();
+      const st = ScrollTrigger.create({
+        trigger: wrapRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        pin: pinRef.current,
+        onUpdate: (self) => {
+          const p = self.progress;
+          /* 1 = ribbon, 4 = the signed page. Compressed into the first
+             82% of the scroll so the page is fully formed by the time the
+             copy says certification — otherwise the caption arrives while
+             the field is still halfway between lattice and sheet. */
+          story(1 + 3 * Math.min(1, p / 0.82));
+          const idx = Math.min(N - 1, Math.floor(p * N + 0.18));
+          if (idx !== activeRef.current) {
+            activeRef.current = idx;
+            setActive(idx);
+          }
+        },
+        onLeave: () => story(1),
+        onLeaveBack: () => story(1),
       });
-
-      return () => {
-        dead = true;
-        if (st) st.kill();
-        if (io) io.disconnect();
-        if (el) {
-          el.removeEventListener("pointermove", onPointer);
-          el.removeEventListener("pointerleave", onLeave);
-        }
-        if (scene) scene.dispose();
-      };
+      ScrollTrigger.refresh();
+      return () => st.kill();
     });
 
     return () => mm.revert();
@@ -117,7 +72,6 @@ export default function StudioJourney() {
       {!reduced && (
         <div ref={wrapRef} className="er-jwrap">
           <div ref={pinRef} className="er-jpin">
-            <div ref={glRef} aria-hidden="true" className="er-jgl" />
             <div className="er-jscrim" aria-hidden="true" />
 
             <div className="er-jcopy">

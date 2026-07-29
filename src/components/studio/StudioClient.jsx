@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { attachField } from "./fieldBus";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -13,18 +14,11 @@ const ENTER = "power4.out"; // the expo-like entrance curve
 const GLOW = 0x9db6cc;
 const GLOW_WARM = 0xffd7a0;
 
-/* Ribbon states (§3.2). Targets only — the scene eases toward them. */
-const RIBBON = {
-  hero: { camX: -0.18, camZ: 7.4, rotX: 0.4, bright: 0.62, disperse: 0 },
-  manifesto: { camX: 1.7, camZ: 9.1, rotX: 0.54, bright: 0.3, disperse: 0 },
-  journey: { camX: -2.1, camZ: 8.6, rotX: 0.32, bright: 0.36, disperse: 0 },
-  rows: { camX: 0, camZ: 10.2, rotX: 1.3, bright: 0.24, disperse: 0 },
-  close: { camX: 0, camZ: 8.2, rotX: 0.42, bright: 0.5, disperse: 1 },
-};
+/* Where each section sits on the field's spine (see lib/studioScene.js):
+   0 tornado · 1 ribbon · 2 site · 3 lattice · 4 page. Everything outside
+   the method section rests at the ribbon; the method section walks it. */
+const STORY_REST = 1;
 
-/* Denser than the brief's 25–45k: the weave wanted more thread to read as
-   cloth rather than gauze. Still one draw call, still DPR-capped, still
-   scaled down hard on smaller machines. */
 function particleCount() {
   const w = window.innerWidth;
   if (w >= 1280) return 64000;
@@ -54,12 +48,12 @@ export default function StudioClient() {
       if (!ribbon || introPlayed) return;
       introPlayed = true;
       const form = { v: 0 };
-      ribbon.setForm(0);
+      ribbon.setStory(0);
       gsap.to(form, {
-        v: 1,
+        v: STORY_REST,
         duration: 5.2,
         ease: "power2.inOut",
-        onUpdate: () => ribbon && ribbon.setForm(form.v),
+        onUpdate: () => ribbon && ribbon.setStory(form.v),
       });
     };
 
@@ -68,24 +62,25 @@ export default function StudioClient() {
        before the scene exists, and skipped entirely without WebGL.
        --------------------------------------------------------------- */
     const mountRibbon = () => {
-      import("@/lib/ribbonScene")
-        .then(({ createRibbon }) => {
+      import("@/lib/studioScene")
+        .then(({ createStudioScene }) => {
           if (dead || !canvasRef.current) return;
-          ribbon = createRibbon(canvasRef.current, {
+          ribbon = createStudioScene(canvasRef.current, {
             count: particleCount(),
             accent: GLOW,
             accent2: GLOW_WARM,
+            bg: 0x06080b,
           });
           if (!ribbon) return; // no WebGL — pure typography, as specified
+          attachField(ribbon);
 
           canvasRef.current.dataset.ready = "true";
-          ribbon.setState(RIBBON.hero);
           if (reduced) {
-            ribbon.setForm(1); // no funnel — the settled ribbon, one frame
+            ribbon.setStory(STORY_REST); // no funnel — the settled ribbon
             ribbon.renderOnce();
           } else {
             ribbon.resume();
-            if (introPlayed) ribbon.setForm(1);
+            if (introPlayed) ribbon.setStory(STORY_REST);
             else playIntro();
           }
         })
@@ -239,54 +234,19 @@ export default function StudioClient() {
         });
       }
 
-      /* ------------------- ribbon scroll states -------------------- */
-      const bind = (selector, state) => {
-        const el = document.querySelector(selector);
-        if (!el) return;
+      /* The closing dissolution is the only other thing that touches the
+         field — the section-by-section camera states are gone, because
+         there is now one field and one spine rather than a scene being
+         repositioned per section. */
+      const closing = document.querySelector("[data-disperse]");
+      if (closing) {
         ScrollTrigger.create({
-          trigger: el,
-          start: "top 60%",
-          end: "bottom 40%",
-          onToggle: (self) => {
-            if (self.isActive && ribbon) ribbon.setState(state);
-          },
-          onEnter: () => ribbon && ribbon.setState(state),
-          onEnterBack: () => ribbon && ribbon.setState(state),
-        });
-      };
-      bind(".er-hero", RIBBON.hero);
-      bind(".er-manifesto", RIBBON.manifesto);
-      bind("[data-journey]", RIBBON.journey);
-
-      /* The journey draws its own full-screen, opaque scene. While it is on
-         screen the ribbon is invisible behind it, so park it rather than
-         paying for two WebGL scenes at once. */
-      const journeySec = document.querySelector("[data-journey]");
-      if (journeySec) {
-        ScrollTrigger.create({
-          trigger: journeySec,
-          start: "top 90%",
-          end: "bottom 10%",
-          onToggle: (self) => {
-            /* Fade the ribbon out before parking it. Pausing alone left it
-               on screen, so during the handover two separate particle
-               fields were visible at once — one upper right, one lower
-               left. Only ever one field in frame. */
-            const c = canvasRef.current;
-            if (c) c.style.opacity = self.isActive ? "0" : "1";
-            if (!ribbon) return;
-            if (self.isActive) {
-              gsap.delayedCall(1.2, () => {
-                if (ribbon && c && c.style.opacity === "0") ribbon.pause();
-              });
-            } else if (!document.hidden) {
-              ribbon.resume();
-            }
-          },
+          trigger: closing,
+          start: "top 70%",
+          end: "bottom bottom",
+          onUpdate: (self) => ribbon && ribbon.setDisperse(self.progress),
         });
       }
-      bind(".er-rows", RIBBON.rows);
-      bind("[data-disperse]", RIBBON.close);
 
       /* ---------------------- loader, then hero -------------------- */
       const loader = document.querySelector("[data-loader]");
@@ -354,6 +314,7 @@ export default function StudioClient() {
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("visibilitychange", onVis);
       ctx.revert();
+      attachField(null);
       if (ribbon) ribbon.dispose();
     };
   }, []);
