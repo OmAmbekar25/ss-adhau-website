@@ -93,13 +93,11 @@ setTimeout(function(){h.classList.remove('er-loading')},2500);}
         Skip to content
       </a>
 
+      {/* The mark fills as the page loads. The logo is used as a mask, so
+          only its silhouette survives — the page stays monochrome and the
+          fill can be a single moving edge rather than a bar beside it. */}
       <div className="er-loader" data-loader>
-        <p className="er-label er-label--faint">
-          <span data-count>00</span> — 100
-        </p>
-        <span className="er-loader__bar">
-          <i data-bar />
-        </span>
+        <span className="er-loader__mark" data-mark aria-hidden="true" />
       </div>
 
       <StudioClient />

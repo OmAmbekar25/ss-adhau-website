@@ -311,8 +311,7 @@ export default function StudioClient() {
       };
 
       if (html.classList.contains("er-loading") && loader) {
-        const num = loader.querySelector("[data-count]");
-        const bar = loader.querySelector("[data-bar]");
+        const mark = loader.querySelector("[data-mark]");
         const counter = { v: 0 };
         const done = () => {
           html.classList.remove("er-loading");
@@ -323,16 +322,15 @@ export default function StudioClient() {
         };
         gsap
           .timeline({ onComplete: done })
+          /* the waterline rises through the mark */
           .to(counter, {
             v: 100,
-            duration: 1.1,
+            duration: 1.0,
             ease: "power2.inOut",
             onUpdate: () => {
-              if (num)
-                num.textContent = String(Math.round(counter.v)).padStart(2, "0");
+              if (mark) mark.style.setProperty("--p", `${counter.v.toFixed(1)}%`);
             },
           })
-          .to(bar, { scaleX: 1, duration: 1.1, ease: "none" }, 0)
           .to(loader, {
             clipPath: "inset(0 0 100% 0)",
             duration: 0.8,
