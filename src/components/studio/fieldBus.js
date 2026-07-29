@@ -8,9 +8,24 @@
  */
 
 let fieldRef = null;
+const waiting = new Set();
 
 export const attachField = (scene) => {
   fieldRef = scene;
+  waiting.forEach((cb) => cb(scene));
+  waiting.clear();
+};
+
+/* The scene is mounted on an idle callback, so a section that needs to
+   hand it measurements can easily be ready first. This fires immediately
+   if the field is already up, and once on attach otherwise. */
+export const onField = (cb) => {
+  if (fieldRef) {
+    cb(fieldRef);
+    return () => {};
+  }
+  waiting.add(cb);
+  return () => waiting.delete(cb);
 };
 
 export const story = (s) => {

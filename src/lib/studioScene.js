@@ -242,48 +242,56 @@ function buildPage(n, out) {
   fillSegments(n, out, segs);
 }
 
-/* --------------------------------------------------------- formations */
-/* The identity beat's four slides. Same points as everything else — the
-   ribbon condenses into these and re-forms afterwards. */
+/* --------------------------------------------------------- the band */
+/* The trusted-by beat's form: one loose horizontal band running the length
+   of the logo strip, with a denser knot behind each card. The same points
+   as everything else — the ribbon condenses into this and re-forms after.
 
-function buildFormations(n, F) {
+   `anchors` are the card centres in world x, measured from the DOM. They
+   arrive on mount and on resize, never per frame; the strip's travel is a
+   single offset applied at blend time, so a knot stays behind its own card
+   for the whole traverse without rebuilding anything. */
+
+const KNOT = 0.72; // share of the field pulled into the card knots
+
+function buildBand(n, B, anchors, knotR, centreY) {
   const r = rng(5150);
-  // 1 — tight luminous disc, left of centre
-  for (let i = 0; i < n; i++) {
-    const a = r() * Math.PI * 2;
-    const rad = Math.sqrt(r()) * 1.15;
-    F[0][i * 3] = -1.0 + Math.cos(a) * rad;
-    F[0][i * 3 + 1] = Math.sin(a) * rad;
-    F[0][i * 3 + 2] = (r() - 0.5) * 0.22;
+  const a = anchors.length ? anchors : [0];
+  /* The gauze spans the strip itself, not the viewport: the band has to be
+     as long as the thing it sits behind, or it slides out from under the
+     cards as soon as the strip starts travelling. */
+  let lo = a[0];
+  let hi = a[0];
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] < lo) lo = a[i];
+    if (a[i] > hi) hi = a[i];
   }
-  // 2 — dense core with a thin orbiting halo, right of centre
+  const pad = Math.max(2, knotR * 3);
+  const mid = (lo + hi) / 2;
+  const span = hi - lo + pad * 2;
+  const halfH = Math.max(0.55, knotR * 0.75);
+
   for (let i = 0; i < n; i++) {
-    const core = r() < 0.62;
-    const a = r() * Math.PI * 2;
-    const rad = core ? Math.sqrt(r()) * 0.52 : 1.72 + r() * 0.16;
-    F[1][i * 3] = 1.0 + Math.cos(a) * rad;
-    F[1][i * 3 + 1] = Math.sin(a) * rad * (core ? 1 : 0.86);
-    F[1][i * 3 + 2] = (r() - 0.5) * (core ? 0.4 : 0.12);
-  }
-  // 3 — a constellation clustered around five label positions
-  const anchors = [
-    [-2.25, 0.55], [-1.05, -0.45], [0.15, 0.6], [1.35, -0.35], [2.35, 0.4],
-  ];
-  for (let i = 0; i < n; i++) {
-    const a = anchors[i % anchors.length];
-    F[2][i * 3] = a[0] + (r() - 0.5) * 0.9;
-    F[2][i * 3 + 1] = a[1] + (r() - 0.5) * 0.62;
-    F[2][i * 3 + 2] = (r() - 0.5) * 0.7;
-  }
-  // 4 — a stream pouring rightward and down, the exit ramp
-  for (let i = 0; i < n; i++) {
-    const t = r();
-    const x = -2.4 + t * 5.0;
-    const y = 1.15 - t * t * 2.6;
-    const spread = 0.12 + t * 0.55;
-    F[3][i * 3] = x + (r() - 0.5) * spread;
-    F[3][i * 3 + 1] = y + (r() - 0.5) * spread * 0.8;
-    F[3][i * 3 + 2] = (r() - 0.5) * spread;
+    const k = i * 3;
+    if (r() < KNOT) {
+      /* a knot: elliptical, wider than tall, so it reads as a card-shaped
+         glow rather than a ball floating behind a rectangle. Density falls
+         off from the centre — sqrt() would give a flat disc with an edge —
+         and it reaches past the plate on every side, because a knot that
+         fits inside an opaque card is a knot nobody ever sees. */
+      const c = a[i % a.length];
+      const th = r() * Math.PI * 2;
+      const rad = Math.pow(r(), 1.25);
+      B[k] = c + Math.cos(th) * rad * knotR * 1.4;
+      B[k + 1] = centreY + Math.sin(th) * rad * knotR * 1.15;
+      B[k + 2] = (r() - 0.5) * knotR;
+    } else {
+      /* the gauze between them: even along the strip, because the cards
+         are; thinning vertically, so the band has no hard top or bottom */
+      B[k] = mid + (r() - 0.5) * span;
+      B[k + 1] = centreY + (r() + r() - 1) * halfH;
+      B[k + 2] = (r() - 0.5) * 0.7;
+    }
   }
 }
 
@@ -436,14 +444,14 @@ export function createStudioScene(container, opts = {}) {
   const edge = new Float32Array(count);
   const dragA = new Float32Array(count);
   const stiffA = new Float32Array(count);
-  const FORM = [0, 1, 2, 3].map(() => new Float32Array(count * 3));
+  const BAND = new Float32Array(count * 3);
 
   buildRibbon(count, RIBBON, nrm, edge, rand, threads, per);
   buildTornado(count, TORNADO, threads, per);
   buildSite(count, SITE);
   buildLattice(count, LATTICE);
   buildPage(count, PAGE);
-  buildFormations(count, FORM);
+  buildBand(count, BAND, [], 0.9, 0); // placeholder until the cards are measured
 
   /* Every form is centred on its own mass. The survey geometry was
      authored on a ground plane and the report as a standing sheet, so a
@@ -545,8 +553,8 @@ export function createStudioScene(container, opts = {}) {
 
   let story = 0;
   let disperse = 0;
-  let mode = 0;          // 0 = story spine, 1 = identity formations
-  let slide = 0;         // position along the four formations
+  let mode = 0;          // 0 = story spine, 1 = the trusted-by band
+  let bandOffset = 0;    // the strip's travel, in world units
   let velTarget = 0;
   let dirty = true;
   let wander = 0.06;
@@ -562,17 +570,17 @@ export function createStudioScene(container, opts = {}) {
     else if (t >= 1) base.set(B);
     else for (let k = 0; k < count * 3; k++) base[k] = A[k] + (B[k] - A[k]) * t;
 
-    /* the identity beat borrows the same points: blend the story form
-       toward the current formation pair rather than mounting anything new */
+    /* the trusted-by beat borrows the same points: blend the story form
+       toward the band rather than mounting anything new. The strip's
+       travel rides in as one offset on x, so the knots stay behind their
+       own cards without the band ever being rebuilt. */
     if (mode > 0) {
-      const fi = Math.min(FORM.length - 2, Math.floor(slide));
-      const ft = clamp01(slide - fi);
-      const Fa = FORM[fi];
-      const Fb = FORM[fi + 1];
       const m = sstep(clamp01(mode));
-      for (let k = 0; k < count * 3; k++) {
-        const f = Fa[k] + (Fb[k] - Fa[k]) * ft;
-        base[k] += (f - base[k]) * m;
+      for (let i = 0; i < count; i++) {
+        const k = i * 3;
+        base[k] += (BAND[k] + bandOffset - base[k]) * m;
+        base[k + 1] += (BAND[k + 1] - base[k + 1]) * m;
+        base[k + 2] += (BAND[k + 2] - base[k + 2]) * m;
       }
     }
 
@@ -600,15 +608,37 @@ export function createStudioScene(container, opts = {}) {
   const setDisperse = (v) => {
     disperse = clamp01(v);
   };
-  /* identity beat: 0 = the page's own spine, 1 = the slide formations */
+  /* trusted-by beat: 0 = the page's own spine, 1 = the band */
   const setMode = (m) => {
     mode = clamp01(m);
     dirty = true;
   };
-  const setSlide = (v) => {
-    slide = Math.max(0, Math.min(FORM.length - 1, v));
+  const setBandOffset = (v) => {
+    bandOffset = v;
     dirty = true;
   };
+  /* Card centres, in world x, measured from the DOM. Rebuilding the band
+     is O(count) and allocation-free, so this is cheap — but it is still
+     only called on mount and on resize, never while scrolling. */
+  const setBandAnchors = (anchors, knotR, centreY = 0) => {
+    buildBand(count, BAND, anchors, knotR, centreY);
+    dirty = true;
+  };
+  /* How much world space one CSS pixel covers on the field's mid-plane, so
+     the caller can hand over DOM measurements without knowing the camera.
+     Read off the keyframe rather than the live position: this is called on
+     mount and resize, possibly before the first frame has placed anything. */
+  const worldPerPx = () => {
+    const k = camAt(story);
+    const h = 2 * Math.tan((camera.fov * Math.PI) / 360) * Math.abs(k.pz);
+    return h / Math.max(1, container.clientHeight);
+  };
+  /* A distance from the viewport's horizontal centre, in CSS pixels, as a
+     world x — the camera sits slightly off-axis, so this is not just a
+     scale. Everything the band needs to line up with a card rect. */
+  const mapX = (pxFromCentre) => camAt(story).tx + pxFromCentre * worldPerPx();
+  /* screen y grows downward, world y upward — hence the sign */
+  const mapY = (pxFromCentre) => camAt(story).ty - pxFromCentre * worldPerPx();
   const setVelocity = (v) => {
     velTarget = Math.max(-1, Math.min(1, v));
   };
@@ -744,7 +774,11 @@ export function createStudioScene(container, opts = {}) {
     setStory,
     setDisperse,
     setMode,
-    setSlide,
+    setBandOffset,
+    setBandAnchors,
+    worldPerPx,
+    mapX,
+    mapY,
     setVelocity,
     setPointer,
     setMouse,

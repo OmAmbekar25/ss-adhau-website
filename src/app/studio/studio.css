@@ -911,86 +911,176 @@
   overflow: hidden;
   white-space: nowrap;
 }
-.er-idsec { padding-bottom: 0; }
-.er-idwrap { display: none; }
+/* ------------------------------------------- the trusted-by traverse
+   The horizontal beat: header fixed at the top of the pinned viewport,
+   the strip travelling under it, progress hairline at the foot. Not a
+   marquee — one pass, driven entirely by scroll position. */
+.er-trsec { padding-bottom: 0; }
+.er-trwrap { height: auto; }
 @media (min-width: 901px) {
-  .er-idwrap { display: block; height: 400svh; }
-  .er-idstatic { display: none; }
+  /* a placeholder until the strip has been measured; JS replaces it with
+     the exact travel so a pixel of scroll is a pixel of sideways movement */
+  .er-trwrap { height: 400svh; }
 }
-.er-idpin {
+.er-trpin {
   position: relative;
-  height: 100svh;
+  height: auto;
   overflow: hidden;
 }
-.er-idtrack {
-  display: flex;
-  height: 100%;
-  width: 400vw;
-  will-change: transform;
+@media (min-width: 901px) {
+  .er-trpin {
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(32px, 5vh, 64px);
+  }
 }
-.er-idslide {
-  position: relative;
-  flex: 0 0 100vw;
-  height: 100%;
+
+.er-trhead { text-align: center; }
+.er-trhead__rule {
+  display: block;
+  width: 56px;
+  margin: 0 auto;
+  transform: none; /* the header is not part of the reveal choreography */
+}
+.er-trhead__h {
+  margin: 26px 0 0;
+  font-size: clamp(28px, 3.6vw, 54px);
+  line-height: 1.08;
+  color: var(--ink);
+}
+.er-trhead__p {
+  max-width: 46em;
+  margin: 20px auto 0;
+  color: var(--ink-dim);
+}
+
+/* -------------------------------------------------------- the strip */
+.er-tlane {
+  width: 100%;
+  /* phone: a native swipe with snap. Desktop overrides this to a clipped
+     stage that ScrollTrigger transforms. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-top: clamp(32px, 5vh, 56px);
+}
+.er-tlane::-webkit-scrollbar { display: none; }
+@media (min-width: 901px) {
+  .er-tlane {
+    overflow: hidden;
+    scroll-snap-type: none;
+    margin-top: 0;
+  }
+}
+
+.er-ttrack {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  width: max-content;
+}
+@media (min-width: 901px) {
+  .er-ttrack {
+    padding: 0;
+    /* the strip starts at the left edge and is moved from there */
+    padding-inline-start: var(--gutter);
+    will-change: transform;
+  }
+}
+
+/* The li is the flex item, not the figure — the width has to live on the
+   element the track actually lays out, or every card collapses to its
+   content and the strip measures short. */
+.er-ttrack > li {
+  flex: 0 0 clamp(200px, 22vw, 320px);
+  scroll-snap-align: center;
+}
+.er-tcard {
+  margin: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 26px;
-  padding: 0 var(--gutter);
-  text-align: center;
+  gap: 14px;
+  will-change: transform, opacity;
 }
-.er-id__head { max-width: 15em; margin: 0 auto; }
-.er-id__caps,
-.er-id__constellation {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px clamp(20px, 3vw, 52px);
-}
-.er-id__constellation { margin-top: 28px; }
-.er-id__constellation li:nth-child(2n) { transform: translateY(-14px); }
-.er-id__constellation li:nth-child(3n) { transform: translateY(18px); }
-.er-idprog {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(28px, 5vh, 56px);
-  transform: translateX(-50%);
+/* The plate is the one opaque, full-colour object on this page. That is
+   the point: these are other people's marks, reproduced as issued. */
+.er-tcard__plate {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  background: #ffffff;
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: center;
+  padding: clamp(14px, 1.6vw, 26px);
 }
-.er-idprog__bar {
+.er-tcard__plate img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+.er-tcard__n {
+  text-align: center;
+  color: var(--ink-faint);
+  transition: color 0.4s var(--enter);
+}
+.er-tcard:hover .er-tcard__n { color: var(--accent); }
+
+/* ------------------------------------------------------- progress UI */
+.er-trprog {
+  display: none;
+}
+@media (min-width: 901px) {
+  .er-trprog {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(24px, 4vh, 48px);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+}
+.er-trprog__bar {
   display: block;
   width: 200px;
   height: 1px;
   background: var(--hairline);
   position: relative;
 }
-.er-idprog__bar i {
+.er-trprog__bar i {
   position: absolute;
   inset: 0;
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: left center;
 }
-.er-idprog__n { color: var(--ink-dim); }
+.er-trprog__n { color: var(--ink-dim); }
 
-/* stacked fallback */
-.er-idlist {
+/* ------------------------------- reduced motion: laid out and read */
+.er-tgrid {
   list-style: none;
   margin: clamp(40px, 6vh, 72px) 0 0;
   padding: 0;
   display: grid;
-  gap: clamp(36px, 5vh, 56px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* start, not stretch: a two-line caption in one cell would otherwise
+     pull every plate in its row taller than the rest */
+  align-items: start;
+  gap: clamp(20px, 3vw, 36px);
 }
-.er-idlist__h {
-  margin: 14px 0 10px;
-  font-size: clamp(24px, 4vw, 40px);
-  line-height: 1.1;
-  color: var(--ink);
+@media (min-width: 901px) {
+  .er-tgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
-.er-idlist li .er-body { color: var(--ink-dim); }
+.er-tgrid .er-tcard { width: 100%; }
