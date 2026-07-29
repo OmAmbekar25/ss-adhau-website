@@ -30,8 +30,16 @@ import * as THREE from "three";
 
 const COUNT = 4200;
 
-const LINEN = new THREE.Color(0xdcd9d1);
-const BRASS = new THREE.Color(0xc9a063);
+/* Default palette is the site's: linen points with brass accents. The
+   studio page passes a monochrome set instead, so one scene serves both
+   without a second copy of the geometry. */
+const PALETTE = {
+  ink: 0xdcd9d1,
+  accent: 0xc9a063,
+  draw: 0xf2efe9,
+  hot: 0xffe6bb,
+  bg: 0x070606,
+};
 
 /* Deterministic noise — the same scene every load. A valuation is
    repeatable; so is its picture. */
@@ -269,7 +277,10 @@ function rectLoop(x0, y0, x1, y1, z, axis = "xy") {
 
 /* ------------------------------------------------------------------ */
 
-export function createReportScene(container) {
+export function createReportScene(container, opts = {}) {
+  const P = { ...PALETTE, ...opts };
+  const LINEN = new THREE.Color(P.ink);
+  const BRASS = new THREE.Color(P.accent);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 400);
 
@@ -279,7 +290,7 @@ export function createReportScene(container) {
   } catch {
     return null;
   }
-  renderer.setClearColor(0x070606, 1);
+  renderer.setClearColor(P.bg, 1);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   container.appendChild(renderer.domElement);
 
@@ -311,7 +322,7 @@ export function createReportScene(container) {
   const wRate = new Float32Array(COUNT);
   for (let i = 0; i < COUNT; i++) {
     wPhase[i] = Math.random() * Math.PI * 2;
-    wRate[i] = 0.18 + Math.random() * 0.3;
+    wRate[i] = 0.075 + Math.random() * 0.14;
   }
   const colors = new Float32Array(COUNT * 3);
   for (let i = 0; i < COUNT; i++) {
@@ -342,7 +353,7 @@ export function createReportScene(container) {
   stage.add(field);
 
   /* ---------------- site line work ---------------- */
-  const parcelMat = track(lineMat(0xc9a063, 0));
+  const parcelMat = track(lineMat(P.accent, 0));
   const parcel = new THREE.LineLoop(
     track(rectLoop(PARCEL.x0, PARCEL.z0, PARCEL.x1, PARCEL.z1, 0.02, "xz")),
     parcelMat
@@ -351,7 +362,7 @@ export function createReportScene(container) {
 
   /* the massing, drawn — the point field alone reads as dust; the firm
      surveys buildings, so the buildings are drawn */
-  const massMat = track(lineMat(0xf2efe9, 0));
+  const massMat = track(lineMat(P.draw, 0));
   const massPts = [];
   const boxWire = (b) => {
     const { x0, x1, y0, y1, z0, z1 } = b;
@@ -377,7 +388,7 @@ export function createReportScene(container) {
 
   /* the level line — a laser plane travelling down the massing during
      the inspection beat */
-  const levelMat = track(lineMat(0xffe6bb, 0));
+  const levelMat = track(lineMat(P.hot, 0));
   const level = new THREE.LineLoop(
     track(rectLoop(-10.6, -6.6, 12.6, 7.6, 0, "xz")),
     levelMat
@@ -385,7 +396,7 @@ export function createReportScene(container) {
   stage.add(level);
   const levelFillMat = track(
     new THREE.MeshBasicMaterial({
-      color: 0xc9a063,
+      color: P.accent,
       transparent: true,
       opacity: 0,
       depthWrite: false,
@@ -400,7 +411,7 @@ export function createReportScene(container) {
   stage.add(levelFill);
 
   /* dimension lines — the measurement, with tick ends */
-  const dimMat = track(lineMat(0xc9a063, 0));
+  const dimMat = track(lineMat(P.accent, 0));
   const dimPts = [];
   const dim = (x0, z0, x1, z1) => {
     dimPts.push(
@@ -426,14 +437,14 @@ export function createReportScene(container) {
   stage.add(dims);
 
   /* ---------------- the report ---------------- */
-  const sheetMat = track(lineMat(0xf2efe9, 0));
+  const sheetMat = track(lineMat(P.draw, 0));
   const sheet = new THREE.LineLoop(
     track(rectLoop(-SHEET.hw, -SHEET.hh, SHEET.hw, SHEET.hh, 0)),
     sheetMat
   );
   stage.add(sheet);
 
-  const ruleMat = track(lineMat(0xc9a063, 0));
+  const ruleMat = track(lineMat(P.accent, 0));
   const rule = new THREE.Line(
     track(
       new THREE.BufferGeometry().setFromPoints([
@@ -446,7 +457,7 @@ export function createReportScene(container) {
   stage.add(rule);
 
   /* delivered copies — three signed originals leave the office */
-  const copyMat = track(lineMat(0xf2efe9, 0));
+  const copyMat = track(lineMat(P.draw, 0));
   const copies = [1, 2].map((k) => {
     const c = new THREE.LineLoop(
       track(rectLoop(-SHEET.hw, -SHEET.hh, SHEET.hw, SHEET.hh, 0)),
@@ -460,7 +471,7 @@ export function createReportScene(container) {
   /* the seal — the same mark as the hero's, turned into an object */
   const sealMat = track(
     new THREE.MeshBasicMaterial({
-      color: 0xc9a063,
+      color: P.accent,
       transparent: true,
       opacity: 0,
       depthWrite: false,
@@ -483,7 +494,7 @@ export function createReportScene(container) {
   /* the impression the seal makes when it lands */
   const stampMat = track(
     new THREE.MeshBasicMaterial({
-      color: 0xffe6bb,
+      color: P.hot,
       transparent: true,
       opacity: 0,
       side: THREE.DoubleSide,
@@ -658,10 +669,10 @@ export function createReportScene(container) {
     fieldGeo.attributes.position.needsUpdate = true;
 
     /* the camera has weight, and never quite stops breathing */
-    ptr.x += (ptr.tx - ptr.x) * 0.045;
-    ptr.y += (ptr.ty - ptr.y) * 0.045;
-    camera.position.x += ptr.x * 3.4 + Math.cos(t * 0.19) * 0.7;
-    camera.position.y += -ptr.y * 2.2 + Math.sin(t * 0.25) * 0.55;
+    ptr.x += (ptr.tx - ptr.x) * 0.032;
+    ptr.y += (ptr.ty - ptr.y) * 0.032;
+    camera.position.x += ptr.x * 3.4 + Math.cos(t * 0.105) * 0.7;
+    camera.position.y += -ptr.y * 2.2 + Math.sin(t * 0.14) * 0.55;
     camera.lookAt(camTarget);
 
     renderer.render(scene, camera);

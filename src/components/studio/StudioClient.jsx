@@ -15,7 +15,7 @@ const GLOW = 0xffffff;
 const RIBBON = {
   hero: { camX: -0.18, camZ: 7.4, rotX: 0.4, bright: 0.62, disperse: 0 },
   manifesto: { camX: 1.7, camZ: 9.1, rotX: 0.54, bright: 0.3, disperse: 0 },
-  split: { camX: -2.1, camZ: 8.6, rotX: 0.32, bright: 0.36, disperse: 0 },
+  journey: { camX: -2.1, camZ: 8.6, rotX: 0.32, bright: 0.36, disperse: 0 },
   rows: { camX: 0, camZ: 10.2, rotX: 1.3, bright: 0.24, disperse: 0 },
   close: { camX: 0, camZ: 8.2, rotX: 0.42, bright: 0.5, disperse: 1 },
 };
@@ -55,7 +55,7 @@ export default function StudioClient() {
       ribbon.setForm(0);
       gsap.to(form, {
         v: 1,
-        duration: 3.4,
+        duration: 5.2,
         ease: "power2.inOut",
         onUpdate: () => ribbon && ribbon.setForm(form.v),
       });
@@ -156,7 +156,7 @@ export default function StudioClient() {
 
       document.querySelectorAll("main > section:not(.er-hero), .er-footer").forEach(
         (section) => {
-          if (section.hasAttribute("data-split")) return; // handled below
+          if (section.hasAttribute("data-journey")) return; // owns its own reveals
           if (section.querySelector("[data-manifesto]")) return;
           const tl = build(section).paused(true);
           ScrollTrigger.create({
@@ -217,53 +217,8 @@ export default function StudioClient() {
           });
       }
 
-      /* ------------------- split / process: the one pin ------------ */
-      const split = document.querySelector("[data-split]");
-      if (split) {
-        const steps = gsap.utils.toArray("[data-step]", split);
-        const fill = split.querySelector("[data-progress]");
-        const leftTl = build(split.querySelector("[data-split-left]")).paused(true);
-        ScrollTrigger.create({
-          trigger: split,
-          start: "top 78%",
-          once: true,
-          onEnter: () => leftTl.play(),
-        });
-        steps.forEach((step) => {
-          const tl = build(step).paused(true);
-          ScrollTrigger.create({
-            trigger: step,
-            start: "top 82%",
-            once: true,
-            onEnter: () => tl.play(),
-          });
-          ScrollTrigger.create({
-            trigger: step,
-            start: "top 62%",
-            end: "bottom 45%",
-            onToggle: (self) => {
-              if (self.isActive) {
-                steps.forEach((s) => (s.dataset.active = String(s === step)));
-              }
-            },
-          });
-        });
-
-        const mm = gsap.matchMedia();
-        mm.add("(min-width: 900px)", () => {
-          const st = ScrollTrigger.create({
-            trigger: split,
-            start: "top top",
-            end: "bottom bottom",
-            pin: split.querySelector("[data-split-left]"),
-            pinSpacing: false,
-            onUpdate: (self) => {
-              if (fill) gsap.set(fill, { scaleX: self.progress });
-            },
-          });
-          return () => st.kill();
-        });
-      }
+      /* The journey section owns its own pin and its own scene — see
+         StudioJourney. Nothing to do here but stay out of its way. */
 
       /* --------------------------- nav ----------------------------- */
       const nav = document.querySelector(".er-nav");
@@ -298,7 +253,24 @@ export default function StudioClient() {
       };
       bind(".er-hero", RIBBON.hero);
       bind(".er-manifesto", RIBBON.manifesto);
-      bind("[data-split]", RIBBON.split);
+      bind("[data-journey]", RIBBON.journey);
+
+      /* The journey draws its own full-screen, opaque scene. While it is on
+         screen the ribbon is invisible behind it, so park it rather than
+         paying for two WebGL scenes at once. */
+      const journeySec = document.querySelector("[data-journey]");
+      if (journeySec) {
+        ScrollTrigger.create({
+          trigger: journeySec,
+          start: "top 90%",
+          end: "bottom 10%",
+          onToggle: (self) => {
+            if (!ribbon) return;
+            if (self.isActive) ribbon.pause();
+            else if (!document.hidden) ribbon.resume();
+          },
+        });
+      }
       bind(".er-rows", RIBBON.rows);
       bind("[data-disperse]", RIBBON.close);
 
@@ -325,7 +297,7 @@ export default function StudioClient() {
           /* the waterline rises through the mark */
           .to(counter, {
             v: 100,
-            duration: 1.0,
+            duration: 1.9,
             ease: "power2.inOut",
             onUpdate: () => {
               if (mark) mark.style.setProperty("--p", `${counter.v.toFixed(1)}%`);
@@ -333,7 +305,7 @@ export default function StudioClient() {
           })
           .to(loader, {
             clipPath: "inset(0 0 100% 0)",
-            duration: 0.8,
+            duration: 1.0,
             ease: ENTER,
           });
       } else {

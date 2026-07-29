@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
+import StudioJourney from "@/components/studio/StudioJourney";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -26,21 +27,6 @@ const NAV = [
   { label: "Locations", href: "/locations" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
-];
-
-const STEPS = [
-  {
-    title: "Purpose & documents",
-    body: "The asset, the purpose of valuation — bank mortgage, IBC, tax, M&A — and the statutory framework that governs it. The purpose decides the method, so it is settled first.",
-  },
-  {
-    title: "Site inspection",
-    body: "A registered valuer attends the property and measures it. No desktop estimates, no photographs sent over WhatsApp: the report describes what was seen.",
-  },
-  {
-    title: "Report & defence",
-    body: "Market evidence and technical assessment are reconciled into a figure, certified under our registration — and stood behind when a bank, a court or a regulator asks how it was reached.",
-  },
 ];
 
 const SERVICES = [
@@ -218,34 +204,27 @@ setTimeout(function(){h.classList.remove('er-loading')},2500);}
           </blockquote>
         </section>
 
-        {/* --------------------- 5.4 SPLIT / PROCESS ------------------ */}
-        <section className="er-section" aria-labelledby="er-method" data-split>
-          <div className="er-wrap er-split">
-            <div className="er-split__sticky" data-split-left>
-              <p className="er-label er-label--faint er-track">Sec. 02 — Method</p>
-              <h2 id="er-method" className="er-display er-h3" style={{ marginTop: 24 }}>
-                <Line>The method behind</Line>
-                <Line>
-                  <em>the number</em>.
-                </Line>
-              </h2>
-              <div className="er-progress" style={{ marginTop: 48 }}>
-                <i className="er-progress__fill" data-progress />
-              </div>
-            </div>
-
-            <ol className="er-steps" data-steps>
-              {STEPS.map((step, i) => (
-                <li className="er-step" key={step.title} data-step data-active={i === 0}>
-                  <span className="er-step__i">{String(i + 1).padStart(2, "0")}</span>
-                  <div>
-                    <h3 className="er-step__t">{step.title}</h3>
-                    <p className="er-body er-step__b er-fade">{step.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+        {/* ------- 5.4 METHOD — the valuation journey, in this palette ---- */}
+        <section
+          className="er-section er-jsec"
+          aria-labelledby="er-method"
+          data-journey
+        >
+          <div className="er-wrap er-jhead">
+            <p className="er-label er-label--faint er-track">Sec. 02 — Method</p>
+            <h2 id="er-method" className="er-display er-h3">
+              <Line>
+                The method behind <em>the number</em>.
+              </Line>
+            </h2>
+            <p className="er-body er-fade er-jhead__b">
+              The same matter, re-formed five times: an enquiry becomes a
+              surveyed site, becomes an analysis, becomes a document a bank or
+              a court can act on.
+            </p>
           </div>
+
+          <StudioJourney />
         </section>
 
         {/* ---------------------- 5.5 INDEX ROWS ---------------------- */}

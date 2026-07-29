@@ -90,7 +90,7 @@ void main() {
 
   /* the silk undulates: noise along the band normal, scrolling in time.
      Scaled by uForm so the funnel stays crisp while it is still spinning. */
-  float n = snoise(p * 1.15 + vec3(0.0, 0.0, uTime * 0.05));
+  float n = snoise(p * 1.15 + vec3(0.0, 0.0, uTime * 0.03));
   p += aNormalDir * n * uAmp * uForm;
 
   /* dissolution: the structure loosens into drifting motes */
@@ -286,7 +286,7 @@ export function createRibbon(container, { count, accent }) {
   };
 
   const clock = new THREE.Clock();
-  const BASE_SPIN = (Math.PI * 2) / 55; // one revolution ≈ 55s
+  const BASE_SPIN = (Math.PI * 2) / 82; // one revolution ≈ 82s
   let spinAngle = 0;
   let lastT = 0;
   let raf = 0;
@@ -301,7 +301,7 @@ export function createRibbon(container, { count, accent }) {
       /* The funnel turns hard and slows into the ribbon's ambient
          revolution as it forms — the deceleration is the whole trick. */
       const form = uniforms.uForm.value;
-      spinAngle += dt * BASE_SPIN * (1 + (1 - form) * (1 - form) * 26);
+      spinAngle += dt * BASE_SPIN * (1 + (1 - form) * (1 - form) * 22);
       spin.rotation.y = spinAngle;
       uniforms.uTime.value = t;
     }
@@ -309,8 +309,8 @@ export function createRibbon(container, { count, accent }) {
     for (const k of ["camX", "camZ", "rotX", "bright", "disperse"]) {
       actual[k] = animate ? lerp(actual[k], target[k], 0.06) : target[k];
     }
-    ptr.x = lerp(ptr.x, ptr.tx, 0.03);
-    ptr.y = lerp(ptr.y, ptr.ty, 0.03);
+    ptr.x = lerp(ptr.x, ptr.tx, 0.022);
+    ptr.y = lerp(ptr.y, ptr.ty, 0.022);
 
     tilt.rotation.x = actual.rotX + ptr.y * 0.06;
     tilt.rotation.z = 0.15 + ptr.x * 0.06;

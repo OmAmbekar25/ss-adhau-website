@@ -10,55 +10,17 @@ import {
   FileCheck2,
   Send,
 } from "lucide-react";
+import valuationBeats from "@/data/valuationBeats";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-/* The five beats are the firm's actual process, unchanged — the 3D spine
-   illustrates them, it does not invent them. */
-const BEATS = [
-  {
-    icon: ClipboardList,
-    title: "Enquiry & Scope",
-    short: "Enquiry",
-    caption: "Nothing is measured yet",
-    description:
-      "We understand the asset, the purpose of valuation (bank mortgage, IBC, tax, M&A, etc.), and the applicable regulatory framework.",
-  },
-  {
-    icon: MapPinned,
-    title: "Site Inspection",
-    short: "Inspection",
-    caption: "The parcel, measured on location",
-    description:
-      "A registered valuer visits the site to physically inspect, measure, and document the property or asset in detail.",
-  },
-  {
-    icon: BarChart3,
-    title: "Market & Technical Analysis",
-    short: "Analysis",
-    caption: "Readings ordered against the market",
-    description:
-      "Local market data is cross-checked against technical and engineering assessments to arrive at a defensible value.",
-  },
-  {
-    icon: FileCheck2,
-    title: "Report & Certification",
-    short: "Certification",
-    caption: "Stamped and signed",
-    description:
-      "A detailed valuation report is prepared and certified by our registered valuers, aligned with statutory standards.",
-  },
-  {
-    icon: Send,
-    title: "Delivery & Support",
-    short: "Delivery",
-    caption: "Originals issued, questions answered",
-    description:
-      "The report is delivered to you, with ongoing support for any clarification needed by banks, courts, or regulators.",
-  },
-];
+/* Copy lives in src/data/valuationBeats.js — the studio page tells the
+   same story and must not be able to drift from it. Icons are this
+   page's own, so they are mapped on rather than stored with the copy. */
+const ICONS = [ClipboardList, MapPinned, BarChart3, FileCheck2, Send];
+const BEATS = valuationBeats.map((b, i) => ({ ...b, icon: ICONS[i] }));
 
 const N = BEATS.length;
 
