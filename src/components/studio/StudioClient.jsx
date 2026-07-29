@@ -20,11 +20,14 @@ const RIBBON = {
   close: { camX: 0, camZ: 8.2, rotX: 0.42, bright: 0.5, disperse: 1 },
 };
 
+/* Denser than the brief's 25–45k: the weave wanted more thread to read as
+   cloth rather than gauze. Still one draw call, still DPR-capped, still
+   scaled down hard on smaller machines. */
 function particleCount() {
   const w = window.innerWidth;
-  if (w >= 1280) return 35000;
-  if (w >= 768) return 18000;
-  return 8000;
+  if (w >= 1280) return 64000;
+  if (w >= 768) return 30000;
+  return 12000;
 }
 
 export default function StudioClient() {

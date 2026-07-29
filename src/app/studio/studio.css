@@ -101,9 +101,14 @@
 /* Lines are authored in the markup, not split at runtime: the text stays
    in the DOM for crawlers and the reveal cannot reflow on hydration. */
 
+/* The mask clips vertically by design; CSS cannot hide one axis and show
+   the other, so give it a little horizontal slack and pull it back with a
+   negative margin. Without this the italic cut's overhang gets shaved. */
 .er-line {
   display: block;
   overflow: hidden;
+  padding-inline: 0.14em;
+  margin-inline: -0.14em;
 }
 .er-line > span {
   display: block;
@@ -284,9 +289,18 @@
   justify-content: center;
   text-align: center;
 }
+/* The measure has to be set on the element that actually carries the
+   display font. On the blockquote, `ch` resolves against the inherited
+   16px body font — about 350px — which is narrower than a single word of
+   94px Cormorant, so long words overflowed and the line masks shaved them
+   off ("measur…", "numbe…"). Constrain the heading, in its own em. */
 .er-manifesto__quote {
-  max-width: 22ch;
   margin: 0;
+  max-width: min(94vw, 1180px);
+}
+.er-manifesto__quote h2 {
+  max-width: 11.5em;
+  margin-inline: auto;
 }
 .er-manifesto__quote .er-dim {
   color: var(--ink-dim);

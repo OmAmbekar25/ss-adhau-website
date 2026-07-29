@@ -94,7 +94,7 @@ void main() {
   gl_Position = projectionMatrix * mv;
   /* uSize is the sprite's size in px at the reference distance, so pulling
      the camera back thins the silk instead of erasing it */
-  gl_PointSize = uSize * uDpr * (6.0 / max(0.5, -mv.z));
+  gl_PointSize = uSize * uDpr * (0.62 + 0.85 * aRand) * (6.0 / max(0.5, -mv.z));
 
   /* bright filaments and dim gauze in the same cloth, and a selvedge that
      goes to nothing rather than to noise */
@@ -110,10 +110,13 @@ uniform float uBright;
 varying float vGlow;
 
 void main() {
-  /* round soft sprite */
   float d = length(gl_PointCoord - 0.5);
-  float a = smoothstep(0.5, 0.06, d);
-  a *= a;
+  /* soft halo, plus a small hot core so bright threads glint rather than
+     glowing evenly — this is what separates silk from fog */
+  float halo = smoothstep(0.5, 0.06, d);
+  halo *= halo;
+  float core = smoothstep(0.17, 0.0, d);
+  float a = halo + core * 0.55;
   gl_FragColor = vec4(uColor, a * vGlow * uBright);
 }
 `;
