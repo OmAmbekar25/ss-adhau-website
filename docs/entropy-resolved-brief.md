@@ -1,9 +1,15 @@
 # "Entropy Resolved" — Negantropy-class cinematic page
 
-**Status: PARKED — not built, not approved.** Supplied by the user 2026-07-29
-with the instruction to save it and review the current build first. Nothing in
-this file has been implemented. Do not start building from it without an
-explicit go-ahead.
+**Status: BUILT AS A CANDIDATE at `/studio`** (2026-07-29), on the user's
+go-ahead. It does not replace `/` — the two directions are meant to be compared
+first. Implementation: `src/app/studio/` (page + page-scoped CSS),
+`src/components/studio/StudioClient.jsx` (loader, reveals, pin, ribbon states),
+`src/lib/ribbonScene.js` (the silk ribbon).
+
+Deviations from this brief, and why, are in `docs/creative-direction.md` §15 —
+monochrome glow instead of a champagne tint, existing font stack instead of
+Fraunces/Instrument Sans, a 46px headline floor instead of 72px, and the shared
+Lenis instance. The 60fps floor is **unverified**: this container has no GPU.
 
 **Precedence:** the user's own framing — where this brief and
 `docs/creative-direction.md` conflict on hard constraints (performance budget

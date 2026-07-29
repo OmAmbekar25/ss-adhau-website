@@ -9,6 +9,7 @@ import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import SmoothScroll from "../components/SmoothScroll";
+import ChromeGate from "../components/ChromeGate";
 
 const wixMadefor = localFont({
   src: "./fonts/WixMadeforDisplay-VariableFont_wght.ttf",
@@ -135,7 +136,9 @@ const localBusinessSchema = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: the studio page's pre-paint script writes
+    // classes onto <html> before hydration — intentional, not a mismatch.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -146,9 +149,13 @@ export default function RootLayout({ children }) {
         className={`${wixMadefor.variable} ${plexSans.variable} ${cormorant.variable} ${archivo.variable} ${plexMono.variable} antialiased`}
       >
         <SmoothScroll>
-          <Navbar />
+          <ChromeGate>
+            <Navbar />
+          </ChromeGate>
           {children}
-          <Footer />
+          <ChromeGate>
+            <Footer />
+          </ChromeGate>
         </SmoothScroll>
       </body>
     </html>

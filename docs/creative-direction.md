@@ -78,6 +78,7 @@ first-load chunk set per prerendered document):
 | Page | First-load JS (gz) | Contains three.js? |
 | --- | --- | --- |
 | `/` | **288KB** (was 285KB before the valuation journey) | no — deferred |
+| `/studio` | **225KB** ✓ under budget | no — deferred |
 | `/about` | 224KB | no |
 | `/locations` | 401KB | **yes — pre-existing** |
 
@@ -90,6 +91,9 @@ first-load chunk set per prerendered document):
 - `/locations` ships three.js in first-load JS because `MapJourney` imports
   `lib/map3d` statically. **Open** — should use the same dynamic-import
   pattern as `ValuationJourney`.
+- `/studio` is the first page in the project to meet this budget, despite
+  being the most visually ambitious: its three.js chunk is behind a dynamic
+  `import()` fired from `requestIdleCallback`, and it carries no photography.
 - The hero's flare/bloom layers use `mask-position`/`filter` compositing
   (accepted — static textures, GPU-composited, measured smooth); mobile map
   journey serves a static SVG instead of WebGL ✓.
@@ -224,7 +228,12 @@ As specified in the scaffold, plus (project-specific): no blue accents, no cryst
 | 2026-07-29 | §2.2 amended: three.js permitted in a second place — the homepage valuation journey | It is product-truth, not decoration: the firm's own five process steps, one point field re-formed. Lazy + desktop-gated, so the homepage's first-load JS moves 285→288KB gz | A WebGL hero (still rejected — the 2026-07-27 decision stands) |
 | 2026-07-29 | `OurProcess.jsx` deleted, replaced by `ValuationJourney.jsx` | The 3D spine narrates the same five steps with the same copy; keeping both would have shipped the process twice | Adding the journey alongside OurProcess |
 | 2026-07-29 | Survey thread added as the homepage's connective element | Gives the page one continuous spine and plants the beacon metaphor the Locations map journey pays off | Per-section progress indicators |
-| open | Direction under review: `docs/entropy-resolved-brief.md` ("Entropy Resolved" — persistent particle-silk ribbon, monochrome, didone display type) | User-supplied 2026-07-29 as the style they want end-to-end. **Parked, not approved, not built** — reviewing the current build first. Its conflicts with this doc (monochrome vs brass, no-photography vs the hero plate, full-page WebGL vs §1/§2.3) are tabulated at the top of that file | — |
+| 2026-07-29 | "Entropy Resolved" built as a **candidate at `/studio`**, not as a replacement for `/` | Signature element = a persistent particle-silk ribbon with scroll-driven states; monochrome palette; roman/italic display mixing. Built to `docs/entropy-resolved-brief.md`. Kept on its own route so the two directions can be judged side by side before anything is retired, and because `/` is not yet pushed anywhere | Replacing `/` outright (deferred until compared) |
+| 2026-07-29 | Studio page ships **monochrome**; the champagne accent is used only on the process progress hairline, not in the ribbon | The brief's own tiebreak ("if in doubt, ship pure monochrome"). Gold at the low alphas additive blending needs read as brown dust on black, not silk | Tinting the glow with `--brass`/champagne (tried, rejected on sight) |
+| 2026-07-29 | Studio keeps the site's existing Cormorant / IBM Plex Sans / IBM Plex Mono rather than adding Fraunces + Instrument Sans | The brief lists Cormorant as an accepted display face, and body copy is rare on the page. A fourth and fifth family would cost first-load weight for two paragraphs — §2.3 floor wins over the font suggestion | Loading Instrument Sans for body |
+| 2026-07-29 | Studio hero headline floor lowered to 46px (brief said 72px min) | At 390px, 72px wraps the headline to six lines and pushes the body copy off-screen. Readability floor wins; the clamp still reaches the brief's 176px ceiling on desktop | Keeping the 72px floor |
+| 2026-07-29 | Studio reuses the global Lenis instance (lerp 0.1) instead of its own at 0.09 | Two Lenis instances on one document fight each other. The 0.01 difference is not perceptible | A page-local Lenis |
+| open | **60fps floor on the studio page is UNVERIFIED** | This container renders WebGL through SwiftShader (software). Measured 28fps on `/studio` against 14fps on `/` with no WebGL on screen — i.e. the environment is the bottleneck and the numbers say nothing about real hardware. Must be re-measured on a real GPU and a mid-tier Android before this page ships. DPR cap, per-breakpoint counts, single draw call, idle-mount and hidden-tab pause are all in place | — |
 | open | consulting.jpg / law.jpg replacement | Awaiting real photography from the firm | — |
 | open | `/locations` ships three.js in first-load JS (399KB gz, pre-existing) | `MapJourney` imports `lib/map3d` statically — should adopt `ValuationJourney`'s dynamic-import pattern | — |
 | open | Homepage first-load JS is ~38KB gz over the §2.3 budget, inherited from before this work | Chase `motion` / `lucide-react` / `gsap` import surface | — |
