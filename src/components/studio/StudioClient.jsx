@@ -10,9 +10,12 @@ if (typeof window !== "undefined") {
 }
 
 const ENTER = "power4.out"; // the expo-like entrance curve
-/* cool steel through the gauze, warm gold in the bright filaments */
-const GLOW = 0x9db6cc;
-const GLOW_WARM = 0xffd7a0;
+/* The field is silver end to end: near-white in the brightest filaments,
+   mid grey through the body, dim grey in the gauze. Nothing warm — the
+   gold accent lives in the typography, never in the light. */
+const GLOW_CORE = 0xe4e4e0;
+const GLOW_BASE = 0xb9b9b4;
+const GLOW_FAINT = 0x6e6e68;
 
 /* Where each section sits on the field's spine (see lib/studioScene.js):
    0 tornado · 1 ribbon · 2 site · 3 lattice · 4 page. Everything outside
@@ -67,8 +70,9 @@ export default function StudioClient() {
           if (dead || !canvasRef.current) return;
           ribbon = createStudioScene(canvasRef.current, {
             count: particleCount(),
-            accent: GLOW,
-            accent2: GLOW_WARM,
+            core: GLOW_CORE,
+            base: GLOW_BASE,
+            faint: GLOW_FAINT,
             bg: 0x06080b,
           });
           if (!ribbon) return; // no WebGL — pure typography, as specified

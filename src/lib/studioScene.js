@@ -384,7 +384,7 @@ void main() {
 
 const FRAG = /* glsl */ `
 precision mediump float;
-uniform vec3 uColor, uColor2;
+uniform vec3 uColorCore, uColorBase, uColorFaint;
 uniform float uBright;
 varying float vGlow, vTone;
 void main() {
@@ -392,7 +392,15 @@ void main() {
   float halo = smoothstep(0.5, 0.06, d);
   halo *= halo;
   float core = smoothstep(0.17, 0.0, d);
-  gl_FragColor = vec4(mix(uColor, uColor2, vTone), (halo + core * 0.55) * vGlow * uBright);
+
+  /* Silver, three stops, keyed on vTone — which already tracks a dot's own
+     luminance (it is built from aRand and the same noise that drives vGlow).
+     So the gauze reads faint, the body reads mid, and only the brightest
+     filaments reach the near-white core. Branchless: two clamped mixes. */
+  vec3 tint = mix(uColorFaint, uColorBase, clamp(vTone * 2.0, 0.0, 1.0));
+  tint = mix(tint, uColorCore, clamp(vTone * 2.0 - 1.0, 0.0, 1.0));
+
+  gl_FragColor = vec4(tint, (halo + core * 0.55) * vGlow * uBright);
 }
 `;
 
@@ -503,8 +511,11 @@ export function createStudioScene(container, opts = {}) {
     uMouseStrength: { value: 0 },
     uRepelRadius: { value: 0.42 },
     uBright: { value: 1 },
-    uColor: { value: new THREE.Color(opts.accent ?? 0x9db6cc) },
-    uColor2: { value: new THREE.Color(opts.accent2 ?? 0xffd7a0) },
+    /* Monochrome silver. No warm stop anywhere in the field: gold is a
+       typographic accent on this page, not a light source. */
+    uColorCore: { value: new THREE.Color(opts.core ?? 0xe4e4e0) },
+    uColorBase: { value: new THREE.Color(opts.base ?? 0xb9b9b4) },
+    uColorFaint: { value: new THREE.Color(opts.faint ?? 0x6e6e68) },
   };
 
   const material = new THREE.ShaderMaterial({
