@@ -23,7 +23,7 @@ export default function Spotlight() {
         >
           <Reveal index={0}>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brass">
-              How we work · Step 2
+              How we work · Step 02
             </p>
           </Reveal>
           <Reveal index={1}>

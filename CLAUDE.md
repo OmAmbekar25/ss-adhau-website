@@ -10,7 +10,9 @@ the art-direction references and acceptance criteria.
 ## Stack
 Next.js 16 (App Router, JS not TS) · Tailwind v4 · Lenis (smooth scroll) ·
 GSAP + ScrollTrigger (scroll choreography) · Motion/`motion/react`
-(component entrances/hover) · three.js (Locations map only, lazy).
+(component entrances/hover) · three.js — two scenes only, both lazy and
+desktop-gated: the Locations map journey (`lib/map3d.js`) and the homepage
+valuation journey (`lib/reportScene.js`). The hero stays CSS-only.
 
 ## Commands
 - `npm run dev` — dev server (localhost:3000)
@@ -24,5 +26,7 @@ GSAP + ScrollTrigger (scroll choreography) · Motion/`motion/react`
   addresses, or registration numbers. `src/data/caseStudies.js` stays empty
   until real data arrives.
 - Delete orphaned files when replacing components.
+- Scroll-driven 3D must be a pure function of scroll progress (no tweens, no
+  one-shot state) so scrubbing backwards is exact — see `lib/reportScene.js`.
 - Known unresolved: production domain placeholder (`NEXT_PUBLIC_SITE_URL`),
   Formspree endpoint marked `🔴 REPLACE` in `src/app/contact/page.js`.

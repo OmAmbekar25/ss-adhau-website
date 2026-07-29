@@ -36,11 +36,20 @@ If a request conflicts with a LOCKED item, say so rather than silently resolving
 
 ## 1. The bar
 
-**LOCKED — product-truth premium, with exactly one spectacle moment per page.**
+**LOCKED — product-truth premium, with at most two spectacle moments per page,
+and never two competing for the same screen.** *(Amended 2026-07-29 — was
+"exactly one per page"; see §15.)*
 
-- Homepage spectacle: the hero — the photographic shattered-glass plate with cursor-driven light (user-supplied v3 design, ported to React, no WebGL).
+- Homepage spectacle 1: the hero — the photographic shattered-glass plate with cursor-driven light (user-supplied v3 design, ported to React, no WebGL).
+- Homepage spectacle 2: the valuation journey — the 3D narrative spine (`ValuationJourney` + `lib/reportScene.js`). It sits five screens below the hero, so the two never share a viewport.
 - Locations page spectacle: the 3D map journey (survey beacon travelling the real MP/MH geography).
 - Everything else is quiet, disciplined, near-invisible.
+
+**The second spectacle has to earn it by being product-truth.** The spine is
+not decoration: it is the firm's own five-step process, told as one field of
+points that is re-formed — enquiry → surveyed site → ordered analysis →
+stamped page → delivered originals. If a future addition cannot make that
+claim, it does not get to be spectacle number two.
 
 ---
 
@@ -54,11 +63,36 @@ If a request conflicts with a LOCKED item, say so rather than silently resolving
 - **Lenis** — smooth scroll, site-wide (`SmoothScroll.jsx`).
 - **GSAP + ScrollTrigger** — all scroll choreography (map journey pins, scrubs).
 - **Motion** (`motion/react`) — component-level entrances and hover only.
-- **Three.js** — only inside the Locations map journey, desktop only, never on first paint. The homepage hero is deliberately CSS-only.
+- **Three.js** — two places only: the Locations map journey, and the homepage
+  valuation journey (`lib/reportScene.js`). Desktop only (≥768px), lazy, never
+  on first paint, capability-gated (a failed WebGL context falls back to the
+  static step list). **The homepage hero stays deliberately CSS-only** — the
+  2026-07-27 decision against a WebGL hero is untouched and still LOCKED.
+  *(Amended 2026-07-29 — was "only inside the Locations map journey"; see §15.)*
 
 ### 2.3 Performance budget
 **LOCKED.** As specified: LCP < 2.0s (4G, mid-tier Android), CLS < 0.05, INP < 200ms, first-load JS ≤ 250KB gz (excl. 3D chunk), 3D lazy + capability-gated, animate `transform`/`opacity` only, fonts self-hosted via `next/font` (max 3 weights per family), `next/image` everywhere.
-Known debt against this budget: the hero's flare/bloom layers use `mask-position`/`filter` compositing (accepted — static textures, GPU-composited, measured smooth); mobile map journey serves a static SVG instead of WebGL ✓.
+Known debt against this budget (measured 2026-07-29, `next build`, gzipped
+first-load chunk set per prerendered document):
+
+| Page | First-load JS (gz) | Contains three.js? |
+| --- | --- | --- |
+| `/` | **288KB** (was 285KB before the valuation journey) | no — deferred |
+| `/about` | 224KB | no |
+| `/locations` | 401KB | **yes — pre-existing** |
+
+- The homepage was already over the 250KB budget before the valuation journey;
+  the journey adds ~3KB because `reportScene.js` is a dynamic `import()` fired
+  from inside the section's effect, so all ~139KB gz of three.js loads only
+  when a desktop visitor reaches that section. **Open:** the ~38KB overage is
+  inherited, not introduced — chase it in `motion` / `lucide-react` /
+  `gsap` import surface, not in the 3D.
+- `/locations` ships three.js in first-load JS because `MapJourney` imports
+  `lib/map3d` statically. **Open** — should use the same dynamic-import
+  pattern as `ValuationJourney`.
+- The hero's flare/bloom layers use `mask-position`/`filter` compositing
+  (accepted — static textures, GPU-composited, measured smooth); mobile map
+  journey serves a static SVG instead of WebGL ✓.
 
 ### 2.4 Quality floor
 **LOCKED.** `prefers-reduced-motion` = complete static site, not degraded (already implemented per component). Keyboard focus everywhere. Semantic HTML, one H1 per page. Contrast 4.5:1 body / 3:1 display — including over the glass photograph (the veil layer exists for this; check it whenever hero copy changes). No scroll hijacking. Touch targets ≥ 44px.
@@ -126,14 +160,36 @@ untouchable assets like bank logos and the light paper map).
 As specified in the scaffold (8px base, 12/6/4 grid, 1440px max, 60–75ch reading column, section rhythm 2–3× internal spacing).
 
 ## 7. Motion principles — `LOCKED`
-As specified in the scaffold. Two easings only: `cubic-bezier(0.16,1,0.3,1)` entrances, `cubic-bezier(0.2,0.8,0.2,1)` hovers (the v3 button curve). Reveals fire once. Max two pinned sections per page (currently: one — the map journey).
+As specified in the scaffold. Two easings only: `cubic-bezier(0.16,1,0.3,1)` entrances, `cubic-bezier(0.2,0.8,0.2,1)` hovers (the v3 button curve). Reveals fire once. Max two pinned sections per page — the homepage is now **at that ceiling** (Spotlight's `Sticky`, and the valuation journey). Nothing else on the homepage may pin.
+
+**Scroll-driven 3D is a pure function of progress.** `reportScene.js` derives
+every value — morph, opacity, camera, the seal landing — from `p` alone. No
+tweens, no one-shot state, so scrubbing backwards un-signs the report exactly.
+Any future scroll scene follows this rule: if a moment can't be expressed as
+`f(p)`, it doesn't belong in a scrubbed section.
+
+**Interaction moves the light, never the object.** The hero established it; the
+valuation journey (pointer nudges the camera, not the geometry) and
+`LightCard` (pointer moves a brass edge-glow, not the panel) inherit it.
 
 **Known conflicts with the current build (flagged, not silently resolved — see §15):**
 - The "Trusted by" section is an infinite logo lane (rejection list §14) — kept deliberately: user-directed, modelled on the AEOS reference, with center-spotlight behavior that goes beyond a plain marquee. Revisit if conversion suffers.
 - The map journey finale counts 0→9 on arrival (motion §7 rejects scroll counters) — kept: it fires once at a narrative destination, not ambiently on scroll.
 
 ## 8. Scroll journey — `LOCKED` (homepage)
-The argument: (1) hero — a report that holds up = the right value; (2) trusted-by — institutions already rely on it; (3) services — what we can value; (4) spotlight — how we actually work (site inspection); (5) about/process/presence — depth for the diligent reader; (6) contact — the step. Candidates for the cut test: MarqueeCards testimonials and HomeContact overlap with Footer — review before launch.
+The argument: (1) hero — a report that holds up = the right value; (2) trusted-by — institutions already rely on it; (3) services — what we can value; (4) spotlight — how we actually work (site inspection, photographed); (5) **the valuation journey — the same process, in 3D, end to end**; (6) about/presence — depth for the diligent reader; (7) contact — the step. Candidates for the cut test: MarqueeCards testimonials and HomeContact overlap with Footer — review before launch.
+
+Spotlight is deliberately placed immediately before the journey and labelled
+"Step 02", which is the journey's second beat: the photograph and the 3D beat
+are the same claim, told twice, in the order a reader meets them.
+
+**The survey thread** (`SurveyThread.jsx`) is the connective tissue: one brass
+hairline down the left gutter with a diamond beacon travelling it and a station
+tick per chapter — the same beacon-on-a-route language as the Locations map
+journey, met on the homepage first. Chapters come from `[data-chapter]`
+attributes in `app/page.js`, so the rail cannot drift out of sync with the
+sections. Desktop ≥1024px, fades in only after the hero, absent under reduced
+motion.
 
 ## 9. Hero — `LOCKED`
 The v3 shattered-glass plate with cursor-driven light. H1 in DOM before JS. One primary CTA. See `hero-reference/README.md` for the full art-direction bible and acceptance criteria.
@@ -164,6 +220,12 @@ As specified in the scaffold, plus (project-specific): no blue accents, no cryst
 | 2026-07-27 | Typography: Cormorant Garamond display / Archivo+Plex Sans body / Plex Mono utility | v3 design language; certificate/engraved register fits a signing firm | Satoshi (removed), Wix Madefor as display |
 | 2026-07-28 | Site-wide palette: noir/linen/fog/brass tokens; navy retired from UI | User: "match the hero to all the others"; seams between navy chrome and noir hero read as glitch | Keeping navy navbar/footer |
 | 2026-07-28 | Trusted-by logo lane kept despite §14 marquee rejection | User-directed feature with spotlight interaction; flagged for post-launch review | Static logo grid |
+| 2026-07-29 | §1 amended: two spectacle moments per page allowed, never sharing a viewport | User asked for a "motion-full, highly interactive, connective 3D storytelling" site. Flagged the conflict with the one-spectacle rule before building; user chose to add one 3D narrative spine rather than a full 3D rebuild | Full 3D across all pages (rejected — fails the §13 substitution test and the credibility register); motion-only with no new 3D |
+| 2026-07-29 | §2.2 amended: three.js permitted in a second place — the homepage valuation journey | It is product-truth, not decoration: the firm's own five process steps, one point field re-formed. Lazy + desktop-gated, so the homepage's first-load JS moves 285→288KB gz | A WebGL hero (still rejected — the 2026-07-27 decision stands) |
+| 2026-07-29 | `OurProcess.jsx` deleted, replaced by `ValuationJourney.jsx` | The 3D spine narrates the same five steps with the same copy; keeping both would have shipped the process twice | Adding the journey alongside OurProcess |
+| 2026-07-29 | Survey thread added as the homepage's connective element | Gives the page one continuous spine and plants the beacon metaphor the Locations map journey pays off | Per-section progress indicators |
 | open | consulting.jpg / law.jpg replacement | Awaiting real photography from the firm | — |
+| open | `/locations` ships three.js in first-load JS (399KB gz, pre-existing) | `MapJourney` imports `lib/map3d` statically — should adopt `ValuationJourney`'s dynamic-import pattern | — |
+| open | Homepage first-load JS is ~38KB gz over the §2.3 budget, inherited from before this work | Chase `motion` / `lucide-react` / `gsap` import surface | — |
 | open | Case studies content | No real assignment data provided yet — section renders nothing | Fabricated examples (refused) |
 | open | Production domain + Formspree endpoint | Placeholders still in metadata/contact form | — |

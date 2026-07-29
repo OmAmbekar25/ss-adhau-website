@@ -7,6 +7,7 @@ import {
   GitMerge,
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import LightCard from "@/components/LightCard";
 
 const services = [
   {
@@ -65,8 +66,8 @@ export default function Services() {
           {services.map((service, i) => {
             const Icon = service.icon;
             return (
-              <Reveal key={service.title} index={i}>
-                <div className="group h-full rounded-3xl border border-[rgba(242,239,233,0.1)] bg-white/[0.03] p-8 transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-brass/40">
+              <Reveal key={service.title} index={i} className="h-full">
+                <LightCard className="group h-full rounded-3xl border border-[rgba(242,239,233,0.1)] bg-white/[0.03] p-8 transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1">
                   <div className="flex size-12 items-center justify-center rounded-full bg-brass/10">
                     <Icon className="size-5 text-brass" />
                   </div>
@@ -77,7 +78,7 @@ export default function Services() {
                     {service.description}
                   </p>
                   <span className="mt-6 block h-px w-8 bg-brass transition-all duration-200 group-hover:w-12" />
-                </div>
+                </LightCard>
               </Reveal>
             );
           })}
