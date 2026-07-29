@@ -2,19 +2,48 @@
 
 **Status: BUILT AS A CANDIDATE at `/studio`** (2026-07-29), on the user's
 go-ahead. It does not replace `/` — the two directions are meant to be compared
-first. Implementation: `src/app/studio/` (page + page-scoped CSS),
-`src/components/studio/StudioClient.jsx` (loader, reveals, pin, ribbon states),
-`src/lib/ribbonScene.js` (the silk ribbon).
+first.
 
-Deviations from this brief, and why, are in `docs/creative-direction.md` §15 —
-monochrome glow instead of a champagne tint, existing font stack instead of
-Fraunces/Instrument Sans, a 46px headline floor instead of 72px, and the shared
-Lenis instance. The 60fps floor is **unverified**: this container has no GPU.
+| | |
+| --- | --- |
+| Route | `/studio` (`robots: noindex` while it is a candidate) |
+| Page + styles | `src/app/studio/page.js`, `src/app/studio/studio.css` |
+| Motion | `src/components/studio/StudioClient.jsx` — loader, line-mask reveals, the one pin, nav hide/show, ribbon scroll states |
+| The ribbon | `src/lib/ribbonScene.js` |
+| Chrome suppression | `src/components/ChromeGate.jsx` — the page carries its own nav/footer |
+| First-load JS | **225KB gz**, three.js deferred — the first page in the project inside the §2.3 budget |
+| Verified | 1440px · 390px · `prefers-reduced-motion` · JavaScript disabled — no console errors, finished document in every case |
+| Not verified | **60fps** — see the open item below |
 
 **Precedence:** the user's own framing — where this brief and
 `docs/creative-direction.md` conflict on hard constraints (performance budget
 §2.3, accessibility floor §2.4, rejection list §14), **creative-direction.md
 wins.**
+
+---
+
+## Decisions taken while building this
+
+Mirrored from `docs/creative-direction.md` §15 so this file stands on its own.
+Where the build departs from the brief below, the reason is here — the brief
+text itself is left **verbatim** and unedited.
+
+| Date | Decision | Why | Alternatives considered |
+| --- | --- | --- | --- |
+| 2026-07-29 | "Entropy Resolved" built as a **candidate at `/studio`**, not as a replacement for `/` | Signature element = a persistent particle-silk ribbon with scroll-driven states; monochrome palette; roman/italic display mixing. Kept on its own route so the two directions can be judged side by side before anything is retired, and because `/` is not yet pushed anywhere | Replacing `/` outright (deferred until compared) |
+| 2026-07-29 | Ships **monochrome**; the champagne accent is used only on the process progress hairline, not in the ribbon | The brief's own tiebreak ("if in doubt, ship pure monochrome"). Gold at the low alphas additive blending needs read as brown dust on black, not silk | Tinting the glow with `--brass`/champagne (tried, rejected on sight) |
+| 2026-07-29 | Keeps the site's existing Cormorant / IBM Plex Sans / IBM Plex Mono rather than adding Fraunces + Instrument Sans | The brief lists Cormorant as an accepted display face, and body copy is rare on the page. A fourth and fifth family would cost first-load weight for two paragraphs — §2.3 floor wins over the font suggestion | Loading Instrument Sans for body |
+| 2026-07-29 | Hero headline floor lowered to 46px (brief said 72px min) | At 390px, 72px wraps the headline to six lines and pushes the body copy off-screen. Readability floor wins; the clamp still reaches the brief's 176px ceiling on desktop | Keeping the 72px floor |
+| 2026-07-29 | Reuses the global Lenis instance (lerp 0.1) instead of its own at 0.09 | Two Lenis instances on one document fight each other. The 0.01 difference is not perceptible | A page-local Lenis |
+| 2026-07-29 | Points laid along continuous **threads**, not sampled randomly over the band | Random sampling reads as a dust cloud with no structure; a warp of strands running the length of the band is what makes the eye read cloth | Random sampling per the brief's "add per-point jitter" (built, rejected on sight) |
+| 2026-07-29 | Proof row ships **three** columns, not the brief's years/reports figures | No real figures exist for years in practice or reports delivered. Offices, cities and named institutions are all verifiable from the repo | Estimating (refused — CLAUDE.md forbids inventing business content) |
+
+**Open — blocking a ship, not a compare:**
+
+| Item | Detail |
+| --- | --- |
+| **60fps floor UNVERIFIED** | This container renders WebGL through SwiftShader (software). Measured 28fps on `/studio` against 14fps on `/` with no WebGL on screen — the environment is the bottleneck, so the numbers say nothing about real hardware. Must be re-measured on a real GPU and a mid-tier Android before this page ships. DPR cap, per-breakpoint counts (35k/18k/8k), single draw call, idle-mount and hidden-tab pause are all in place. |
+| `TODO(copy)` in `src/app/studio/page.js` | Real "years in practice" and "reports delivered" figures drop straight into the proof row when supplied. |
 
 ## Open conflicts to resolve before any build
 
