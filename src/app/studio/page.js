@@ -3,6 +3,7 @@ import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
+import StudioPaper from "@/components/studio/StudioPaper";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -328,6 +329,8 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </ul>
           </div>
         </section>
+
+        <StudioPaper />
 
         {/* --------------------- 5.7 CTA + FOOTER --------------------- */}
         <section className="er-section er-cta" aria-labelledby="er-cta-h" data-disperse>

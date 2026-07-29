@@ -1084,3 +1084,229 @@
   .er-tgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .er-tgrid .er-tcard { width: 100%; }
+
+/* --------------------------------------------------- §5.7 the deliverable
+   One section, one physical object. The palette below is scoped to it: the
+   page stays near-black, only the sheet is light. Nothing here glows, and
+   nothing here is gold — it is meant to read as paper, not as an artefact
+   of this page's own language. */
+.er-papersec {
+  /* tighter than the page's default block padding: the sheet is 80vh at
+     most, and the standard 16vh top and bottom pushed the section past a
+     viewport so the page could never frame the whole document at once */
+  padding-block: clamp(96px, 10vh, 176px);
+  --paper: #efeeea;
+  --paper-edge: #d8d6cf;
+  --paper-ink: #1a1a18;
+  --paper-ghost: #c9c7c0;
+  perspective: 1200px;
+}
+.er-paperwrap {
+  display: grid;
+  gap: clamp(40px, 6vh, 72px);
+  justify-items: center;
+}
+@media (min-width: 901px) {
+  .er-paperwrap {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(48px, 6vw, 96px);
+    justify-items: stretch;
+  }
+}
+.er-papercopy { text-align: center; }
+@media (min-width: 901px) {
+  .er-papercopy { text-align: left; }
+}
+.er-papercopy__h {
+  margin: 24px 0 0;
+  max-width: 15em;
+  color: var(--ink);
+}
+.er-paperlink {
+  display: inline-block;
+  margin-top: 36px;
+  color: var(--ink);
+  text-decoration: none;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+  transition: border-color 0.4s var(--enter), color 0.4s var(--enter);
+}
+.er-paperlink:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.er-paperstage {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  transform-style: preserve-3d;
+}
+
+/* the sheet — A4, and actually A4: 1 : 1.414 */
+.er-sheet {
+  --sheet-lift: 1;
+  width: 88vw;
+  max-width: 460px;
+  aspect-ratio: 1 / 1.414;
+  max-height: 80vh;
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  transform-origin: 50% 100%;
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(22px, 4.2%, 40px);
+  /* two layers: the cast shadow that says how far off the surface it is,
+     and the contact shadow that says it is resting on something */
+  box-shadow:
+    0 calc(24px * var(--sheet-lift)) calc(80px * var(--sheet-lift))
+      rgba(0, 0, 0, calc(0.55 * var(--sheet-lift))),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+@media (min-width: 901px) {
+  .er-sheet { width: 100%; }
+}
+
+.er-sheet__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--paper-edge);
+}
+.er-sheet__mark {
+  margin: 0;
+  font-family: var(--font-fraunces), var(--font-cormorant), Georgia, serif;
+  font-size: clamp(15px, 3.4%, 20px);
+  letter-spacing: 0.01em;
+}
+.er-sheet__mark sup { font-size: 0.5em; vertical-align: super; }
+.er-sheet__meta {
+  margin: 0;
+  text-align: right;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6b6a64;
+  line-height: 1.7;
+}
+.er-sheet__meta span { display: block; }
+
+.er-sheet__body {
+  flex: 1;
+  padding-top: clamp(18px, 4%, 30px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2.2%, 18px);
+}
+/* Redaction bars, not lorem ipsum: the shape of a report without claiming
+   a single thing it does not have the data to claim. */
+.er-sheet__title {
+  display: block;
+  height: 7px;
+  width: 44%;
+  background: var(--paper-ink);
+  opacity: 0.72;
+}
+.er-sheet__para {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.er-sheet__para span {
+  display: block;
+  height: 3px;
+  background: var(--paper-ghost);
+}
+.er-sheet__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: auto;
+}
+.er-sheet__table td {
+  padding: 6px 8px 6px 0;
+  border-top: 1px solid var(--paper-edge);
+}
+.er-sheet__table td span {
+  display: block;
+  height: 3px;
+  background: var(--paper-ghost);
+}
+.er-sheet__table td:last-child span { background: var(--paper-ink); opacity: 0.45; }
+
+.er-sheet__foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: clamp(16px, 3.4%, 26px);
+  margin-top: clamp(16px, 3.4%, 26px);
+  border-top: 1px solid var(--paper-edge);
+}
+.er-sheet__sign { width: 52%; }
+.er-sheet__scribble {
+  display: block;
+  height: 22px;
+  margin-bottom: 6px;
+  /* an ink stroke, not a signature: no real name is reproduced here */
+  background:
+    radial-gradient(9px 5px at 12% 70%, var(--paper-ink) 60%, transparent 62%),
+    radial-gradient(14px 7px at 40% 40%, var(--paper-ink) 55%, transparent 58%),
+    radial-gradient(10px 6px at 68% 72%, var(--paper-ink) 58%, transparent 60%),
+    radial-gradient(7px 4px at 88% 46%, var(--paper-ink) 60%, transparent 62%);
+  opacity: 0.55;
+}
+.er-sheet__rule {
+  display: block;
+  height: 1px;
+  background: var(--paper-ink);
+  opacity: 0.35;
+}
+.er-sheet__cap {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6b6a64;
+}
+.er-sheet__seal {
+  flex: 0 0 auto;
+  width: clamp(42px, 12%, 62px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1.5px solid var(--paper-ink);
+  opacity: 0.28;
+  background:
+    repeating-conic-gradient(var(--paper-ink) 0deg 4deg, transparent 4deg 8deg);
+  mask: radial-gradient(circle, transparent 52%, #000 54%, #000 100%);
+  -webkit-mask: radial-gradient(circle, transparent 52%, #000 54%, #000 100%);
+}
+
+/* reduced motion: no entry, no tilt — the sheet is simply there, with the
+   shadow it would have ended up with */
+@media (prefers-reduced-motion: reduce) {
+  .er-sheet {
+    --sheet-lift: 1;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .er-papersec { perspective: none; }
+}
+/* phone: 88vw and square to the viewer — a tilt this small reads as a
+   rendering error at that width, not as depth */
+@media (max-width: 900px) {
+  .er-sheet { transform: none !important; }
+}
+.er-sheet__tcap { margin-top: auto; padding-top: clamp(12px, 3%, 22px); }
+.er-sheet__tcap + .er-sheet__table { margin-top: 0; }

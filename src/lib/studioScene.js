@@ -302,6 +302,8 @@ uniform float uTime, uSize, uAmp, uDisperse, uDpr, uSilk;
 uniform float uVel, uVelSlow, uScatter;
 uniform vec2 uMouse;
 uniform float uMouseStrength, uRepelRadius;
+uniform vec4 uPlate;            // xy centre, zw half-extent, in local space
+uniform float uPlateFeather, uPlatePush;
 attribute float aRand, aEdge, aDrag, aStiff;
 attribute vec3 aNormalDir, aDrift;
 varying float vGlow, vTone;
@@ -375,6 +377,31 @@ void main() {
   if (r < uRepelRadius && r > 0.0001) {
     float f = smoothstep(uRepelRadius, 0.0, r);
     p.xy += normalize(d) * f * f * uMouseStrength * aDrag;
+  }
+
+  /* The sheet's exclusion mask. A signed distance to the rectangle, and a
+     push along its gradient — points inside travel to the nearest edge,
+     points within the feather ease outward, everything further away is
+     untouched. Static: it is where the paper is, so the field parts around
+     the document instead of shining through it. */
+  if (uPlatePush > 0.0001) {
+    vec2 pd = p.xy - uPlate.xy;
+    vec2 sg = sign(pd);
+    vec2 q = abs(pd) - uPlate.zw;
+    vec2 w = max(q, 0.0);
+    float outside = length(w);
+    float sd = outside + min(max(q.x, q.y), 0.0);
+    /* Each point keeps its own feather distance. A single shared one would
+       stack every displaced dot at exactly the same offset and draw a hard
+       wall around the sheet; spread across a range, the same push reads as
+       the field thinning out toward the paper. */
+    float fe = uPlateFeather * (0.35 + aRand * 1.5);
+    if (sd < fe) {
+      vec2 g = outside > 0.0001
+        ? sg * (w / outside)
+        : (q.x > q.y ? vec2(sg.x, 0.0) : vec2(0.0, sg.y));
+      p.xy += g * (fe - sd) * uPlatePush;
+    }
   }
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
@@ -518,6 +545,9 @@ export function createStudioScene(container, opts = {}) {
     uMouse: { value: new THREE.Vector2(999, 999) },
     uMouseStrength: { value: 0 },
     uRepelRadius: { value: 0.42 },
+    uPlate: { value: new THREE.Vector4(0, 0, 0, 0) },
+    uPlateFeather: { value: 0.5 },
+    uPlatePush: { value: 0 },
     uBright: { value: 1 },
     /* Monochrome silver. No warm stop anywhere in the field: gold is a
        typographic accent on this page, not a light source. */
@@ -652,19 +682,52 @@ export function createStudioScene(container, opts = {}) {
      live in. Eased, never teleported — the wake closing behind the cursor
      is half the effect. */
   const ndc = new THREE.Vector3();
+  const scratch = new THREE.Vector3();
+  /* A point on screen, in normalised device coords, as a point in the
+     field's own space: unproject onto the mid-plane, then through the
+     stage's transform. Both the cursor and the sheet's mask need this. */
+  const toLocal = (nx, ny, out) => {
+    ndc.set(nx, -ny, 0.5).unproject(camera);
+    ndc.sub(camera.position).normalize();
+    const dist = -camera.position.z / ndc.z;
+    out.copy(ndc).multiplyScalar(dist).add(camera.position);
+    tilt.updateMatrixWorld();
+    return tilt.worldToLocal(out);
+  };
+
   const mouseTarget = new THREE.Vector2(999, 999);
   let hovering = false;
   const setMouse = (nx, ny, inside) => {
     hovering = !!inside;
     if (!inside) return;
-    ndc.set(nx, -ny, 0.5).unproject(camera);
-    ndc.sub(camera.position).normalize();
-    const dist = -camera.position.z / ndc.z;
-    const world = ndc.multiplyScalar(dist).add(camera.position);
-    /* into the object's local space — the stage carries tilt and spin */
-    tilt.updateMatrixWorld();
-    const local = tilt.worldToLocal(world.clone());
+    const local = toLocal(nx, ny, scratch);
     mouseTarget.set(local.x, local.y);
+  };
+
+  /* The sheet's exclusion rect, given as its two opposite corners in
+     normalised device coords. Passing null lifts the mask. */
+  const plateA = new THREE.Vector3();
+  const plateB = new THREE.Vector3();
+  let plateStrength = 0;
+  const setPlate = (rect) => {
+    if (!rect) {
+      uniforms.uPlate.value.set(0, 0, 0, 0);
+      return;
+    }
+    const a = toLocal(rect.x0, rect.y0, plateA).clone();
+    const b = toLocal(rect.x1, rect.y1, plateB);
+    uniforms.uPlate.value.set(
+      (a.x + b.x) / 2,
+      (a.y + b.y) / 2,
+      Math.abs(b.x - a.x) / 2,
+      Math.abs(b.y - a.y) / 2
+    );
+    uniforms.uPlateFeather.value = Math.max(0.05, rect.feather ?? 0.5);
+  };
+  /* Eased in the frame loop, never set hard — the field has to open around
+     the sheet as it arrives, not snap around it. */
+  const setPlateStrength = (v) => {
+    plateStrength = clamp01(v);
   };
 
   /* THREE.Clock is deprecated in this three.js version and is the source
@@ -716,6 +779,11 @@ export function createStudioScene(container, opts = {}) {
       mv.x = lerp(mv.x > 100 ? mouseTarget.x : mv.x, mouseTarget.x, 0.12);
       mv.y = lerp(mv.y > 100 ? mouseTarget.y : mv.y, mouseTarget.y, 0.12);
     }
+    uniforms.uPlatePush.value = lerp(
+      uniforms.uPlatePush.value,
+      plateStrength,
+      0.09
+    );
     uniforms.uMouseStrength.value = lerp(
       uniforms.uMouseStrength.value,
       hovering ? 0.19 : 0,
@@ -782,6 +850,8 @@ export function createStudioScene(container, opts = {}) {
     setVelocity,
     setPointer,
     setMouse,
+    setPlate,
+    setPlateStrength,
     resume,
     pause,
     renderOnce: () => step(false),
