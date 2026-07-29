@@ -18,7 +18,10 @@ export default function SmoothScroll({ children }) {
 
     if (prefersReducedMotion) return;
 
-    const lenis = new Lenis({ autoRaf: false });
+    /* Lower lerp = a longer, heavier glide. This is the single most
+       noticeable piece of motion on the site, so it is tuned deliberately:
+       0.075 reads as weight, not as lag. */
+    const lenis = new Lenis({ autoRaf: false, lerp: 0.075 });
     lenis.on("scroll", ScrollTrigger.update);
 
     const syncWithGsap = (time) => lenis.raf(time * 1000);

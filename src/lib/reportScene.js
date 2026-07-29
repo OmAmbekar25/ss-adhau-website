@@ -300,8 +300,19 @@ export function createReportScene(container) {
   buildPage(T_PAGE);
   const FRAMES = [T_CLOUD, T_SITE, T_LATTICE, T_PAGE, T_PAGE, T_PAGE];
 
+  /* `basePos` is where the morph puts each point; `positions` is that plus
+     a slow personal wander, recomposed every frame so the field is never
+     frozen between scrolls. */
+  const basePos = new Float32Array(COUNT * 3);
+  basePos.set(T_CLOUD);
   const positions = new Float32Array(COUNT * 3);
   positions.set(T_CLOUD);
+  const wPhase = new Float32Array(COUNT);
+  const wRate = new Float32Array(COUNT);
+  for (let i = 0; i < COUNT; i++) {
+    wPhase[i] = Math.random() * Math.PI * 2;
+    wRate[i] = 0.18 + Math.random() * 0.3;
+  }
   const colors = new Float32Array(COUNT * 3);
   for (let i = 0; i < COUNT; i++) {
     /* brass is an accent caught in edges — roughly one point in seven */
@@ -495,25 +506,45 @@ export function createReportScene(container) {
     { px: 0, py: 1, pz: 53, tx: 0, ty: 0.5, tz: 0 },
     { px: 17, py: 4, pz: 44, tx: 1.5, ty: -1.5, tz: 0 },
   ];
+  /* Each form has its own centre of mass — the site's massing leans +x and
+     the dispersed field multiplies that lean — so the camera target follows
+     it. Without this the field sits off to one side of the frame while the
+     copy sits on the other, and the composition reads lopsided. */
+  const centroid = (buf) => {
+    let x = 0;
+    let z = 0;
+    for (let i = 0; i < COUNT; i++) {
+      x += buf[i * 3];
+      z += buf[i * 3 + 2];
+    }
+    return { x: x / COUNT, z: z / COUNT };
+  };
+  const CENT = FRAMES.map(centroid);
+
   const camKey = (p) => {
     const x = clamp01((p - 0.1) / 0.8) * (CAM.length - 1);
     const i = Math.min(CAM.length - 2, Math.floor(x));
     const t = sstep(clamp01(x - i));
     const a = CAM[i];
     const b = CAM[i + 1];
+    const ca = CENT[i];
+    const cb = CENT[i + 1];
+    const cx = lerp(ca.x, cb.x, t);
+    const cz = lerp(ca.z, cb.z, t);
     return {
-      px: lerp(a.px, b.px, t),
+      px: lerp(a.px, b.px, t) + cx,
       py: lerp(a.py, b.py, t),
       pz: lerp(a.pz, b.pz, t),
-      tx: lerp(a.tx, b.tx, t),
+      tx: lerp(a.tx, b.tx, t) + cx,
       ty: lerp(a.ty, b.ty, t),
-      tz: lerp(a.tz, b.tz, t),
+      tz: lerp(a.tz, b.tz, t) + cz,
     };
   };
 
   /* ---------------- state ---------------- */
   let progress = 0;
   let dirty = true;
+  let wanderAmp = 0.42;
   const ptr = { tx: 0, ty: 0, x: 0, y: 0 };
   const camTarget = new THREE.Vector3();
 
@@ -526,13 +557,16 @@ export function createReportScene(container) {
     const A = FRAMES[b];
     const B = FRAMES[b + 1];
     if (A === B && e >= 1) {
-      positions.set(A);
+      basePos.set(A);
     } else {
       for (let i = 0; i < COUNT * 3; i++) {
-        positions[i] = A[i] + (B[i] - A[i]) * e;
+        basePos[i] = A[i] + (B[i] - A[i]) * e;
       }
     }
-    fieldGeo.attributes.position.needsUpdate = true;
+
+    /* The document has to stay legible, so the wander falls away as the
+       page forms — the matter settles as the report is signed. */
+    wanderAmp = 0.42 * (1 - 0.82 * ease(p, 0.52, 0.74));
 
     /* the field tightens as the work resolves */
     field.material.size = lerp(0.36, 0.26, ease(p, 0.2, 0.75));
@@ -611,6 +645,17 @@ export function createReportScene(container) {
       camera.position.set(k.px, k.py, k.pz);
       camTarget.set(k.tx, k.ty, k.tz);
     }
+
+    /* the field keeps drifting whether or not the visitor is scrolling */
+    for (let i = 0; i < COUNT; i++) {
+      const ph = wPhase[i];
+      const w = t * wRate[i] + ph;
+      const i3 = i * 3;
+      positions[i3] = basePos[i3] + Math.sin(w) * wanderAmp;
+      positions[i3 + 1] = basePos[i3 + 1] + Math.cos(w * 0.83) * wanderAmp * 0.65;
+      positions[i3 + 2] = basePos[i3 + 2] + Math.sin(w * 1.17 + ph) * wanderAmp;
+    }
+    fieldGeo.attributes.position.needsUpdate = true;
 
     /* the camera has weight, and never quite stops breathing */
     ptr.x += (ptr.tx - ptr.x) * 0.045;

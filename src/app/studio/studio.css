@@ -490,6 +490,64 @@
   max-width: 68ch;
 }
 
+/* the institutions, as a catalogue of names */
+.er-orgs {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 clamp(24px, 3vw, 56px);
+}
+@media (min-width: 640px) {
+  .er-orgs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1000px) {
+  .er-orgs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.er-org {
+  padding: 16px 0;
+}
+.er-org__n {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* what clients said */
+.er-words {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(40px, 6vh, 72px) clamp(32px, 5vw, 88px);
+}
+@media (min-width: 760px) {
+  .er-words {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.er-word__q {
+  margin: 22px 0 0;
+  font-weight: 300;
+  font-size: clamp(21px, 2.2vw, 30px);
+  line-height: 1.28;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.er-word__a {
+  margin-top: 18px;
+}
+
 /* cta */
 .er-cta {
   text-align: center;

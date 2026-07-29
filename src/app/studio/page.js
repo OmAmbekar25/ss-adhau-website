@@ -58,6 +58,44 @@ const PROOF = [
   { label: "Institutions", figure: "15", note: "Banks, tribunals & departments" },
 ];
 
+/* The institutions whose work the firm carries out — taken verbatim from
+   src/components/TrustedShowcase.jsx, which is the site's existing record
+   of them. Names only: the logos are colour artwork and this page is
+   monochrome, and a name carries the claim better than a mark anyway. */
+const INSTITUTIONS = [
+  "Income Tax Department",
+  "Debts Recovery Tribunal",
+  "State Bank of India",
+  "Union Bank of India",
+  "Central Bank of India",
+  "Bank of India",
+  "Indian Bank",
+  "Punjab National Bank",
+  "Canara Bank",
+  "UCO Bank",
+  "Bank of Maharashtra",
+  "IDBI Bank",
+  "HDFC Bank",
+  "LIC Housing Finance",
+  "Madhya Pradesh Gramin Bank",
+];
+
+/* Real reviews, carried over from src/components/MarqueeCards.jsx. The
+   @handles and stock avatars there are template leftovers, not the
+   clients' own, so they are dropped rather than reproduced. */
+const REVIEWS = [
+  { name: "Subhash Kamti", text: "Best valuer of Chhindwara." },
+  {
+    name: "Prateek Agrawal",
+    text: "Good knowledge. Satisfactory work. Thank you for your service sir.",
+  },
+  {
+    name: "Priyanka Singh",
+    text: "The office staff is knowledgeable and responsive.",
+  },
+  { name: "Anukul Singh", text: "Best." },
+];
+
 /* A headline line: the mask wrapper is authored, never split at runtime. */
 function Line({ children }) {
   return (
@@ -262,14 +300,43 @@ setTimeout(function(){h.classList.remove('er-loading')},2500);}
               ))}
             </div>
 
-            <p className="er-body er-proof__note er-fade">
-              Work is carried out for the Income Tax Department, the Debts
-              Recovery Tribunal, and for Union Bank of India, Central Bank of
-              India, Bank of India, Indian Bank, Punjab National Bank, Canara
-              Bank, UCO Bank, Bank of Maharashtra, State Bank of India, IDBI
-              Bank, HDFC Bank, LIC Housing Finance and Madhya Pradesh Gramin
-              Bank.
+            <p className="er-label er-label--faint er-track er-proof__note">
+              Reports accepted by
             </p>
+            <ul className="er-orgs">
+              {INSTITUTIONS.map((name) => (
+                <li className="er-org" key={name}>
+                  <span className="er-rule" />
+                  <span className="er-org__n">{name}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ---------------------- 5.6b IN THEIR WORDS ----------------- */}
+        <section className="er-section" aria-labelledby="er-words">
+          <div className="er-wrap">
+            <p className="er-label er-label--faint er-track">Sec. 05 — Clients</p>
+            <h2 id="er-words" className="er-display er-h3" style={{ margin: "24px 0 64px" }}>
+              <Line>
+                In <em>their words</em>.
+              </Line>
+            </h2>
+
+            <ul className="er-words">
+              {REVIEWS.map((review) => (
+                <li className="er-word" key={review.name}>
+                  <span className="er-rule" />
+                  <blockquote className="er-word__q er-display">
+                    “{review.text}”
+                  </blockquote>
+                  <p className="er-label er-label--faint er-word__a er-fade">
+                    {review.name}
+                  </p>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
