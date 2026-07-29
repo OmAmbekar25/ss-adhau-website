@@ -9,9 +9,9 @@ export default function AboutHero() {
         Our Story
       </h1>
       <div className="w-full flex justify-center mt-2">
-        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brass to-brass/10 mt-1" />
       </div>
-      <p className="text-lg p-4 text-slate-500 text-center mt-2 max-w-7xl  mx-auto">
+      <p className="text-lg p-4 text-fog text-center mt-2 max-w-7xl  mx-auto">
         SS Adhau Valuers is a professionally managed valuation firm providing
         accurate, compliant, and independent valuation services across diverse
         asset classes. Backed by certified registered valuers and strong domain
@@ -26,7 +26,7 @@ export default function AboutHero() {
           <h2 className="text-3xl md:text-4xl font-semibold">
             What you can Expect
           </h2>
-          <p className="text-lg text-slate-500 mt-2">
+          <p className="text-lg text-fog mt-2">
             We deliver independent, accurate, and regulation-compliant valuation
             services backed by technical expertise, market intelligence, and
             uncompromising professional ethics.
@@ -35,14 +35,14 @@ export default function AboutHero() {
           <div className="flex flex-col gap-8 mt-6">
             {/* Feature 1 */}
             <div className="flex items-start gap-4">
-              <div className="w-10 p-2 bg-indigo-50 border border-indigo-200 rounded">
+              <div className="w-10 p-2 bg-brass/10 border border-brass/30 rounded">
                 <UsersRound />
               </div>
               <div>
-                <h3 className="text-xl font-medium text-slate-600">
+                <h3 className="text-xl font-medium text-fog">
                   Multi-Disciplinary Experts
                 </h3>
-                <p className="text-lg text-slate-500">
+                <p className="text-lg text-fog">
                   A qualified team of registered valuers, engineers, and domain
                   specialists covering real estate, machinery, financial, and
                   specialized assets.
@@ -52,14 +52,14 @@ export default function AboutHero() {
 
             {/* Feature 2 */}
             <div className="flex items-start gap-4">
-              <div className="w-10 p-2 bg-indigo-50 border border-indigo-200 rounded">
+              <div className="w-10 p-2 bg-brass/10 border border-brass/30 rounded">
                 <Crosshair />
               </div>
               <div>
-                <h3 className="text-xl font-medium text-slate-600">
+                <h3 className="text-xl font-medium text-fog">
                   Uncompromising Accuracy & Compliance
                 </h3>
-                <p className="text-lg text-slate-500">
+                <p className="text-lg text-fog">
                   Valuations strictly aligned with IBC, Income Tax, Companies
                   Act, RBI, IFRS, IND AS, and other applicable regulatory
                   frameworks.
@@ -69,14 +69,14 @@ export default function AboutHero() {
 
             {/* Feature 3 */}
             <div className="flex items-start gap-4">
-              <div className="w-10 p-2 bg-indigo-50 border border-indigo-200 rounded">
+              <div className="w-10 p-2 bg-brass/10 border border-brass/30 rounded">
                 <Map />
               </div>
               <div>
-                <h3 className="text-xl font-medium text-slate-600">
+                <h3 className="text-xl font-medium text-fog">
                   Local Market Insight + Technical Data
                 </h3>
-                <p className="text-lg text-slate-500">
+                <p className="text-lg text-fog">
                   Strong understanding of regional market dynamics combined with
                   robust technical analysis for defensible and realistic
                   valuations.
@@ -86,7 +86,7 @@ export default function AboutHero() {
 
             {/* Feature 4 */}
             {/* <div className="flex items-start gap-4">
-              <div className="size-9 p-2 bg-indigo-50 border border-indigo-200 rounded">
+              <div className="size-9 p-2 bg-brass/10 border border-brass/30 rounded">
                 <Image
                   src="/images/consulting.jpg"
                   alt="Integrity"
@@ -95,10 +95,10 @@ export default function AboutHero() {
                 />
               </div>
               <div>
-                <h3 className="text-base font-medium text-slate-600">
+                <h3 className="text-base font-medium text-fog">
                   Integrity & Confidentiality
                 </h3>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-fog">
                   Complete independence, ethical conduct, and strict
                   confidentiality across all client engagements.
                 </p>
@@ -107,7 +107,7 @@ export default function AboutHero() {
 
             {/* Feature 5 */}
             {/* <div className="flex items-start gap-4">
-              <div className="size-9 p-2 bg-indigo-50 border border-indigo-200 rounded">
+              <div className="size-9 p-2 bg-brass/10 border border-brass/30 rounded">
                 <Image
                   src="/images/consulting.jpg"
                   alt="Speed & Reliability"
@@ -116,10 +116,10 @@ export default function AboutHero() {
                 />
               </div>
               <div>
-                <h3 className="text-base font-medium text-slate-600">
+                <h3 className="text-base font-medium text-fog">
                   Speed & Reliability
                 </h3>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-fog">
                   Time-bound delivery of high-quality valuation reports without
                   compromising accuracy or compliance.
                 </p>

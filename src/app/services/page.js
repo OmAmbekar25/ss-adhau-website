@@ -74,7 +74,7 @@ const services = [
       "Asset valuation for insurance coverage, reinstatement value, and risk assessment.",
     icon: Landmark,
     bg: "bg-indigo-100",
-    color: "text-indigo-600",
+    color: "text-brass",
   },
   {
     title: "Valuation for Regulatory Purposes",
@@ -154,16 +154,16 @@ export default function ServicesPage() {
      <div className="overflow-x-hidden">
        <ServiceHero />
       <div className="flex flex-col items-center mb-10 ">
-         <h1 className="text-4xl md:text-5xl uppercase font-semibold text-slate-700">
+         <h2 className="text-4xl md:text-5xl uppercase font-semibold text-linen">
           We Provide
-        </h1>
+        </h2>
 
-        <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+        <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-brass to-brass/10 mt-1" />
       </div>
       {/* <div className="flex justify-center"> */}
         <div className="grid  lg:px-44 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative">
         {/* Background blur – unchanged */}
-        <div className="size-[520px] top-0 left-1/2 -translate-x-1/2 rounded-full absolute blur-[300px] -z-10 bg-[#FBFFE1]/70" />
+        <div className="size-[520px] top-0 left-1/2 -translate-x-1/2 rounded-full absolute blur-[300px] -z-10 bg-brass/10" />
 
         {services.map((service, index) => {
           const Icon = service.icon;
@@ -180,11 +180,11 @@ export default function ServicesPage() {
               </div>
 
               <div className="mt-5 space-y-2 text-center">
-                <h3 className="text-lg font-semibold text-slate-700">
+                <h3 className="text-lg font-semibold text-linen">
                   {service.title}
                 </h3>
 
-                <p className="text-md text-slate-600 leading-relaxed">
+                <p className="text-md text-fog leading-relaxed">
                   {service.description}
                 </p>
               </div>

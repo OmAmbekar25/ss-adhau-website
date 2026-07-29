@@ -45,25 +45,25 @@ export default function ContactForm() {
 
         {/* LEFT */}
         <div className="p-5">
-          <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 mb-3">
+          <h1 className="text-4xl md:text-5xl font-semibold text-linen mb-3">
             Get in Touch
           </h1>
 
-          <p className="text-lg text-gray-600 mb-8 max-w-md">
+          <p className="text-lg text-fog mb-8 max-w-md">
             Have a valuation requirement or query?  
             Our experts at <strong>S S Adhau Valuers and Engineers</strong> are ready to help.
           </p>
 
           {/* SUCCESS MESSAGE */}
           {success && (
-            <div className="mb-6 p-4 rounded-lg bg-green-50 text-green-700 text-sm">
+            <div className="mb-6 p-4 rounded-lg bg-green-900/30 text-green-300 text-sm">
               ✅ Thank you! Your message has been sent successfully.
             </div>
           )}
 
           {/* ERROR MESSAGE */}
           {error && (
-            <div className="mb-6 p-4 rounded-lg bg-red-50 text-red-600 text-sm">
+            <div className="mb-6 p-4 rounded-lg bg-red-900/30 text-red-300 text-sm">
               ❌ {error}
             </div>
           )}
@@ -84,13 +84,13 @@ export default function ContactForm() {
                 name="firstName"
                 placeholder="First name"
                 required
-                className="w-full px-3 py-3 border rounded-lg text-sm focus:border-indigo-500 outline-none"
+                className="w-full px-3 py-3 rounded-lg text-sm bg-white/[0.05] border border-[rgba(242,239,233,0.15)] text-linen placeholder:text-fog/70 focus:border-brass outline-none"
               />
               <input
                 name="lastName"
                 placeholder="Last name"
                 required
-                className="w-full px-3 py-3 border rounded-lg text-sm focus:border-indigo-500 outline-none"
+                className="w-full px-3 py-3 rounded-lg text-sm bg-white/[0.05] border border-[rgba(242,239,233,0.15)] text-linen placeholder:text-fog/70 focus:border-brass outline-none"
               />
             </div>
 
@@ -99,7 +99,7 @@ export default function ContactForm() {
               name="email"
               placeholder="Email address"
               required
-              className="w-full px-3 py-3 border rounded-lg text-sm focus:border-indigo-500 outline-none"
+              className="w-full px-3 py-3 rounded-lg text-sm bg-white/[0.05] border border-[rgba(242,239,233,0.15)] text-linen placeholder:text-fog/70 focus:border-brass outline-none"
             />
 
             {/* 🇮🇳 Indian phone validation */}
@@ -110,7 +110,7 @@ export default function ContactForm() {
               pattern="^[6-9]\d{9}$"
               title="Enter a valid 10-digit Indian mobile number"
               required
-              className="w-full px-3 py-3 border rounded-lg text-sm focus:border-indigo-500 outline-none"
+              className="w-full px-3 py-3 rounded-lg text-sm bg-white/[0.05] border border-[rgba(242,239,233,0.15)] text-linen placeholder:text-fog/70 focus:border-brass outline-none"
             />
 
             <textarea
@@ -118,13 +118,13 @@ export default function ContactForm() {
               rows="4"
               placeholder="Your message"
               required
-              className="w-full px-3 py-3 border rounded-lg text-sm focus:border-indigo-500 outline-none"
+              className="w-full px-3 py-3 rounded-lg text-sm bg-white/[0.05] border border-[rgba(242,239,233,0.15)] text-linen placeholder:text-fog/70 focus:border-brass outline-none"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm flex items-center justify-center gap-2 disabled:opacity-70"
+              className="w-full py-3.5 bg-brass hover:bg-[#b58e50] text-noir font-semibold rounded-full text-sm flex items-center justify-center gap-2 disabled:opacity-70 transition-colors"
             >
               {loading ? (
                 <>

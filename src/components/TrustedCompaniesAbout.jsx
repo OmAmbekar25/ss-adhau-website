@@ -33,7 +33,7 @@ export default function TrustedCompaniesAbout() {
         Trusted by India’s Leading Organizations
       </h2>
        <div className="w-full flex justify-center mt-2">
-        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brass to-brass/10 mt-1" />
       </div>
 
       {/* Responsive Grid */}
@@ -41,7 +41,7 @@ export default function TrustedCompaniesAbout() {
         {logos.map((logo, index) => (
           <div
             key={index}
-            className="flex items-center justify-center aspect-square bg-gray-50 border border-gray-200 rounded-md p-4"
+            className="flex items-center justify-center aspect-square bg-[#F5F2EA] border border-[rgba(242,239,233,0.12)] rounded-md p-4"
           >
             <Image
               src={logo.src}

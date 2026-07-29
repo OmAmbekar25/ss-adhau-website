@@ -30,7 +30,7 @@ const cardsData = [
 
 const Card = ({ card }) => {
   return (
-    <div className="p-4 rounded-lg mx-4 shadow hover:shadow-lg transition-all duration-200 w-72 shrink-0 bg-white">
+    <div className="p-4 rounded-2xl mx-4 border border-[rgba(242,239,233,0.1)] transition-all duration-200 w-72 shrink-0 bg-white/[0.04] hover:border-brass/30">
       <div className="flex gap-2">
         <Image
           src={card.image}
@@ -42,10 +42,10 @@ const Card = ({ card }) => {
 
         <div className="flex align-middle">
           <div className="flex items-center gap-1">
-            <p className="font-medium text-md">{card.name}</p>
+            <p className="font-medium text-md text-linen">{card.name}</p>
 
             <svg
-              className="mt-0.5 fill-blue-500"
+              className="mt-0.5 fill-brass"
               width="12"
               height="12"
               viewBox="0 0 12 12"
@@ -63,7 +63,7 @@ const Card = ({ card }) => {
         </div>
       </div>
 
-      <p className="text-md py-4 text-gray-800">
+      <p className="text-md py-4 text-fog">
         {card.review}
       </p>
     </div>
@@ -73,18 +73,18 @@ const Card = ({ card }) => {
 export default function MarqueeCards() {
   return (
     <>
-      <h1 className="text-4xl md:text-5xl text-center font-bold text-gray-800">
+      <h2 className="text-4xl md:text-5xl text-center text-linen">
         What Our clients Say
-      </h1>
+      </h2>
       <div className="w-full flex justify-center mt-2">
-        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+        <div className="w-24 h-px bg-gradient-to-r from-brass to-brass/10 mt-2" />
       </div>
-      <p className="text-sm text-center md:text-base text-gray-500 mt-4">
+      <p className="text-sm text-center md:text-base text-fog mt-4">
         Join many of successful clients who transformed their careers with us
       </p>
 
       <div className="w-full mx-auto max-w-7xl overflow-hidden relative">
-        <div className="absolute left-0 top-0 h-full w-20 z-10 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 h-full w-20 z-10 bg-gradient-to-r from-noir to-transparent pointer-events-none" />
 
         <div className="marquee flex min-w-[200%] pt-10 pb-5">
           {[...cardsData, ...cardsData].map((card, index) => (
@@ -92,11 +92,11 @@ export default function MarqueeCards() {
           ))}
         </div>
 
-        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 bg-gradient-to-l from-noir to-transparent pointer-events-none" />
       </div>
 
       <div className="w-full mx-auto max-w-7xl overflow-hidden relative">
-        <div className="absolute left-0 top-0 h-full w-20 z-10 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 h-full w-20 z-10 bg-gradient-to-r from-noir to-transparent pointer-events-none" />
 
         <div className="marquee marquee-reverse flex min-w-[200%] pt-10 pb-5">
           {[...cardsData, ...cardsData].map((card, index) => (
@@ -104,7 +104,7 @@ export default function MarqueeCards() {
           ))}
         </div>
 
-        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 bg-gradient-to-l from-noir to-transparent pointer-events-none" />
       </div>
 
       {/* Scoped CSS for animation */}

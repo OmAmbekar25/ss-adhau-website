@@ -4,9 +4,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-light border-t border-gray-300 mt-10 px-6 md:px-12 lg:px-20 xl:px-32 pt-12 text-brand-slate">
+    <footer className="bg-noir border-t border-[rgba(242,239,233,0.12)] mt-0 px-6 md:px-12 lg:px-20 xl:px-32 pt-12 text-fog">
       {/* Top Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 border-b border-slate-300 pb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 border-b border-white/10 pb-10">
         {/* Logo + Description */}
         <div>
           <Link href="/" aria-label="Go to homepage">
@@ -15,7 +15,7 @@ export default function Footer() {
               alt="Company Logo"
               width={160}
               height={40}
-              className="object-contain"
+              className="object-contain brightness-0 invert"
               priority
             />
           </Link>
@@ -29,30 +29,35 @@ export default function Footer() {
 
         {/* Company */}
         <div>
-          <h3 className="font-semibold mb-5 text-brand-navy">Company</h3>
+          <h3 className="font-semibold mb-5 text-white">Company</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/" className="hover:text-brand-orange">
+              <Link href="/" className="hover:text-brass">
                 Home
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-brand-orange">
+              <Link href="/about" className="hover:text-brass">
                 About Us
               </Link>
             </li>
             <li>
-              <Link href="/services" className="hover:text-brand-orange">
+              <Link href="/services" className="hover:text-brass">
                 Services
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-brand-orange">
+              <Link href="/locations" className="hover:text-brass">
+                Locations
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-brass">
                 Contact
               </Link>
             </li>
             <li>
-              <Link href="/privacy-policy" className="hover:text-brand-orange">
+              <Link href="/privacy-policy" className="hover:text-brass">
                 Privacy Policy
               </Link>
             </li>
@@ -61,7 +66,7 @@ export default function Footer() {
 
         {/* Offices */}
         <div>
-          <h3 className="font-semibold mb-5 text-brand-navy">Offices</h3>
+          <h3 className="font-semibold mb-5 text-white">Offices</h3>
 
           <div className="space-y-4 text-sm leading-relaxed">
             <div>
@@ -75,7 +80,7 @@ export default function Footer() {
                 href="https://maps.app.goo.gl/AJYYMS3F3ok3SajR6"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-1 text-brand-orange hover:underline text-xs"
+                className="inline-block mt-1 text-brass hover:underline text-xs"
               >
                 View on Map →
               </a>
@@ -92,7 +97,7 @@ export default function Footer() {
                 href="https://maps.app.goo.gl/dFv8YyStPMFaygpUA"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-1 text-brand-orange hover:underline text-xs"
+                className="inline-block mt-1 text-brass hover:underline text-xs"
               >
                 View on Map →
               </a>
@@ -102,26 +107,26 @@ export default function Footer() {
 
         {/* Get in Touch */}
         <div>
-          <h3 className="font-semibold mb-5 text-brand-navy">Get in Touch</h3>
+          <h3 className="font-semibold mb-5 text-white">Get in Touch</h3>
 
           <div className="space-y-3 text-sm">
             <a
               href="tel:+918793000929"
-              className="block hover:text-brand-orange"
+              className="block hover:text-brass"
             >
               +91 8793000929
             </a>
 
             <a
               href="mailto:ssadhauvaluers@gmail.com"
-              className="block hover:text-brand-orange"
+              className="block hover:text-brass"
             >
               ssadhauvaluers@gmail.com
             </a>
 
             {/* Office Timings */}
-            <div className="pt-3 border-t border-slate-300">
-              <p className="font-medium text-brand-navy">Office Timings:</p>
+            <div className="pt-3 border-t border-white/10">
+              <p className="font-medium text-white">Office Timings:</p>
               <p>Monday - Saturday: 10:00 AM - 7:00 PM</p>
               <p>Sunday: Closed</p>
             </div>
@@ -132,7 +137,7 @@ export default function Footer() {
       {/* Bottom Section */}
       <p className="py-5 text-center text-sm md:text-base">
         © {new Date().getFullYear()}{" "}
-        <span className="hover:text-brand-orange">
+        <span className="hover:text-brass">
           SS Adhau Valuers & Engineers
         </span>
         . All rights reserved.

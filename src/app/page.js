@@ -1,11 +1,13 @@
 import About from "@/components/About";
-import { GridBackgroundDemo } from "@/components/BackgroundBoxes";
-import  BouncyCardsFeatures  from "@/components/Features";
+import Hero from "@/components/Hero";
+import Services from "@/components/Services";
+import Spotlight from "@/components/Spotlight";
+import OurPresence from "@/components/OurPresence";
 import HomeContact from "@/components/HomeContact";
 import MarqueeCards from "@/components/MarqueeCards";
-import TrustedCompanies from "@/components/TrustedCompanies";
-import { div } from "motion/react-client";
-import Image from "next/image";
+import TrustedShowcase from "@/components/TrustedShowcase";
+import OurProcess from "@/components/OurProcess";
+import CaseStudies from "@/components/CaseStudies";
 
 export const metadata = {
   title: "SS Adhau  | Registered Valuers and Chartered Engineers",
@@ -25,10 +27,14 @@ export default function Home() {
   return (
     <>
     <main className="min-h-screen ">
-      <GridBackgroundDemo />
-      <BouncyCardsFeatures />
+      <Hero />
+      <TrustedShowcase />
+      <Services />
+      <Spotlight />
       <About />
-      <TrustedCompanies />
+      <OurProcess />
+      <OurPresence />
+      <CaseStudies />
       <MarqueeCards />
       <HomeContact />
     </main>

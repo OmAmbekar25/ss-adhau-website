@@ -11,9 +11,9 @@ export default function WhyChooseUs() {
               Why Choose Us?
             </h2>
             <div className="w-full flex justify-center ">
-              <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+              <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brass to-brass/10 mt-1" />
             </div>
-            <p className="text-lg p-4 md:p-0 max-w-xl leading-relaxed tracking-tight text-muted-foreground">
+            <p className="text-lg p-4 md:p-0 max-w-xl leading-relaxed tracking-tight text-fog">
               Trusted valuation professionals delivering accuracy, compliance,
               and timely insights across diverse asset classes.
             </p>
@@ -50,12 +50,12 @@ export default function WhyChooseUs() {
               ].map((item, index) => (
                 <div key={index} className="flex flex-row gap-4 items-start">
                   <div className="mt-1 flex-shrink-0">
-                    <Check className="w-5 h-5 text-primary" />
+                    <Check className="w-5 h-5 text-brass" />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <p className="font-medium text-lg text-slate-800">{item.title}</p>
-                    <p className="text-md text-muted-foreground">{item.desc}</p>
+                    <p className="font-medium text-lg text-linen">{item.title}</p>
+                    <p className="text-md text-fog">{item.desc}</p>
                   </div>
                 </div>
               ))}

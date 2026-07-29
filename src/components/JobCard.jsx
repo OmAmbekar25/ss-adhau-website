@@ -10,22 +10,22 @@ export function JobCardSimple({
   type,
 }) {
   const badgeColors = {
-    indigo: "bg-indigo-50 text-indigo-600",
-    blue: "bg-blue-50 text-blue-600",
-    orange: "bg-orange-50 text-orange-600",
+    indigo: "bg-indigo-50 text-brass",
+    blue: "bg-brass/10 text-brass",
+    orange: "bg-brass/10 text-brass",
     pink: "bg-pink-50 text-pink-600",
     success: "bg-green-50 text-green-600",
   };
 
   return (
-    <div className="border border-gray-200 rounded-2xl p-6 transition hover:shadow-lg hover:border-indigo-200 bg-white">
+    <div className="border border-[rgba(242,239,233,0.12)] rounded-2xl p-6 transition hover:shadow-lg hover:border-brass/40 bg-white/[0.04] border border-[rgba(242,239,233,0.1)]">
 
       {/* Top Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
         {/* Title + Badge */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-linen">
             {title}
           </h3>
 
@@ -39,14 +39,14 @@ export function JobCardSimple({
         </div>
 
         {/* Meta Info */}
-        <div className="text-sm text-gray-500 flex flex-col sm:text-right">
+        <div className="text-sm text-fog flex flex-col sm:text-right">
           <span>{location}</span>
           <span>{type}</span>
         </div>
       </div>
 
       {/* Description */}
-      <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+      <p className="mt-4 text-sm text-fog leading-relaxed">
         {description}
       </p>
 
@@ -54,7 +54,7 @@ export function JobCardSimple({
       <div className="mt-6">
         <Link
           href={href}
-          className="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-700 transition"
+          className="inline-flex items-center text-sm font-medium text-brass hover:text-[#dcb87a] transition"
         >
           Apply Now →
         </Link>

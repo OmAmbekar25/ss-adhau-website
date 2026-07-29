@@ -40,7 +40,7 @@ export default function FAQ() {
 
   return (
     <section className="max-w-5xl mx-auto px-4 py-16">
-      <p className="text-indigo-600 text-sm font-medium text-center">
+      <p className="text-brass text-sm font-medium text-center">
         FAQ&apos;s
       </p>
 
@@ -48,23 +48,23 @@ export default function FAQ() {
         Looking for answers?
       </h2>
       <div className="w-full flex justify-center mt-2">
-        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+        <div className="w-24  h-[3px] rounded-full bg-gradient-to-r from-brass to-brass/10 mt-1" />
       </div>
 
-      <p className="text-lg text-slate-500 mt-2 pb-8 text-center">
+      <p className="text-lg text-fog mt-2 pb-8 text-center">
         Common questions about our valuation services, process, and expertise.
       </p>
 
       {faqs.map((faq, index) => (
         <div
           key={index}
-          className="border-b border-slate-200 py-4 cursor-pointer"
+          className="border-b border-[rgba(242,239,233,0.12)] py-4 cursor-pointer"
           onClick={() =>
             setOpenIndex(openIndex === index ? null : index)
           }
         >
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-slate-800">
+            <h3 className="text-lg font-medium text-linen">
               {faq.question}
             </h3>
 
@@ -80,7 +80,7 @@ export default function FAQ() {
             >
               <path
                 d="m4.5 7.2 3.793 3.793a1 1 0 0 0 1.414 0L13.5 7.2"
-                stroke="#1D293D"
+                stroke="#C9A063"
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -89,7 +89,7 @@ export default function FAQ() {
           </div>
 
           <p
-            className={`text-lg text-slate-500 transition-all duration-300 ease-in-out overflow-hidden ${
+            className={`text-lg text-fog transition-all duration-300 ease-in-out overflow-hidden ${
               openIndex === index
                 ? "opacity-100 max-h-40 pt-4"
                 : "opacity-0 max-h-0"

@@ -81,16 +81,16 @@ export default async function TeamMemberPage({ params }) {
   <div className="max-w-6xl mx-auto">
 
     {/* 🔹 Breadcrumbs */}
-    <div className="text-sm text-gray-500 mb-6">
-      <span className="hover:text-brand-orange cursor-pointer"><Link href="/">Home</Link></span> 
+    <div className="text-sm text-fog mb-6">
+      <span className="hover:text-brass cursor-pointer"><Link href="/">Home</Link></span> 
       <span className="mx-2">/</span>
-      <span className="hover:text-brand-orange cursor-pointer"><Link href="/about">About</Link></span>
+      <span className="hover:text-brass cursor-pointer"><Link href="/about">About</Link></span>
       <span className="mx-2">/</span>
-      <span className="text-gray-700 font-medium">{member.name}</span>
+      <span className="text-fog font-medium">{member.name}</span>
     </div>
 
     {/* 🔹 Profile Card */}
-    <div className="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+    <div className="bg-white/[0.04] border border-[rgba(242,239,233,0.1)] rounded-2xl shadow-lg p-6 md:p-10">
 
       {/* Top Section */}
       <div className="grid md:grid-cols-3 gap-8 items-start">
@@ -108,21 +108,21 @@ export default async function TeamMemberPage({ params }) {
 
         {/* Info */}
         <div className="md:col-span-2">
-          <h1 className="text-3xl md:text-4xl font-bold text-brand-navy">
+          <h1 className="text-3xl md:text-4xl font-bold text-linen">
             {member.name}
           </h1>
 
-          <p className="text-brand-orange mt-2 font-semibold text-lg">
+          <p className="text-brass mt-2 font-semibold text-lg">
             {member.role}
           </p>
 
-          <p className="mt-3 text-gray-600">
+          <p className="mt-3 text-fog">
             {member.qualifications}
           </p>
 
           {/* Highlight Box */}
-          <div className="mt-6 p-4 bg-gray-100 rounded-lg border-l-4 border-brand-orange">
-            <p className="text-sm text-gray-700">
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg border-l-4 border-brand-accent">
+            <p className="text-sm text-fog">
               Trusted professional with proven expertise in valuation and engineering consultancy.
             </p>
           </div>
@@ -137,9 +137,9 @@ export default async function TeamMemberPage({ params }) {
 
         {/* Left Sticky Section (optional feel) */}
        <div className="hidden md:block">
-  <h3 className="font-semibold text-brand-navy mb-3">Key Information</h3>
+  <h3 className="font-semibold text-linen mb-3">Key Information</h3>
 
-  <div className="space-y-2 text-sm text-gray-600">
+  <div className="space-y-2 text-sm text-fog">
     <p><span className="font-medium text-gray-800">Role:</span> {member.role}</p>
     <p><span className="font-medium text-gray-800">Qualification:</span> {member.qualifications}</p>
     <p><span className="font-medium text-gray-800">Domain:</span> Valuation & Engineering</p>
@@ -147,7 +147,7 @@ export default async function TeamMemberPage({ params }) {
 </div>
 
         {/* Right Content */}
-        <div className="md:col-span-2 space-y-4 text-gray-700 leading-relaxed text-justify">
+        <div className="md:col-span-2 space-y-4 text-fog leading-relaxed text-justify">
           {member.description.split("\n").map((para, i) => (
             <p key={i}>{para}</p>
           ))}

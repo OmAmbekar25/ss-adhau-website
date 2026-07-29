@@ -3,7 +3,11 @@
 
 html,
 body {
-  font-family: var(--font-wix-madefor), system-ui, sans-serif;
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-cormorant), var(--font-wix-madefor), serif;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -12,8 +16,15 @@ body {
    --color-brand-light: var(--brand-light);
   --color-brand-navy: var(--brand-navy);
   --color-brand-slate: var(--brand-slate);
-  --color-brand-orange: var(--brand-orange);
+  --color-brand-accent: var(--brand-accent);
   --color-brand-steel: var(--brand-steel);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-line: var(--brand-line);
+  --color-noir: var(--noir);
+  --color-noir-2: var(--noir-2);
+  --color-linen: var(--linen);
+  --color-fog: var(--fog);
+  --color-brass: var(--brass);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -55,14 +66,31 @@ body {
 }
 
 :root {
-   --brand-light: #FAFAFD;
+   --brand-light: #F7F6F2;
   --brand-navy: #1D2D5C;
   --brand-slate: #50627C;
-  --brand-orange: #F85122;
+  --brand-accent: #C9A063;
   --brand-steel: #394361;
+  --brand-ink: #12182B;
+  --brand-line: #E3E1D9;
+  /* v3 hero language, now site-wide */
+  --noir: #070606;
+  --noir-2: #100E0C;
+  --linen: #F2EFE9;
+  --fog: #9C9A93;
+  --brass: #C9A063;
+  --hairline: rgba(242, 239, 233, 0.12);
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+
+  /* Motion system — no animation may use a value outside this set */
+  --dur-fast: 200ms;
+  --dur-base: 400ms;
+  --dur-slow: 700ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --stagger: 70ms;
+  --background: var(--noir);
+  --foreground: var(--linen);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -128,17 +156,31 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* Smooth scroll is handled by the Lenis provider (see components/Lenis.jsx). */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  h1, h2, h3 {
+    letter-spacing: 0.005em;
+  }
+}
+
+/* Reduced motion: disable everything, show final state immediately. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

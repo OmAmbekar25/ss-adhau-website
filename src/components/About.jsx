@@ -8,10 +8,10 @@ import Link from "next/link";
 
 export default function About() {
   return (
-    <section className="flex bg-brand-light flex-col md:flex-row items-center justify-center gap-10 max-md:px-4">
+    <section className="flex bg-noir flex-col md:flex-row items-center justify-center gap-10 max-md:px-4 py-6">
       
       {/* Image Card */}
-      <div className=" hidden md:block relative  shadow-2xl mt-10 mb-10 shadow-indigo-600/40 rounded-2xl overflow-hidden shrink-0">
+      <div className=" hidden md:block relative  shadow-2xl mt-10 mb-10 shadow-black/60 rounded-2xl overflow-hidden shrink-0">
         <Image
           src={AboutImage}
           alt="Team collaboration"
@@ -28,7 +28,7 @@ export default function About() {
             <Avatar src={User} z="z-[2]" />
             <Avatar src={User} z="z-[3]" />
 
-            <div className="flex items-center justify-center text-xs text-white size-9 rounded-full border-[3px] border-white bg-indigo-600 hover:-translate-y-1 transition z-[4]">
+            <div className="flex items-center justify-center text-xs text-white size-9 rounded-full border-[3px] border-white bg-brass hover:-translate-y-1 transition z-[4]">
               10+
             </div>
           </div>
@@ -40,12 +40,12 @@ export default function About() {
       </div>
 
       {/* Content */}
-      <div className="text-lg mt-10 md:mt-0 text-slate-600 max-w-lg">
-        <h1 className="text-4xl md:text-5xl uppercase font-semibold text-slate-700">
+      <div className="text-lg mt-10 md:mt-0 text-fog max-w-lg">
+        <h2 className="text-4xl md:text-5xl text-linen">
           About Us
-        </h1>
+        </h2>
 
-        <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-brand-orange to-orange-100 mt-1" />
+        <div className="w-24 h-px bg-gradient-to-r from-brass to-brass/10 mt-3" />
 
         <p className="mt-8">
          We are a team of Government-Registered Valuers providing valuation services for movable, immovable, and agricultural properties across multiple regulatory and commercial requirements.
@@ -61,7 +61,7 @@ export default function About() {
 
         <Link
           href="/about"
-          className="flex items-center w-max gap-2 mt-8 hover:-translate-y-0.5 transition bg-gradient-to-r from-indigo-600 to-indigo-400 py-3 px-8 rounded-full text-white"
+          className="flex items-center w-max gap-2 mt-8 hover:-translate-y-0.5 transition border border-brass/60 text-brass hover:bg-brass hover:text-noir py-3 px-8 rounded-full font-semibold"
         >
           <span>Read more</span>
           <ArrowIcon />
