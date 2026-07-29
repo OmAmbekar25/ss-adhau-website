@@ -3,6 +3,7 @@ import {
   Cormorant_Garamond,
   Archivo,
   IBM_Plex_Mono,
+  Fraunces,
 } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -31,6 +32,17 @@ const archivo = Archivo({
   variable: "--font-archivo",
   display: "swap",
 });
+/* Display face for the studio page only — the brief's own alternative to
+   Cormorant. Higher contrast, sharper serifs, a more characterful italic.
+   The rest of the site keeps Cormorant. */
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["SOFT", "WONK", "opsz"],
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400"],
@@ -146,7 +158,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${wixMadefor.variable} ${plexSans.variable} ${cormorant.variable} ${archivo.variable} ${plexMono.variable} antialiased`}
+        className={`${wixMadefor.variable} ${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} antialiased`}
       >
         <SmoothScroll>
           <ChromeGate>

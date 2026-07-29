@@ -7,11 +7,13 @@
 
 .er {
   /* --- palette: monochrome, one accent (§1) --- */
-  --bg: #050505;
-  --bg-raise: #0b0b0b;
-  --ink: #e8e8e6;
-  --ink-dim: #8f8f8c;
-  --ink-faint: #55554f;
+  --bg: #0d1116;
+  --bg-deep: #06080b;
+  --bg-lift: #222a33;
+  --bg-raise: #161d25;
+  --ink: #eceef0;
+  --ink-dim: #939aa3;
+  --ink-faint: #5a626c;
   --hairline: rgba(255, 255, 255, 0.1);
   --hairline-hi: rgba(255, 255, 255, 0.22);
   --accent: #c9a25e;
@@ -26,7 +28,11 @@
 
   position: relative;
   z-index: 1;
-  background: var(--bg);
+  /* depth rather than a flat field: a cool lift at the top falling to
+     near-black, so the particles sit in atmosphere instead of a void */
+  background:
+    linear-gradient(180deg, var(--bg-lift) 0%, var(--bg) 38%, var(--bg-deep) 100%)
+      fixed;
   color: var(--ink);
   font-family: var(--font-plex-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -56,7 +62,7 @@
 /* ---------------------------- type ---------------------------------- */
 
 .er-display {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   letter-spacing: -0.015em;
 }
@@ -165,7 +171,7 @@
   transform: translateY(-101%);
 }
 .er-wordmark {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   font-size: 20px;
   letter-spacing: 0.02em;
@@ -360,7 +366,7 @@
   color: inherit;
 }
 .er-step__t {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   font-size: clamp(22px, 2.4vw, 33px);
   line-height: 1.1;
@@ -422,7 +428,7 @@
   position: relative;
   height: 100vh;
   overflow: hidden;
-  background: var(--bg);
+  background: var(--bg-deep);
 }
 .er-jgl {
   position: absolute;
@@ -435,8 +441,8 @@
   /* see .vj-scrim — a wash under the copy, not a curtain over half the
      frame, so the particle field still reads as centred */
   background:
-    radial-gradient(82% 62% at 4% 82%, rgba(5, 5, 5, 0.95) 0%, rgba(5, 5, 5, 0.66) 40%, transparent 72%),
-    linear-gradient(to top, rgba(5, 5, 5, 0.84) 0%, transparent 24%);
+    radial-gradient(82% 62% at 4% 82%, rgba(8, 11, 15, 0.95) 0%, rgba(8, 11, 15, 0.66) 40%, transparent 72%),
+    linear-gradient(to top, rgba(8, 11, 15, 0.86) 0%, transparent 24%);
 }
 .er-jcopy {
   position: absolute;
@@ -567,7 +573,7 @@
   transition: color 0.35s var(--micro);
 }
 .er-row__t {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   font-size: clamp(22px, 2.9vw, 44px);
   line-height: 1.08;
@@ -621,7 +627,7 @@
   }
 }
 .er-proof__fig {
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   font-size: clamp(34px, 4.2vw, 62px);
   line-height: 1;
@@ -795,7 +801,7 @@
   width: 100%;
   margin: 0;
   padding-top: clamp(40px, 6vh, 80px);
-  font-family: var(--font-cormorant), serif;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   font-size: min(16vw, 18vh);
   line-height: 0.82;
@@ -830,7 +836,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--bg-lift) 0%, var(--bg-deep) 100%);
   clip-path: inset(0 0 0 0);
 }
 .er-loading .er-loader {

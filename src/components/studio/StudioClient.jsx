@@ -9,7 +9,9 @@ if (typeof window !== "undefined") {
 }
 
 const ENTER = "power4.out"; // the expo-like entrance curve
-const GLOW = 0xffffff;
+/* cool steel through the gauze, warm gold in the bright filaments */
+const GLOW = 0x9db6cc;
+const GLOW_WARM = 0xffd7a0;
 
 /* Ribbon states (§3.2). Targets only — the scene eases toward them. */
 const RIBBON = {
@@ -72,6 +74,7 @@ export default function StudioClient() {
           ribbon = createRibbon(canvasRef.current, {
             count: particleCount(),
             accent: GLOW,
+            accent2: GLOW_WARM,
           });
           if (!ribbon) return; // no WebGL — pure typography, as specified
 
@@ -265,9 +268,20 @@ export default function StudioClient() {
           start: "top 90%",
           end: "bottom 10%",
           onToggle: (self) => {
+            /* Fade the ribbon out before parking it. Pausing alone left it
+               on screen, so during the handover two separate particle
+               fields were visible at once — one upper right, one lower
+               left. Only ever one field in frame. */
+            const c = canvasRef.current;
+            if (c) c.style.opacity = self.isActive ? "0" : "1";
             if (!ribbon) return;
-            if (self.isActive) ribbon.pause();
-            else if (!document.hidden) ribbon.resume();
+            if (self.isActive) {
+              gsap.delayedCall(1.2, () => {
+                if (ribbon && c && c.style.opacity === "0") ribbon.pause();
+              });
+            } else if (!document.hidden) {
+              ribbon.resume();
+            }
           },
         });
       }

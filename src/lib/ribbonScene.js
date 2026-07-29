@@ -34,6 +34,7 @@ attribute vec3 aDrift;
 attribute vec3 aTornado;
 
 varying float vGlow;
+varying float vTone;
 
 /* Simplex 3D noise — Ashima Arts / Stefan Gustavson, MIT. */
 vec4 permute(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -109,14 +110,17 @@ void main() {
   /* while it is still a funnel the selvedge fade does not apply — that
      belongs to cloth — so blend it in as the ribbon forms */
   vGlow = lum * mix(0.85, weave, uForm) * mix(1.0, aEdge, uForm);
+  vTone = clamp(aRand * 1.5 + n * 0.25, 0.0, 1.0);
 }
 `;
 
 const FRAG = /* glsl */ `
 precision mediump float;
 uniform vec3 uColor;
+uniform vec3 uColor2;
 uniform float uBright;
 varying float vGlow;
+varying float vTone;
 
 void main() {
   float d = length(gl_PointCoord - 0.5);
@@ -126,13 +130,16 @@ void main() {
   halo *= halo;
   float core = smoothstep(0.17, 0.0, d);
   float a = halo + core * 0.55;
-  gl_FragColor = vec4(uColor, a * vGlow * uBright);
+  /* the bright filaments run warm, the gauze runs cool — colour arrives
+     through the weave rather than being painted over it */
+  vec3 tint = mix(uColor, uColor2, vTone);
+  gl_FragColor = vec4(tint, a * vGlow * uBright);
 }
 `;
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
-export function createRibbon(container, { count, accent }) {
+export function createRibbon(container, { count, accent, accent2 }) {
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
@@ -246,7 +253,8 @@ export function createRibbon(container, { count, accent }) {
     uDisperse: { value: 0 },
     uDpr: { value: Math.min(window.devicePixelRatio, 1.75) },
     uForm: { value: 0 },
-    uColor: { value: new THREE.Color(accent || 0xffffff) },
+    uColor: { value: new THREE.Color(accent || 0x9fb4c8) },
+    uColor2: { value: new THREE.Color(accent2 || 0xffd9a3) },
     uBright: { value: 1.0 },
   };
 

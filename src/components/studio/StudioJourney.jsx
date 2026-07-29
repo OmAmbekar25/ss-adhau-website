@@ -11,15 +11,15 @@ if (typeof window !== "undefined") {
 
 const N = valuationBeats.length;
 
-/* The same scene as the homepage journey, in this page's palette: no
-   brass, no cream — ink and white only, on the studio's own near-black.
+/* The same scene as the homepage journey, in this page's palette: cool
+   steel for the field, warm gold for the accents, matching the ribbon.
    One geometry, two dressings. */
-const MONO = {
-  ink: 0xd9d9d6,
-  accent: 0xffffff,
-  draw: 0xe8e8e6,
-  hot: 0xffffff,
-  bg: 0x050505,
+const STUDIO_PALETTE = {
+  ink: 0xb9c6d4,      // the field: cool steel
+  accent: 0xffd7a0,   // accents: warm, the same gold as the ribbon
+  draw: 0xdce5ee,     // drawn line work
+  hot: 0xffe9c6,      // the level line and the seal's impression
+  bg: 0x06080b,
 };
 
 const QUERY = "(prefers-reduced-motion: reduce)";
@@ -61,7 +61,7 @@ export default function StudioJourney() {
 
       import("@/lib/reportScene").then(({ createReportScene }) => {
         if (dead || !glRef.current) return;
-        scene = createReportScene(glRef.current, MONO);
+        scene = createReportScene(glRef.current, STUDIO_PALETTE);
         if (!scene) return; // no WebGL — the static list below stands in
 
         el.addEventListener("pointermove", onPointer, { passive: true });

@@ -109,8 +109,10 @@ export default function StudioPage() {
 var h=document.documentElement;
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 h.classList.add('er-js');
-var seen=false;try{seen=sessionStorage.getItem('er-seen')==='1'}catch(e){}
-if(!seen){h.classList.add('er-loading');
+/* Runs every load while this page is a candidate. Once-per-session is the
+   brief's behaviour and should be restored before launch by reinstating
+   the sessionStorage guard below. */
+{h.classList.add('er-loading');
 setTimeout(function(){
 if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 },6000);}
