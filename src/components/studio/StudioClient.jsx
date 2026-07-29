@@ -13,7 +13,7 @@ const GLOW = 0xffffff;
 
 /* Ribbon states (§3.2). Targets only — the scene eases toward them. */
 const RIBBON = {
-  hero: { camX: -0.7, camZ: 7.4, rotX: 0.4, bright: 0.62, disperse: 0 },
+  hero: { camX: -0.18, camZ: 7.4, rotX: 0.4, bright: 0.62, disperse: 0 },
   manifesto: { camX: 1.7, camZ: 9.1, rotX: 0.54, bright: 0.3, disperse: 0 },
   split: { camX: -2.1, camZ: 8.6, rotX: 0.32, bright: 0.36, disperse: 0 },
   rows: { camX: 0, camZ: 10.2, rotX: 1.3, bright: 0.24, disperse: 0 },
@@ -42,6 +42,24 @@ export default function StudioClient() {
     let ribbon = null;
     let idleId = 0;
     let dead = false;
+    let introPlayed = false;
+
+    /* The arrival: a spinning funnel that settles into the ribbon. The
+       spin-down is handled inside the scene; this only drives the shape.
+       Long and heavily eased — it should look like something coming to
+       rest, not like a transition finishing. */
+    const playIntro = () => {
+      if (!ribbon || introPlayed) return;
+      introPlayed = true;
+      const form = { v: 0 };
+      ribbon.setForm(0);
+      gsap.to(form, {
+        v: 1,
+        duration: 3.4,
+        ease: "power2.inOut",
+        onUpdate: () => ribbon && ribbon.setForm(form.v),
+      });
+    };
 
     /* ---------------------------------------------------------------
        The ribbon. Mounted after first paint so the headline is readable
@@ -58,12 +76,14 @@ export default function StudioClient() {
           if (!ribbon) return; // no WebGL — pure typography, as specified
 
           canvasRef.current.dataset.ready = "true";
+          ribbon.setState(RIBBON.hero);
           if (reduced) {
-            ribbon.setState(RIBBON.hero);
+            ribbon.setForm(1); // no funnel — the settled ribbon, one frame
             ribbon.renderOnce();
           } else {
-            ribbon.setState(RIBBON.hero);
             ribbon.resume();
+            if (introPlayed) ribbon.setForm(1);
+            else playIntro();
           }
         })
         .catch(() => {});

@@ -25,11 +25,13 @@ uniform float uSize;
 uniform float uAmp;
 uniform float uDisperse;
 uniform float uDpr;
+uniform float uForm;
 
 attribute float aRand;
 attribute float aEdge;
 attribute vec3 aNormalDir;
 attribute vec3 aDrift;
+attribute vec3 aTornado;
 
 varying float vGlow;
 
@@ -81,11 +83,15 @@ float snoise(vec3 v){
 }
 
 void main() {
-  vec3 p = position;
+  /* uForm 0 = the tornado it arrives as, 1 = the woven ribbon it settles
+     into. Every point travels between its own two positions, so the funnel
+     resolves into cloth rather than being swapped for it. */
+  vec3 p = mix(aTornado, position, uForm);
 
-  /* the silk undulates: noise along the band normal, scrolling in time */
+  /* the silk undulates: noise along the band normal, scrolling in time.
+     Scaled by uForm so the funnel stays crisp while it is still spinning. */
   float n = snoise(p * 1.15 + vec3(0.0, 0.0, uTime * 0.05));
-  p += aNormalDir * n * uAmp;
+  p += aNormalDir * n * uAmp * uForm;
 
   /* dissolution: the structure loosens into drifting motes */
   p += aDrift * uDisperse * (0.6 + aRand * 1.6);
@@ -99,7 +105,10 @@ void main() {
   /* bright filaments and dim gauze in the same cloth, and a selvedge that
      goes to nothing rather than to noise */
   float lum = 0.12 + 1.5 * aRand;
-  vGlow = lum * (0.35 + 0.65 * smoothstep(-0.8, 0.85, n)) * aEdge;
+  float weave = 0.35 + 0.65 * smoothstep(-0.8, 0.85, n);
+  /* while it is still a funnel the selvedge fade does not apply — that
+     belongs to cloth — so blend it in as the ribbon forms */
+  vGlow = lum * mix(0.85, weave, uForm) * mix(1.0, aEdge, uForm);
 }
 `;
 
@@ -151,6 +160,7 @@ export function createRibbon(container, { count, accent }) {
   const drift = new Float32Array(count * 3);
   const rand = new Float32Array(count);
   const edge = new Float32Array(count);
+  const tor = new Float32Array(count * 3);
 
   /* Points are laid along threads rather than scattered. Random sampling
      over the band gives a dust cloud; a warp of continuous strands running
@@ -205,6 +215,15 @@ export function createRibbon(container, { count, accent }) {
       drift[i * 3 + 1] = Math.sin(dl) * dr * 0.7 + 0.25;
       drift[i * 3 + 2] = dz;
 
+      /* the tornado: each thread spirals up a widening funnel, so the
+         intro reads as one structure turning, not particles milling */
+      const hh = k / PER;
+      const rad = 0.22 + Math.pow(hh, 1.55) * 2.75;
+      const ang = t * 0.37 + hh * 7.6;
+      tor[i * 3] = Math.cos(ang) * rad + (Math.random() - 0.5) * 0.07;
+      tor[i * 3 + 1] = -2.7 + hh * 5.5 + (Math.random() - 0.5) * 0.09;
+      tor[i * 3 + 2] = Math.sin(ang) * rad + (Math.random() - 0.5) * 0.07;
+
       rand[i] = threadLum;
       /* the selvedge dissolves by going transparent, not by scattering —
          wisps, not noise */
@@ -218,6 +237,7 @@ export function createRibbon(container, { count, accent }) {
   geo.setAttribute("aDrift", new THREE.BufferAttribute(drift, 3));
   geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
   geo.setAttribute("aEdge", new THREE.BufferAttribute(edge, 1));
+  geo.setAttribute("aTornado", new THREE.BufferAttribute(tor, 3));
 
   const uniforms = {
     uTime: { value: 0 },
@@ -225,6 +245,7 @@ export function createRibbon(container, { count, accent }) {
     uAmp: { value: 0.16 },
     uDisperse: { value: 0 },
     uDpr: { value: Math.min(window.devicePixelRatio, 1.75) },
+    uForm: { value: 0 },
     uColor: { value: new THREE.Color(accent || 0xffffff) },
     uBright: { value: 1.0 },
   };
@@ -255,21 +276,33 @@ export function createRibbon(container, { count, accent }) {
   const ptr = { tx: 0, ty: 0, x: 0, y: 0 };
 
   const setState = (next) => Object.assign(target, next);
+  /* 0 = tornado, 1 = ribbon. Driven from the page's intro timeline. */
+  const setForm = (v) => {
+    uniforms.uForm.value = v < 0 ? 0 : v > 1 ? 1 : v;
+  };
   const setPointer = (nx, ny) => {
     ptr.tx = nx;
     ptr.ty = ny;
   };
 
   const clock = new THREE.Clock();
+  const BASE_SPIN = (Math.PI * 2) / 55; // one revolution ≈ 55s
+  let spinAngle = 0;
+  let lastT = 0;
   let raf = 0;
   let running = false;
 
   const step = (animate) => {
     const t = clock.getElapsedTime();
+    const dt = Math.min(0.05, t - lastT);
+    lastT = t;
 
     if (animate) {
-      /* one revolution ≈ 55s, and it never stops */
-      spin.rotation.y = t * ((Math.PI * 2) / 55);
+      /* The funnel turns hard and slows into the ribbon's ambient
+         revolution as it forms — the deceleration is the whole trick. */
+      const form = uniforms.uForm.value;
+      spinAngle += dt * BASE_SPIN * (1 + (1 - form) * (1 - form) * 26);
+      spin.rotation.y = spinAngle;
       uniforms.uTime.value = t;
     }
 
@@ -319,6 +352,7 @@ export function createRibbon(container, { count, accent }) {
 
   return {
     setState,
+    setForm,
     setPointer,
     resume,
     pause,
