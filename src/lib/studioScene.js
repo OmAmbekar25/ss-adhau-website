@@ -544,7 +544,11 @@ export function createStudioScene(container, opts = {}) {
     uScatter: { value: 0.55 },
     uMouse: { value: new THREE.Vector2(999, 999) },
     uMouseStrength: { value: 0 },
-    uRepelRadius: { value: 0.42 },
+    /* ~180px at the ribbon's working distance. The first pass used 0.42
+       (~60px), which the shader applied correctly and nobody could see —
+       reported as "hover does nothing". It was doing something; it was
+       doing it to sixty pixels. */
+    uRepelRadius: { value: 1.22 },
     uPlate: { value: new THREE.Vector4(0, 0, 0, 0) },
     uPlateFeather: { value: 0.5 },
     uPlatePush: { value: 0 },
@@ -669,8 +673,26 @@ export function createStudioScene(container, opts = {}) {
   const mapX = (pxFromCentre) => camAt(story).tx + pxFromCentre * worldPerPx();
   /* screen y grows downward, world y upward — hence the sign */
   const mapY = (pxFromCentre) => camAt(story).ty - pxFromCentre * worldPerPx();
+  /* Velocity is a reading, not a setting: whoever is driving the field
+     re-states it every frame, and the moment nobody is, it falls to rest
+     on its own.
+
+     It used to be a plain assignment that only some other trigger set
+     back to zero. Scroll up out of the trusted-by strip quickly and the
+     last value written was a large negative one, with no further update
+     coming — so uVel stayed pinned at -1 for the rest of the session. The
+     shader scales point size by `1 + abs(uVel) * 1.5` and glow by
+     `1 + abs(uVel) * 0.35`, so every dot rendered two and a half times
+     its normal size, for ever. That is the "particles multiply until the
+     hero is unreadable" report: the count never changed, the dots got
+     fat. Decaying here fixes every scroll path at once, rather than
+     adding another reset call at each call site for the next one to
+     forget. */
+  const VEL_HOLD = 0.14; // seconds a reading stays live before it lapses
+  let velHold = 0;
   const setVelocity = (v) => {
     velTarget = Math.max(-1, Math.min(1, v));
+    velHold = VEL_HOLD;
   };
   const setPointer = (x, y) => {
     ptr.tx = x;
@@ -735,6 +757,22 @@ export function createStudioScene(container, opts = {}) {
   const t0 = performance.now();
   const elapsed = () => (performance.now() - t0) / 1000;
   const BASE_SPIN = (Math.PI * 2) / 82;
+  /* The ribbon is a torus. Seen edge-on it is a narrow column that sits
+     beside the headline; seen face-on it is a wide ring straight through
+     it. The spin used to be a bare accumulator, so which of those you got
+     depended only on how long you had been on the page — after a scroll
+     to the foot and back it had advanced about a radian and the hero copy
+     was unreadable behind it. (Reported as "particles multiply"; nothing
+     multiplies — the count is fixed and every scroll-driven uniform comes
+     back exactly. This was the one value that did not.)
+
+     The funnel still whirls up as it forms. Once formed, the ribbon holds
+     the angle it reads best at and stays there — the project's own rule
+     that scroll-driven 3D is a pure function of scroll progress, applied
+     to the one thing that was still a function of the clock. It does not
+     need axial spin to feel alive: the cloth already undulates through
+     the noise term and every point carries its own wander. */
+  const SPIN_HOME = 2.2;
   let spinAngle = 0;
   let lastT = 0;
   let raf = 0;
@@ -753,8 +791,15 @@ export function createStudioScene(container, opts = {}) {
     /* it turns hard as a funnel and settles as the cloth forms; the
        structural forms hold still, so the spin eases back to zero */
     const silk = uniforms.uSilk.value;
-    if (animate) spinAngle += dt * BASE_SPIN * (1 + Math.pow(1 - Math.min(1, story), 2) * 22);
-    spin.rotation.y = spinAngle * Math.min(1, silk * 1.6);
+    /* 1 while it is still a funnel, 0 once the cloth has formed */
+    const whirl = Math.pow(1 - Math.min(1, story), 2);
+    if (animate) {
+      spinAngle += dt * BASE_SPIN * (1 + whirl * 22);
+      velHold -= dt;
+      if (velHold <= 0) velTarget = 0;
+    }
+    spin.rotation.y =
+      lerp(SPIN_HOME, spinAngle, whirl) * Math.min(1, silk * 1.6);
 
     const amp = animate ? wander : 0;
     for (let i = 0; i < count; i++) {
@@ -786,7 +831,7 @@ export function createStudioScene(container, opts = {}) {
     );
     uniforms.uMouseStrength.value = lerp(
       uniforms.uMouseStrength.value,
-      hovering ? 0.19 : 0,
+      hovering ? 0.38 : 0,
       hovering ? 0.13 : 0.055
     );
     ptr.x = lerp(ptr.x, ptr.tx, 0.022);

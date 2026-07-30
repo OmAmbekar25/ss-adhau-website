@@ -3,7 +3,6 @@ import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
-import StudioPaper from "@/components/studio/StudioPaper";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -171,6 +170,13 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             and regulators — across Central India.
           </p>
 
+          {/* The primary CTA used to sit only at the foot of the page and
+              in the deliverable section. With that section gone it belongs
+              here, above the fold, as well as in the closing block. */}
+          <Link className="er-btn er-hero__cta er-fade" href="/contact">
+            Request a valuation <span aria-hidden="true">→</span>
+          </Link>
+
           <div className="er-satellites">
             <p className="er-label er-label--faint er-satellites__side er-fade">
               Nagpur · Chhindwara
@@ -329,8 +335,6 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </ul>
           </div>
         </section>
-
-        <StudioPaper />
 
         {/* --------------------- 5.7 CTA + FOOTER --------------------- */}
         <section className="er-section er-cta" aria-labelledby="er-cta-h" data-disperse>
