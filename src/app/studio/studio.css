@@ -1506,9 +1506,34 @@
   font-weight: 600;
 }
 
-/* the manifesto and the CTA — still the largest voice on the page, but a
-   notch down, because the mono sets wider than the serif did */
-.er-h2 { font-size: clamp(28px, 4.2vw, 60px); line-height: 1.1; }
+/* ---- the type rule, final form ------------------------------------
+   The mono display voice caps at 52px. Every role at or under that stays
+   mono — section headers, step titles, slide titles, stat numbers. Above
+   52px the page speaks in the serif, and there are exactly three such
+   instances: the hero headline, the manifesto and the wordmark. Nothing
+   else is serif; nothing over 52px is mono.
+
+   The CTA is the largest mono on the page and therefore sits ON the cap,
+   not over it. */
+.er-h2 { font-size: clamp(28px, 3.8vw, 52px); line-height: 1.1; }
+
+/* The manifesto is over the cap, so it returns to the display serif and
+   to the roman/italic mix that goes with it — the pre-P-2 treatment. The
+   scroll-scrubbed line reveals are untouched; only the face and the scale
+   change back. */
+.er-h2--serif {
+  font-family: var(--font-fraunces), var(--font-cormorant), serif !important;
+  font-weight: 420;
+  font-size: clamp(34px, 4.6vw, 72px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+.er-h2--serif em {
+  font-family: inherit;
+  font-style: italic;
+  font-weight: 420;
+}
 /* section headers */
 .er-h3,
 .er-schead__h,

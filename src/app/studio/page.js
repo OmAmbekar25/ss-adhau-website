@@ -249,7 +249,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             Principle
           </p>
           <blockquote className="er-manifesto__quote" data-manifesto>
-            <h2 id="er-principle" className="er-display er-h2" data-quiet>
+            <h2 id="er-principle" className="er-display er-h2 er-h2--serif" data-quiet>
               <Line>A valuation is not</Line>
               <Line>
                 <span className="er-dim">an</span> opinion.

@@ -187,46 +187,40 @@ function buildSite(n, out) {
 /* P-3.1 — the datum.
    Step 01 is "nothing is measured yet; the first reference line is drawn".
    So the field converges out of the right into a single thin horizontal
-   line, left of centre, with brighter clusters at even intervals for the
-   ticks. Its silhouette shares nothing with any other formation. */
-function buildDatum(n, out) {
+   line, left of centre.
+
+   The ticks are BRIGHTNESS, not geometry: the line is one uniform run of
+   points, and the ones whose x lands near a tick interval get a bias
+   written into `tick[]` at init. That keeps the formation a single
+   precomputed buffer with nothing extra to draw — the earlier version
+   spent 28% of the point budget on short verticals, which is geometry
+   doing a job a float can do. */
+function buildDatum(n, out, tick) {
   const r = rng(3301);
   const TICKS = 11;
   const X0 = -13;
   const X1 = 9;
+  const STEP = (X1 - X0) / (TICKS - 1);
   for (let i = 0; i < n; i++) {
     const t = r();
     if (t < 0.24) {
       /* still drifting in from the right, not yet on the line */
       const d = r();
-      put(
-        out, i,
-        X1 + d * d * 26,
-        (r() - 0.5) * 7 * d,
-        (r() - 0.5) * 5 * d
-      );
-      continue;
-    }
-    const u = r();
-    /* the ticks: short verticals at even intervals, denser than the line */
-    if (t > 0.72) {
-      const k = Math.floor(u * TICKS);
-      const x = X0 + ((X1 - X0) * k) / (TICKS - 1);
-      put(
-        out, i,
-        x + (r() - 0.5) * 0.22,
-        (r() - 0.5) * 1.5,
-        (r() - 0.5) * 0.16
-      );
+      put(out, i, X1 + d * d * 26, (r() - 0.5) * 7 * d, (r() - 0.5) * 5 * d);
+      tick[i] = 1;
       continue;
     }
     /* the line itself — tight, so it reads as ruled rather than sprayed */
-    put(
-      out, i,
-      X0 + u * (X1 - X0),
-      (r() - 0.5) * 0.16,
-      (r() - 0.5) * 0.14
-    );
+    const x = X0 + r() * (X1 - X0);
+    put(out, i, x, (r() - 0.5) * 0.16, (r() - 0.5) * 0.14);
+    /* distance to the nearest tick interval, in world units */
+    const d = Math.abs(x - X0 - Math.round((x - X0) / STEP) * STEP);
+    /* Down, not up. Multiplying the ticks UP does nothing on an additive
+       field whose bright points are already at the ceiling — the boost
+       saturates and the marks vanish. Holding the ticks at full value and
+       dropping the run between them to 40% reads as a ruled line with
+       bright nodes, which is what a tick mark is. */
+    tick[i] = d < 0.16 ? 1 : d < 0.34 ? 0.66 : 0.4;
   }
 }
 
@@ -435,6 +429,23 @@ attribute float aRand, aEdge, aDrag, aStiff;
 attribute vec3 aNormalDir, aDrift;
 varying float vGlow, vTone;
 
+/* The morph runs here, not on the CPU.
+ *
+ * position and aTo are two of the precomputed formation buffers; they
+ * are rebound only when the scroll crosses into a new keyframe pair — five
+ * times across the whole journey — and never touched per frame. uMorph
+ * is the eased blend between them, uBandMix/uBandOffset fold in the
+ * trusted-by band, and the wander is the same sine the CPU used to write,
+ * now evaluated per vertex from two static attributes. Nothing uploads a
+ * position attribute while the page is running.
+ *
+ * aTick is the datum's tick marks: a brightness bias baked into the
+ * formation at init, faded in by uDatum so it only shows while the datum
+ * is the form on screen. No extra geometry, no second pass. */
+attribute vec3 aTo, aBand;
+attribute float aWPhase, aWRate, aTick;
+uniform float uMorph, uBandMix, uBandOffset, uWander, uDatum;
+
 vec4 permute(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
 vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
 float snoise(vec3 v){
@@ -481,7 +492,11 @@ float snoise(vec3 v){
 }
 
 void main() {
-  vec3 p = position;
+  vec3 p = mix(position, aTo, uMorph);
+  /* the strip borrows the same points; its travel rides in as one offset */
+  p = mix(p, aBand + vec3(uBandOffset, 0.0, 0.0), uBandMix);
+  float w = uTime * aWRate + aWPhase;
+  p += vec3(sin(w), cos(w * 0.83) * 0.65, sin(w * 1.17 + aWPhase)) * uWander;
   float n = snoise(p * 7.0 + vec3(0.0, 0.0, uTime * 0.03));
   /* only the cloth undulates — a surveyed building holds still */
   p += aNormalDir * n * uAmp * uSilk;
@@ -553,12 +568,16 @@ void main() {
   /* the sprite stretches with speed — motion blur without a post pass */
   gl_PointSize = uSize * uDpr * (0.62 + 0.85 * aRand)
     * (1.0 + abs(uVel) * 1.5) * (6.0 / max(0.5, -mv.z))
-    * mix(1.0, 0.6, vQuiet);
+    * mix(1.0, 0.6, vQuiet)
+    /* the ticks carry a little more weight as well as more light */
+    * mix(1.0, 0.78 + 0.34 * aTick, uDatum);
 
   float lum = 0.12 + 1.5 * aRand;
   float weave = 0.35 + 0.65 * smoothstep(-0.8, 0.85, n);
   vGlow = lum * mix(0.9, weave, uSilk) * mix(1.0, aEdge, uSilk) * (1.0 + abs(uVel) * 0.35);
   /* the per-section cap, then the text blocks on top of it */
+  /* the datum's ticks: a brightness bias, only while the datum is on */
+  vGlow *= mix(1.0, aTick, uDatum);
   vGlow *= uCap * mix(1.0, 0.35, vQuiet);
   vTone = clamp(aRand * 1.5 + n * 0.25, 0.0, 1.0);
 }
@@ -638,12 +657,13 @@ export function createStudioScene(container, opts = {}) {
   const edge = new Float32Array(count);
   const dragA = new Float32Array(count);
   const stiffA = new Float32Array(count);
+  const tickA = new Float32Array(count).fill(1);
   const BAND = new Float32Array(count * 3);
 
   buildRibbon(count, RIBBON, nrm, edge, rand, threads, per);
   buildTornado(count, TORNADO, threads, per);
   buildSite(count, SITE);
-  buildDatum(count, DATUM);
+  buildDatum(count, DATUM, tickA);
   buildColumns(count, COLUMNS);
   buildPage(count, PAGE);
   buildBand(count, BAND, [], 0.9, 0); // placeholder until the cards are measured
@@ -690,22 +710,34 @@ export function createStudioScene(container, opts = {}) {
   const KEY = [TORNADO, RIBBON, DATUM, SITE, COLUMNS, PAGE];
   const SILK = [0.55, 1, 0.12, 0, 0, 0]; // how cloth-like each form behaves
 
-  const base = new Float32Array(count * 3);
-  base.set(TORNADO);
-  const positions = new Float32Array(count * 3);
-  positions.set(TORNADO);
-
+  /* The two ends of the current morph. These point AT the formation
+     buffers above — they are never written into, and they are rebound only
+     when the scroll crosses a keyframe boundary (five times across the
+     journey). Everything between the ends happens in the vertex shader. */
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  const aFrom = new THREE.BufferAttribute(KEY[0], 3);
+  const aTo = new THREE.BufferAttribute(KEY[1], 3);
+  geo.setAttribute("position", aFrom);
+  geo.setAttribute("aTo", aTo);
+  geo.setAttribute("aBand", new THREE.BufferAttribute(BAND, 3));
   geo.setAttribute("aNormalDir", new THREE.BufferAttribute(nrm, 3));
   geo.setAttribute("aDrift", new THREE.BufferAttribute(drift, 3));
   geo.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
   geo.setAttribute("aEdge", new THREE.BufferAttribute(edge, 1));
   geo.setAttribute("aDrag", new THREE.BufferAttribute(dragA, 1));
   geo.setAttribute("aStiff", new THREE.BufferAttribute(stiffA, 1));
+  geo.setAttribute("aTick", new THREE.BufferAttribute(tickA, 1));
+  geo.setAttribute("aWPhase", new THREE.BufferAttribute(wPhase, 1));
+  geo.setAttribute("aWRate", new THREE.BufferAttribute(wRate, 1));
 
   const uniforms = {
     uTime: { value: 0 },
+    /* the morph, the band and the wander — all evaluated per vertex */
+    uMorph: { value: 0 },
+    uBandMix: { value: 0 },
+    uBandOffset: { value: 0 },
+    uWander: { value: 0.06 },
+    uDatum: { value: 0 },
     uSize: { value: 2.2 },
     uAmp: { value: 0.16 * K * 6.5 * 0.16 },
     uDisperse: { value: 0 },
@@ -752,7 +784,12 @@ export function createStudioScene(container, opts = {}) {
   const tilt = new THREE.Group();
   tilt.rotation.z = 0.15;
   const spin = new THREE.Group();
-  spin.add(new THREE.Points(geo, material));
+  const points = new THREE.Points(geo, material);
+  /* The formation buffers are swapped in and out of `position`, and three
+     would recompute a bounding sphere over 64,000 points each time it saw
+     a new one. The field is always on screen when it is drawn at all. */
+  points.frustumCulled = false;
+  spin.add(points);
   tilt.add(spin);
   scene.add(tilt);
 
@@ -778,31 +815,67 @@ export function createStudioScene(container, opts = {}) {
   const ptr = { tx: 0, ty: 0, x: 0, y: 0 };
   const camTarget = new THREE.Vector3();
 
-  const apply = (s) => {
-    const i = Math.min(KEY.length - 2, Math.floor(s));
-    const t = sstep(clamp01(s - i));
+  /* O(1). It used to lerp `count * 3` floats here on every scroll update
+     and then rewrite and re-upload the whole position attribute on every
+     frame — at 64,000 points that is 192,000 float writes and a 768KB
+     upload per frame, which is what made step 01 lag. The ends of the
+     morph are now two static buffers and everything between them is a
+     uniform. The only work left is rebinding the pair when the scroll
+     crosses a keyframe boundary: five times across the journey. */
+  let keyIdx = -1;
+  /* Crossing a boundary forward, the new "from" is the old "to" — its
+     buffer is already resident, so rebinding the two attributes costs one
+     upload rather than two. Uploading both was one visible dropped frame
+     at each beat change; this halves it, and reversing costs the same. */
+  const bind = (i) => {
     const A = KEY[i];
     const B = KEY[i + 1];
-    if (t <= 0) base.set(A);
-    else if (t >= 1) base.set(B);
-    else for (let k = 0; k < count * 3; k++) base[k] = A[k] + (B[k] - A[k]) * t;
+    let from = aFrom.array === A ? aFrom : aTo.array === A ? aTo : null;
+    let to = aFrom.array === B ? aFrom : aTo.array === B ? aTo : null;
+    if (from && !to) {
+      to = from === aFrom ? aTo : aFrom;
+      to.array = B;
+      to.needsUpdate = true;
+    } else if (to && !from) {
+      from = to === aFrom ? aTo : aFrom;
+      from.array = A;
+      from.needsUpdate = true;
+    } else if (!from && !to) {
+      from = aFrom;
+      to = aTo;
+      from.array = A;
+      to.array = B;
+      from.needsUpdate = true;
+      to.needsUpdate = true;
+    }
+    geo.setAttribute("position", from);
+    geo.setAttribute("aTo", to);
+  };
+  const apply = (s) => {
+    const i = Math.min(KEY.length - 2, Math.floor(s));
+    if (i !== keyIdx) {
+      keyIdx = i;
+      bind(i);
+    }
+    const t = sstep(clamp01(s - i));
+    uniforms.uMorph.value = t;
 
     /* the trusted-by beat borrows the same points: blend the story form
        toward the band rather than mounting anything new. The strip's
        travel rides in as one offset on x, so the knots stay behind their
        own cards without the band ever being rebuilt. */
-    if (mode > 0) {
-      const m = sstep(clamp01(mode));
-      for (let i = 0; i < count; i++) {
-        const k = i * 3;
-        base[k] += (BAND[k] + bandOffset - base[k]) * m;
-        base[k + 1] += (BAND[k + 1] - base[k + 1]) * m;
-        base[k + 2] += (BAND[k + 2] - base[k + 2]) * m;
-      }
-    }
+    uniforms.uBandMix.value = mode > 0 ? sstep(clamp01(mode)) : 0;
+    uniforms.uBandOffset.value = bandOffset;
+
+    /* the ticks are a brightness bias on the datum's own points, so they
+       fade in exactly as much as the datum itself is on screen */
+    uniforms.uDatum.value =
+      (KEY[i] === DATUM ? 1 - t : 0) + (KEY[i + 1] === DATUM ? t : 0);
 
     uniforms.uSilk.value = lerp(SILK[i], SILK[i + 1], t) * (1 - clamp01(mode));
-    /* the document has to stay legible, so the wander dies as it forms */
+    /* the document has to stay legible, so the wander dies as it forms.
+       step() is what writes it to the uniform, because only step() knows
+       whether the scene is animating. */
     wander = lerp(0.06, 0.012, clamp01((s - 1.4) / 1.6));
   };
 
@@ -839,6 +912,9 @@ export function createStudioScene(container, opts = {}) {
      only called on mount and on resize, never while scrolling. */
   const setBandAnchors = (anchors, knotR, centreY = 0) => {
     buildBand(count, BAND, anchors, knotR, centreY);
+    /* the band is a GPU attribute now, so a rebuild has to be uploaded —
+       this fires on mount and on resize, not per frame */
+    geo.attributes.aBand.needsUpdate = true;
     dirty = true;
   };
   /* How much world space one CSS pixel covers on the field's mid-plane, so
@@ -1061,15 +1137,11 @@ export function createStudioScene(container, opts = {}) {
     spin.rotation.y =
       lerp(SPIN_HOME, spinAngle, whirl) * Math.min(1, silk * 1.6);
 
-    const amp = animate ? wander : 0;
-    for (let i = 0; i < count; i++) {
-      const w = t * wRate[i] + wPhase[i];
-      const i3 = i * 3;
-      positions[i3] = base[i3] + Math.sin(w) * amp;
-      positions[i3 + 1] = base[i3 + 1] + Math.cos(w * 0.83) * amp * 0.65;
-      positions[i3 + 2] = base[i3 + 2] + Math.sin(w * 1.17 + wPhase[i]) * amp;
-    }
-    geo.attributes.position.needsUpdate = true;
+    /* The wander used to be written into the position attribute here, for
+       every point, every frame. It is the same sine, evaluated per vertex
+       from aWPhase/aWRate now — the only thing that crosses the bus is one
+       float. `animate` still gates it so a paused scene holds still. */
+    uniforms.uWander.value = animate ? wander : 0;
 
     uniforms.uDisperse.value = disperse;
     /* two smoothing rates: the fast one is the smear, the slow one is the
