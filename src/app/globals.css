@@ -6,8 +6,12 @@ body {
   font-family: var(--font-plex-sans), system-ui, sans-serif;
 }
 
+/* Wix Madefor was a second fallback behind Cormorant — a 150KB unhinted
+   TTF, the single largest asset on every page, preloaded to stand in for a
+   font loaded from the same layout that it could only serve if that font
+   failed. Cormorant plus the generic serif is the fallback chain. */
 h1, h2, h3, .font-display {
-  font-family: var(--font-cormorant), var(--font-wix-madefor), serif;
+  font-family: var(--font-cormorant), serif;
 }
 
 @custom-variant dark (&:is(.dark *));

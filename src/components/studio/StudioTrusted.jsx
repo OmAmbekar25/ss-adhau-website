@@ -64,9 +64,13 @@ function Card({ org }) {
   return (
     <figure className="er-tcard">
       <span className="er-tcard__plate">
+        {/* Decorative on purpose: the visible caption below owns the name,
+            so an alt of the same string makes every bank announce twice.
+            The caption stays in the accessibility tree — the fix is to
+            silence the duplicate, not to hide the readable one. */}
         <Image
           src={org.src}
-          alt={org.name}
+          alt=""
           width={320}
           height={160}
           quality={90}

@@ -6,18 +6,11 @@ import {
   Fraunces,
   Geist_Mono,
 } from "next/font/google";
-import localFont from "next/font/local";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import SmoothScroll from "../components/SmoothScroll";
 import ChromeGate from "../components/ChromeGate";
-
-const wixMadefor = localFont({
-  src: "./fonts/WixMadeforDisplay-VariableFont_wght.ttf",
-  variable: "--font-wix-madefor",
-  display: "swap",
-});
 
 // Hero typography (v3 design language) — self-hosted at build by next/font
 const cormorant = Cormorant_Garamond({
@@ -45,12 +38,17 @@ const fraunces = Fraunces({
 });
 
 /* WI-5.4 — the site's measuring voice. Geist Mono is variable 100-900 and
-   free under the SIL licence; only 400 and 500 are loaded, which is every
-   weight the two-voice system actually uses. IBM Plex Mono stays as the
-   fallback in the stack while the rest of the site migrates. */
+   free under the SIL licence; only the weights the two-voice system uses
+   are loaded. IBM Plex Mono stays as the fallback in the stack while the
+   rest of the site migrates.
+
+   600 was added when P-2 made the mono the display voice: the headers,
+   slide titles and stat numbers ask for it, and with only 400 and 500 in
+   the @font-face set the browser was synthesising the bold rather than
+   using the real cut. */
 const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   variable: "--font-geist-mono",
   display: "swap",
 });
@@ -170,7 +168,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${wixMadefor.variable} ${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} ${geistMono.variable} antialiased`}
+        className={`${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} ${geistMono.variable} antialiased`}
       >
         <SmoothScroll>
           <ChromeGate>

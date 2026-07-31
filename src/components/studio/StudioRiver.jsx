@@ -51,17 +51,29 @@ const subRM = (cb) => {
 };
 const getRM = () => window.matchMedia(QUERY).matches;
 
-/* The column count is decided in JS, not by hiding a column in CSS: a
-   hidden third column would take a third of the reviews out of the page
-   with it. Three above 1280, two above 768, one below. */
+/* The layout is the narrower of two limits: what the viewport can hold,
+   and what the copy can fill.
+
+   Width — three above 1280, two above 768, one below. Decided in JS, not
+   by hiding a column in CSS: a hidden third column would take a third of
+   the reviews out of the page with it.
+
+   Volume — three columns need nine reviews or the loops run mostly empty;
+   five to eight fill two. At four or fewer there is nothing to drift, so
+   the section stops pretending and renders as a still single column. That
+   is the state the repo is in today. */
 const WIDE = ["(min-width: 1280px)", "(min-width: 768px)"];
 const subCols = (cb) => {
   const ms = WIDE.map((q) => window.matchMedia(q));
   ms.forEach((m) => m.addEventListener("change", cb));
   return () => ms.forEach((m) => m.removeEventListener("change", cb));
 };
-const getCols = () =>
+const byVolume = (n) => (n >= 9 ? 3 : n >= 5 ? 2 : 1);
+const byWidth = () =>
   window.matchMedia(WIDE[0]).matches ? 3 : window.matchMedia(WIDE[1]).matches ? 2 : 1;
+const getCols = () => Math.min(byWidth(), byVolume(REVIEWS.length));
+/* below this the river does not drift at all */
+const DRIFTS = REVIEWS.length >= 5;
 
 function Card({ review }) {
   return (
@@ -85,14 +97,15 @@ function columns(list, n) {
 export default function StudioRiver() {
   const reduced = useSyncExternalStore(subRM, getRM, () => false);
 
-  if (reduced) {
-    /* no drift at all: the first eight, laid out and read, with the rest
-       behind a plain disclosure */
+  if (reduced || !DRIFTS) {
+    /* No drift at all — either the visitor asked for none, or there is not
+       enough copy for a loop to mean anything. The first eight are laid
+       out and read, with the rest behind a plain disclosure. */
     const first = REVIEWS.slice(0, 8);
     const rest = REVIEWS.slice(8);
     return (
       <div className="er-rvstatic">
-        <ul className="er-rvgrid">
+        <ul className={DRIFTS ? "er-rvgrid" : "er-rvgrid er-rvgrid--one"}>
           {first.map((r) => (
             <li key={r.name}>
               <Card review={r} />
@@ -104,7 +117,7 @@ export default function StudioRiver() {
             <summary className="er-label">
               {rest.length} more {rest.length === 1 ? "review" : "reviews"}
             </summary>
-            <ul className="er-rvgrid">
+            <ul className={DRIFTS ? "er-rvgrid" : "er-rvgrid er-rvgrid--one"}>
               {rest.map((r) => (
                 <li key={r.name}>
                   <Card review={r} />

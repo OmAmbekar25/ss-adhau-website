@@ -587,78 +587,6 @@
   margin-top: 14px;
 }
 
-/* index rows */
-.er-rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--hairline);
-}
-.er-row {
-  border-bottom: 1px solid var(--hairline);
-  transition: border-color 0.35s var(--micro);
-}
-.er-row__a {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 20px;
-  align-items: center;
-  padding: clamp(22px, 3.4vh, 40px) 16px;
-  text-decoration: none;
-  color: inherit;
-  transition: background-color 0.35s var(--micro);
-}
-@media (min-width: 900px) {
-  .er-row__a {
-    grid-template-columns: 64px 1fr auto;
-    gap: 32px;
-  }
-}
-.er-row__i {
-  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  color: var(--ink-faint);
-  transition: color 0.35s var(--micro);
-}
-.er-row__t {
-  font-family: var(--font-fraunces), var(--font-cormorant), serif;
-  font-weight: 300;
-  font-size: clamp(22px, 2.9vw, 44px);
-  line-height: 1.08;
-  color: var(--ink);
-  margin: 0;
-  font-style: normal;
-  transition: font-style 0.01s;
-}
-.er-row__tag {
-  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  grid-column: 2;
-}
-@media (min-width: 900px) {
-  .er-row__tag {
-    grid-column: auto;
-    text-align: right;
-  }
-}
-/* hover: the title swaps to the serif's italic cut (§4) */
-.er-row__a:hover,
-.er-row__a:focus-visible {
-  background: var(--bg-raise);
-}
-.er-row__a:hover .er-row__t,
-.er-row__a:focus-visible .er-row__t {
-  font-style: italic;
-}
-.er-row:has(.er-row__a:hover),
-.er-row:has(.er-row__a:focus-visible) {
-  border-bottom-color: var(--hairline-hi);
-}
-
 /* proof */
 .er-proof {
   display: grid;
@@ -1122,149 +1050,13 @@
 
 /* the index scrim was removed under WI-5: no scrim divs — the text-block
    masks in StudioQuiet.jsx do this job in the field itself. */
-[data-index] > .er-wrap { position: relative; z-index: 1; }
+/* The index rows and their `--row-hue` system were replaced wholesale by
+   the pinned showcase in WI-1. Nothing in the markup has carried
+   `.er-row*`, `.er-index*` or `[data-index]` since. The rules are deleted
+   here rather than left dormant: they coloured TEXT from a raw hue, which
+   is exactly what the colour-world lock above now forbids, and a second
+   contradictory system in the file is how a lock quietly comes undone. */
 
-
-/* ------------------------------------------ index: per-service hues
-   One hue per service, all six in a single tonal band (L ≈ 38–45, low
-   chroma) so moving between rows reads as turning one dial rather than
-   changing themes. `--row-hue` is written onto the section by JS; it rests
-   unset, and every rule below degrades to the neutral grey state. */
-[data-index] {
-  --row-hue: transparent;
-}
-
-/* The ambient wash. Sanctioned deviation from §5's ban on decorative
-   background gradients: this is functional state signalling — scoped to
-   this section, resting at zero, capped at 14% so every contrast floor
-   still passes underneath it. One element, one gradient; only transform
-   and opacity animate. */
-.er-indexwash {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 40vh;
-  margin-top: -20vh;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0;
-  will-change: transform, opacity;
-  background: radial-gradient(
-    58% 50% at 50% 50%,
-    var(--row-hue) 0%,
-    transparent 72%
-  );
-  transition: opacity 0.8s var(--enter);
-}
-
-/* --- row furniture: only the active row changes --- */
-.er-row {
-  position: relative;
-  transition:
-    border-color 0.6s var(--enter),
-    background-color 0.6s var(--enter);
-}
-.er-row[data-active="true"] {
-  border-bottom-color: color-mix(in srgb, var(--row-hue) 30%, transparent);
-}
-.er-row[data-active="true"] .er-row__a {
-  background: color-mix(in srgb, var(--row-hue) 8%, var(--surface));
-}
-/* The hue at full strength, lifted toward white. The six palette hues sit
-   at L 38-45 by design; used raw on near-black the index number lands at
-   about 2.4:1 and fails the contrast floor the brief also sets. Mixing
-   toward white keeps the hue identity unmistakable and clears 4.5:1. */
-.er-row[data-active="true"] .er-row__i {
-  color: color-mix(in srgb, var(--row-hue) 55%, #ffffff);
-}
-.er-row__a,
-.er-row__i {
-  transition:
-    background-color 0.6s var(--enter),
-    color 0.6s var(--enter);
-}
-/* the scroll-soft state is colour only, at half strength, and never
-   brings the description with it */
-.er-row[data-active="soft"] .er-row__a {
-  background: color-mix(in srgb, var(--row-hue) 4%, transparent);
-}
-.er-row[data-active="soft"] .er-row__i {
-  color: color-mix(in srgb, var(--row-hue) 40%, var(--ink-dim));
-}
-
-/* --- the slot: tag and description share one box, so no reflow --- */
-.er-row__slot {
-  position: relative;
-  display: block;
-  grid-column: 2;
-  min-height: 3.4em;
-}
-@media (min-width: 900px) {
-  .er-row__slot {
-    grid-column: auto;
-    width: clamp(220px, 27vw, 340px);
-    min-height: 3.2em;
-  }
-}
-.er-row__slot > * {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  will-change: transform, opacity;
-}
-@media (min-width: 900px) {
-  .er-row__slot > * {
-    justify-content: flex-end;
-    text-align: right;
-  }
-}
-.er-row__tag {
-  grid-column: auto;
-  opacity: 1;
-  transition:
-    opacity 0.25s var(--micro),
-    transform 0.25s var(--micro);
-}
-.er-row__desc {
-  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
-  font-size: 15px;
-  line-height: 1.7;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ink-dim);
-  max-width: 34ch;
-  opacity: 0;
-  transform: translateX(24px);
-  transition:
-    opacity 0.35s var(--enter) 0.06s,
-    transform 0.35s var(--enter) 0.06s;
-}
-.er-row[data-active="true"] .er-row__tag {
-  opacity: 0;
-  transform: translateX(-16px);
-}
-.er-row[data-active="true"] .er-row__desc {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .er-indexwash,
-  .er-row,
-  .er-row__a,
-  .er-row__i,
-  .er-row__tag,
-  .er-row__desc {
-    transition-duration: 0.12s !important;
-    transition-delay: 0s !important;
-  }
-  .er-row__desc,
-  .er-row[data-active="true"] .er-row__tag {
-    transform: none !important;
-  }
-}
 
 /* The hero's quiet block. It must be a real box — `display: contents`
    would preserve the layout exactly but leaves nothing to measure, and the
@@ -1361,6 +1153,12 @@
 @media (min-width: 700px) {
   .er-rvgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* Four reviews or fewer: one still column, held to a reading measure.
+   Two columns of two quotes reads as a layout with holes in it. */
+.er-rvgrid--one {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 620px;
+}
 .er-rvmore { margin-top: clamp(24px, 3vh, 40px); }
 .er-rvmore summary { cursor: pointer; color: var(--ink-dim); }
 
@@ -1369,7 +1167,38 @@
    pinned. Everything that moves is a transform driven from one scrub
    value — smoothness is the acceptance criterion, so nothing here reads
    layout or animates a non-composited property. */
-.er-scsec { padding-bottom: 0; --sc-hue: transparent; }
+/* ---------------------------------------- the six colour worlds, LOCKED
+   Two tokens per world, and the pair is the lock — not just the hue.
+
+   `--hue-NN` is the world: particle tint, ambient wash, hairlines, button
+   borders, progress fill. It sits at L 38-45 by design, which is exactly
+   why it may never colour type — on either background level the six land
+   at 2.28-3.77:1.
+
+   `--hue-NN-text` is a 45/55 mix of the same hue into `--ink`, measured at
+   7.2-9.1:1 on both `--bg` and `--bg-deep`. Any TEXT that carries a hue
+   uses it. The one sanctioned exception is a hue numeral set at display
+   size, where the 3.0 large-text floor applies and the hue clears it on
+   its own — there is no such numeral in the build today (see `.er-sc__n`,
+   which is label-sized and therefore takes the text token).
+
+   `StudioShowcase.jsx` mirrors both values per service as `hue` and
+   `hueText`; the GL tint needs a literal, so it cannot read these. Change
+   one and change the other. */
+.er {
+  --hue-01: #8a6d3f; --hue-01-text: #beb19b;
+  --hue-02: #3f5c7a; --hue-02-text: #9ca9b5;
+  --hue-03: #7a3f46; --hue-03-text: #b69c9e;
+  --hue-04: #5c4a7a; --hue-04-text: #a9a1b5;
+  --hue-05: #3f6e66; --hue-05-text: #9cb1ac;
+  --hue-06: #7a5a3f; --hue-06-text: #b6a89b;
+}
+.er-scsec {
+  padding-bottom: 0;
+  --sc-hue: transparent;
+  /* falls back to plain ink, never to a failing colour */
+  --sc-hue-text: var(--ink);
+}
 .er-scwrap { display: none; }
 @media (min-width: 901px) {
   .er-scwrap { display: block; height: 600svh; }
@@ -1413,8 +1242,12 @@
   height: 100%;
 }
 
+/* Text, so it takes the text tint. The carve-out for "index numerals at
+   display size" does not reach this one: it is set as an `.er-label` at
+   11px, which is small text, so the 4.5 floor applies rather than the 3.0
+   large-text rule. The raw hue measured 2.28-3.77:1 here. */
 .er-sc__n {
-  color: var(--sc-hue);
+  color: var(--sc-hue-text);
   margin-bottom: 18px;
 }
 .er-sc__t {

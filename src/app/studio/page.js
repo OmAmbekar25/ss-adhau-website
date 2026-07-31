@@ -147,6 +147,19 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         }}
       />
 
+      {/* The mark is the page's LCP element and it cannot paint at all
+          until its mask decodes — and the mask is a `url()` inside the
+          stylesheet, so the browser does not learn about it until the CSS
+          has parsed. Profiling the production build put 26% of LCP in that
+          discovery gap. Preloading closes it; nothing about the loader
+          itself changes. */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/SSAdhauBG.png"
+        fetchPriority="high"
+      />
+
       <a className="er-skip" href="#er-main">
         Skip to content
       </a>
