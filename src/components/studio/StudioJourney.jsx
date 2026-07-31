@@ -14,7 +14,7 @@ const N = valuationBeats.length;
 
 /* The journey no longer owns a scene. The page has one field (see
    lib/studioScene.js) and this section simply walks it along its spine:
-   ribbon -> site -> lattice -> page, through fieldBus. */
+   ribbon -> datum -> site -> columns -> page, through fieldBus. */
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 const subRM = (cb) => {
@@ -43,12 +43,23 @@ export default function StudioJourney() {
         pin: pinRef.current,
         onUpdate: (self) => {
           const p = self.progress;
-          /* 1 = ribbon, 4 = the signed page. Compressed into the first
-             82% of the scroll so the page is fully formed by the time the
-             copy says certification — otherwise the caption arrives while
-             the field is still halfway between lattice and sheet. */
-          story(1 + 3 * Math.min(1, p / 0.82));
-          const idx = Math.min(N - 1, Math.floor(p * N + 0.18));
+          /* Five equal beats. Inside each one the field morphs to that
+             beat's form over the first 45% and then HOLDS — so every step
+             is read against a settled silhouette rather than against a
+             blend of the two either side of it, which is what made the
+             analysis step look like noise.
+
+               01 Enquiry      -> datum   (the first reference line)
+               02 Inspection   -> site
+               03 Analysis     -> columns (readings compared)
+               04 Certification-> page
+               05 Delivery     -> page, held
+
+             The ribbon the showcase hands over at story 1 is the lead-in
+             to beat 01, not a beat of its own. */
+          const seg = p * N;
+          const idx = Math.min(N - 1, Math.floor(seg));
+          story(1 + Math.min(N - 1, idx + Math.min(1, (seg - idx) / 0.45)));
           if (idx !== activeRef.current) {
             activeRef.current = idx;
             setActive(idx);

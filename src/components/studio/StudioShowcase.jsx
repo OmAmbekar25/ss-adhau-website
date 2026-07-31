@@ -291,7 +291,7 @@ export default function StudioShowcase() {
 
   const header = (
     <div className="er-wrap er-schead">
-      <p className="er-label er-label--faint er-track">Sec. 03 — Index</p>
+      {/* P-2: no eyebrow here — the header line carries it alone */}
       <h2 id="er-index" className="er-display er-h3 er-schead__h" data-quiet>
         What we are asked <em>to value</em>.
       </h2>

@@ -5,6 +5,7 @@ import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
 import StudioShowcase from "@/components/studio/StudioShowcase";
 import StudioQuiet from "@/components/studio/StudioQuiet";
+import StudioNav from "@/components/studio/StudioNav";
 import StudioRiver from "@/components/studio/StudioRiver";
 import StudioRecord from "@/components/studio/StudioRecord";
 
@@ -159,6 +160,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
       <StudioClient />
       <StudioQuiet />
+      <StudioNav />
       <StudioRecord />
 
       <header className="er-nav" data-hidden="false" data-scrolled="false">
@@ -166,15 +168,33 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
           S S Adhau<sup>®</sup>
         </Link>
         <nav aria-label="Primary">
-          <ul className="er-navlinks">
-            {NAV.map((item) => (
-              <li key={item.href}>
-                <Link className="er-navlink er-track" href={item.href}>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {/* P-1 — the links live behind a hamburger. Hover reveals them
+              on a fine pointer, but the button is the real control: it
+              toggles on click, opens on keyboard focus and closes on
+              Escape, so touch and keyboard are never left without a path. */}
+          <div className="er-navwrap" data-navwrap>
+            <ul className="er-navlinks" id="er-navlinks" data-navlinks>
+              {NAV.map((item) => (
+                <li key={item.href}>
+                  <Link className="er-navlink" href={item.href}>
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className="er-burger"
+              data-burger
+              aria-expanded="false"
+              aria-controls="er-navlinks"
+              aria-label="Menu"
+            >
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+            </button>
+          </div>
         </nav>
       </header>
 
@@ -208,25 +228,12 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             Request a valuation <span aria-hidden="true">→</span>
           </Link>
           </div>
-
-          <div className="er-satellites">
-            <p className="er-label er-label--faint er-satellites__side er-fade">
-              Nagpur · Chhindwara
-            </p>
-            <div className="er-satellites__mid er-fade">
-              <p className="er-label er-label--faint">Scroll to descend</p>
-              <i className="er-tick" aria-hidden="true" />
-            </div>
-            <p className="er-label er-label--faint er-satellites__side er-fade">
-              IBBI · Income Tax Dept.
-            </p>
-          </div>
         </section>
 
         {/* ---------------------- 5.3 MANIFESTO ----------------------- */}
         <section className="er-section er-manifesto" aria-labelledby="er-principle">
           <p className="er-label er-label--faint er-section__label er-track">
-            Sec. 01 — Principle
+            Principle
           </p>
           <blockquote className="er-manifesto__quote" data-manifesto>
             <h2 id="er-principle" className="er-display er-h2" data-quiet>
@@ -258,7 +265,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
           data-journey
         >
           <div className="er-wrap er-jhead">
-            <p className="er-label er-label--faint er-track">Sec. 02 — Method</p>
+            <p className="er-label er-label--faint er-track">Method</p>
             <h2 id="er-method" className="er-display er-h3" data-quiet>
               <Line>
                 The method behind <em>the number</em>.
@@ -283,7 +290,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         <section className="er-section" aria-labelledby="er-proof" data-record>
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track" data-rec-eyebrow>
-              Sec. 04 — Record
+              Record
             </p>
             <h2 id="er-proof" className="er-display er-h3" data-quiet style={{ margin: "24px 0 72px" }}>
               <Line>
@@ -338,7 +345,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         {/* ---------------------- 5.6b IN THEIR WORDS ----------------- */}
         <section className="er-section" aria-labelledby="er-words">
           <div className="er-wrap">
-            <p className="er-label er-label--faint er-track">Sec. 05 — Clients</p>
+            <p className="er-label er-label--faint er-track">Clients</p>
             <h2 id="er-words" className="er-display er-h3" data-quiet style={{ margin: "24px 0 64px" }}>
               <Line>
                 In <em>their words</em>.

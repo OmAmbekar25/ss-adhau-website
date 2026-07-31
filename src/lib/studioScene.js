@@ -184,41 +184,87 @@ function buildSite(n, out) {
   fillSegments(n, out, segs);
 }
 
-function buildLattice(n, out) {
-  const r = rng(4242);
-  const COLS = 13;
-  const colPts = Math.round(n * 0.34);
-  const per = Math.floor(colPts / COLS);
-  let i = 0;
-  for (let c = 0; c < COLS; c++) {
-    const a = (c / COLS) * Math.PI * 2 + 0.22;
-    const rad = 19 + r() * 2.2;
-    const cx = Math.cos(a) * rad;
-    const cz = Math.sin(a) * rad * 0.8;
-    const h = 5 + r() * 13;
-    for (let k = 0; k < per && i < n; k++, i++) {
-      put(out, i, cx + (r() - 0.5) * 0.22, (k / per) * h, cz + (r() - 0.5) * 0.22);
-    }
-  }
-  const layers = [
-    { y: 13.5, n: Math.round((n - i) * 0.55) },
-    { y: 7.0, n: n - i - Math.round((n - i) * 0.55) },
-  ];
-  for (const L of layers) {
-    const cols = Math.max(2, Math.round(Math.sqrt((L.n * 32) / 18)));
-    const rows = Math.max(2, Math.ceil(L.n / cols));
-    for (let k = 0; k < L.n && i < n; k++, i++) {
-      const cx = k % cols;
-      const cz = Math.floor(k / cols);
+/* P-3.1 — the datum.
+   Step 01 is "nothing is measured yet; the first reference line is drawn".
+   So the field converges out of the right into a single thin horizontal
+   line, left of centre, with brighter clusters at even intervals for the
+   ticks. Its silhouette shares nothing with any other formation. */
+function buildDatum(n, out) {
+  const r = rng(3301);
+  const TICKS = 11;
+  const X0 = -13;
+  const X1 = 9;
+  for (let i = 0; i < n; i++) {
+    const t = r();
+    if (t < 0.24) {
+      /* still drifting in from the right, not yet on the line */
+      const d = r();
       put(
         out, i,
-        lerp(-16, 16, cols === 1 ? 0.5 : cx / (cols - 1)) + (r() - 0.5) * 0.16,
-        L.y + (r() - 0.5) * 0.35,
-        lerp(-9, 9, rows === 1 ? 0.5 : cz / (rows - 1)) + (r() - 0.5) * 0.16
+        X1 + d * d * 26,
+        (r() - 0.5) * 7 * d,
+        (r() - 0.5) * 5 * d
       );
+      continue;
     }
+    const u = r();
+    /* the ticks: short verticals at even intervals, denser than the line */
+    if (t > 0.72) {
+      const k = Math.floor(u * TICKS);
+      const x = X0 + ((X1 - X0) * k) / (TICKS - 1);
+      put(
+        out, i,
+        x + (r() - 0.5) * 0.22,
+        (r() - 0.5) * 1.5,
+        (r() - 0.5) * 0.16
+      );
+      continue;
+    }
+    /* the line itself — tight, so it reads as ruled rather than sprayed */
+    put(
+      out, i,
+      X0 + u * (X1 - X0),
+      (r() - 0.5) * 0.16,
+      (r() - 0.5) * 0.14
+    );
   }
-  for (; i < n; i++) put(out, i, 0, 10, 0);
+}
+
+/* P-3.2 — the comparison.
+   Step 03 read as smeared noise because five beats were spread over four
+   keyframe gaps, so "Analysis" sat exactly halfway between two unrelated
+   forms and rendered as a 50/50 blend of both. The spine now has a
+   keyframe of its own here: an isometric field of dot-built columns at
+   varied heights — a bar chart as terrain, legible as "things being
+   compared" the moment it arrives. */
+function buildColumns(n, out) {
+  const r = rng(8123);
+  const COLS = 5;
+  const ROWS = 3;
+  const heights = [];
+  for (let k = 0; k < COLS * ROWS; k++) heights.push(4 + Math.pow(r(), 0.8) * 16);
+  for (let i = 0; i < n; i++) {
+    const k = i % (COLS * ROWS);
+    const cx = k % COLS;
+    const cz = Math.floor(k / COLS);
+    const x = -13 + (26 * cx) / (COLS - 1);
+    const z = -8 + (16 * cz) / (ROWS - 1);
+    const h = heights[k];
+    const up = r();
+    /* tight jitter: the edges have to stay sharp or it reads as fog */
+    const hw = 1.5;
+    const face = r();
+    let ox;
+    let oz;
+    if (face < 0.5) {
+      ox = (r() - 0.5) * 2 * hw;
+      oz = (r() < 0.5 ? -1 : 1) * hw;
+    } else {
+      ox = (r() < 0.5 ? -1 : 1) * hw;
+      oz = (r() - 0.5) * 2 * hw;
+    }
+    put(out, i, x + ox, up * h, z + oz);
+  }
 }
 
 /* The certificate.
@@ -583,7 +629,8 @@ export function createStudioScene(container, opts = {}) {
   const RIBBON = new Float32Array(count * 3);
   const TORNADO = new Float32Array(count * 3);
   const SITE = new Float32Array(count * 3);
-  const LATTICE = new Float32Array(count * 3);
+  const DATUM = new Float32Array(count * 3);
+  const COLUMNS = new Float32Array(count * 3);
   const PAGE = new Float32Array(count * 3);
   const nrm = new Float32Array(count * 3);
   const drift = new Float32Array(count * 3);
@@ -596,7 +643,8 @@ export function createStudioScene(container, opts = {}) {
   buildRibbon(count, RIBBON, nrm, edge, rand, threads, per);
   buildTornado(count, TORNADO, threads, per);
   buildSite(count, SITE);
-  buildLattice(count, LATTICE);
+  buildDatum(count, DATUM);
+  buildColumns(count, COLUMNS);
   buildPage(count, PAGE);
   buildBand(count, BAND, [], 0.9, 0); // placeholder until the cards are measured
 
@@ -616,7 +664,7 @@ export function createStudioScene(container, opts = {}) {
       buf[i * 3] -= x; buf[i * 3 + 1] -= y; buf[i * 3 + 2] -= z;
     }
   };
-  [RIBBON, TORNADO, SITE, LATTICE, PAGE].forEach(recentre);
+  [RIBBON, TORNADO, SITE, DATUM, COLUMNS, PAGE].forEach(recentre);
 
   const r = rng(31337);
   const wPhase = new Float32Array(count);
@@ -635,8 +683,12 @@ export function createStudioScene(container, opts = {}) {
   }
 
   /* the ordered spine the whole page travels along */
-  const KEY = [TORNADO, RIBBON, SITE, LATTICE, PAGE];
-  const SILK = [0.55, 1, 0, 0, 0]; // how cloth-like each form behaves
+  /* Six keyframes, so the journey's five beats each land ON one instead of
+     between two — see StudioJourney. The old spine had five beats spread
+     across four gaps, which is why "Analysis" rendered as a blend of the
+     site and the lattice rather than as anything. */
+  const KEY = [TORNADO, RIBBON, DATUM, SITE, COLUMNS, PAGE];
+  const SILK = [0.55, 1, 0.12, 0, 0, 0]; // how cloth-like each form behaves
 
   const base = new Float32Array(count * 3);
   base.set(TORNADO);
@@ -708,8 +760,11 @@ export function createStudioScene(container, opts = {}) {
   const CAM = [
     { px: 0.0, py: 0.2, pz: 7.6, tx: 0, ty: 0.3, tz: 0, rx: 0.4 },
     { px: -0.18, py: 0.0, pz: 7.4, tx: 0, ty: 0.0, tz: 0, rx: 0.4 },
+    /* datum: square on, pulled back so the whole ruled line is in frame */
+    { px: -0.4, py: 0.0, pz: 7.2, tx: 0, ty: 0.0, tz: 0, rx: 0.08 },
     { px: 3.4, py: 2.1, pz: 5.6, tx: 0, ty: 0.1, tz: 0, rx: 0.0 },
-    { px: -1.7, py: 4.9, pz: 6.6, tx: 0, ty: 0.6, tz: 0, rx: 0.0 },
+    /* columns: a low three-quarter view, so height reads as height */
+    { px: 2.6, py: 2.4, pz: 6.4, tx: 0, ty: 0.35, tz: 0, rx: 0.0 },
     { px: 0.0, py: 0.1, pz: 6.9, tx: 0, ty: 0.0, tz: 0, rx: 0.0 },
   ];
 

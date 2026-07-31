@@ -2,22 +2,27 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
-/* WI-7 — the clients river.
+/* WI-7 / P-5 — the clients river.
  *
- * The reviews drift upward on their own rather than on scroll: they are
- * content to graze, not a beat in the page's argument. Three rules keep
- * that from becoming a marquee — it moves slower than anyone reads, it
- * stops the moment you look at it, and under reduced motion it does not
- * move at all.
+ * The reviews drift on their own rather than on scroll: they are content to
+ * graze, not a beat in the page's argument. Three rules keep that from
+ * becoming a marquee — it moves slower than anyone reads, it slows the
+ * moment you reach for it, and under reduced motion it does not move.
  *
- * Each column is one transform on one element. Nothing animates per card,
- * and the duplicate set that makes the loop seamless is hidden from
- * assistive tech so every quote is announced exactly once.
+ * P-5 rebuilt the layout only; the mechanics above are unchanged. It is
+ * three columns inside the page's own container instead of two lanes
+ * spanning the viewport, so a card can never touch the container edge —
+ * the mask is the column box, not the window. Each column is one transform
+ * on one element; nothing animates per card, and the duplicate set that
+ * makes the loop seamless is hidden from assistive tech so every quote is
+ * announced exactly once.
  */
 
-/* TODO(content): only four reviews exist in the repo. The river is built
-   to take the firm's full list — drop more entries in and the columns
-   redistribute automatically. */
+/* TODO(content): only four reviews exist in the repo. Three columns are
+   built for the firm's full list — with nine or more the columns fill and
+   the drift reads continuously; with four, a column carrying one quote
+   shows a long empty stretch between passes (which is honest, if sparse).
+   Drop more entries in and they redistribute automatically. */
 const REVIEWS = [
   { name: "Subhash Kamti", text: "Best valuer of Chhindwara." },
   {
@@ -31,16 +36,12 @@ const REVIEWS = [
   { name: "Anukul Singh", text: "Best." },
 ];
 
-/* Two lanes, drifting in opposite directions at slightly different speeds
-   so the pair never reads as one moving block. Horizontal, matching the
-   homepage's marquee — the earlier vertical column drift was correct to
-   the written spec but the client wants these moving the way the homepage
-   does, and at a speed you can actually see. */
-const LANES = [
-  { speed: 46, dir: -1 },
-  { speed: 38, dir: 1 },
-];
-const HOVER_SPEED = 12; // slows, never stops
+/* One loop per column, in seconds. Close enough to read as one river,
+   different enough that the three never line up again. */
+const LOOP = [26, 32, 29];
+/* Static head-starts, so the cards never settle into rows across columns. */
+const OFFSET = [0, 96, 48];
+const HOVER_FACTOR = 0.26; // slows, never stops
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 const subRM = (cb) => {
@@ -49,6 +50,18 @@ const subRM = (cb) => {
   return () => m.removeEventListener("change", cb);
 };
 const getRM = () => window.matchMedia(QUERY).matches;
+
+/* The column count is decided in JS, not by hiding a column in CSS: a
+   hidden third column would take a third of the reviews out of the page
+   with it. Three above 1280, two above 768, one below. */
+const WIDE = ["(min-width: 1280px)", "(min-width: 768px)"];
+const subCols = (cb) => {
+  const ms = WIDE.map((q) => window.matchMedia(q));
+  ms.forEach((m) => m.addEventListener("change", cb));
+  return () => ms.forEach((m) => m.removeEventListener("change", cb));
+};
+const getCols = () =>
+  window.matchMedia(WIDE[0]).matches ? 3 : window.matchMedia(WIDE[1]).matches ? 2 : 1;
 
 function Card({ review }) {
   return (
@@ -66,7 +79,7 @@ function Card({ review }) {
 function columns(list, n) {
   const out = Array.from({ length: n }, () => []);
   list.forEach((r, i) => out[i % n].push(r));
-  return out.filter((c) => c.length);
+  return out;
 }
 
 export default function StudioRiver() {
@@ -104,30 +117,35 @@ export default function StudioRiver() {
     );
   }
 
-  return <Lanes />;
+  return <Columns />;
 }
 
-function Lanes() {
+function Columns() {
+  const n = useSyncExternalStore(subCols, getCols, () => 3);
   const refs = useRef([]);
 
   useEffect(() => {
+    refs.current.length = n;
     const tracks = refs.current.filter(Boolean);
     if (!tracks.length) return;
 
-    const state = tracks.map((track, i) => ({
-      track,
-      x: LANES[i].dir < 0 ? 0 : -track.scrollWidth / 2,
-      speed: LANES[i].speed,
-      target: LANES[i].speed,
-      dir: LANES[i].dir,
-      half: track.scrollWidth / 2,
-    }));
-
-    const remeasure = () => {
-      state.forEach((s) => {
-        s.half = s.track.scrollWidth / 2;
-      });
+    /* The loop distance is the height of one set — but never shorter than
+       the mask, or the duplicate would be on screen at the same time as
+       the original and the column would read as the same quote twice. */
+    const measure = (s) => {
+      const set = s.track.firstElementChild;
+      const maskH = s.track.parentElement.clientHeight;
+      s.span = Math.max(set.scrollHeight, maskH + 48);
+      s.track.style.setProperty("--set", `${s.span}px`);
+      s.rate = s.span / LOOP[refs.current.indexOf(s.track)];
     };
+
+    const state = tracks.map((track) => ({
+      track, y: 0, span: 1, rate: 0, factor: 1, live: 1,
+    }));
+    state.forEach(measure);
+
+    const remeasure = () => state.forEach(measure);
     window.addEventListener("resize", remeasure);
 
     let raf = 0;
@@ -137,69 +155,70 @@ function Lanes() {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       state.forEach((s) => {
-        s.speed += (s.target - s.speed) * Math.min(1, dt * 4);
-        s.x += s.dir * s.speed * dt;
-        /* wrap in both directions — the set is rendered twice */
-        if (s.half > 0) {
-          if (s.x <= -s.half) s.x += s.half;
-          if (s.x >= 0) s.x -= s.half;
-        }
-        s.track.style.transform = `translate3d(${s.x.toFixed(2)}px, 0, 0)`;
+        s.live += (s.factor - s.live) * Math.min(1, dt * 4);
+        s.y -= s.rate * s.live * dt;
+        if (s.y <= -s.span) s.y += s.span;
+        s.track.style.transform = `translate3d(0, ${s.y.toFixed(2)}px, 0)`;
       });
     };
     raf = requestAnimationFrame(frame);
 
     const binds = [];
     state.forEach((s) => {
-      const lane = s.track.parentElement;
+      const col = s.track.parentElement;
       const slow = () => {
-        s.target = HOVER_SPEED;
+        s.factor = HOVER_FACTOR;
       };
       const resume = () => {
-        s.target = LANES[state.indexOf(s)].speed;
+        s.factor = 1;
       };
-      lane.addEventListener("pointerenter", slow);
-      lane.addEventListener("pointerleave", resume);
-      lane.addEventListener("focusin", slow);
-      lane.addEventListener("focusout", resume);
-      binds.push([lane, slow, resume]);
+      col.addEventListener("pointerenter", slow);
+      col.addEventListener("pointerleave", resume);
+      col.addEventListener("focusin", slow);
+      col.addEventListener("focusout", resume);
+      binds.push([col, slow, resume]);
     });
 
     return () => {
       window.removeEventListener("resize", remeasure);
       if (raf) cancelAnimationFrame(raf);
-      binds.forEach(([lane, slow, resume]) => {
-        lane.removeEventListener("pointerenter", slow);
-        lane.removeEventListener("pointerleave", resume);
-        lane.removeEventListener("focusin", slow);
-        lane.removeEventListener("focusout", resume);
+      binds.forEach(([col, slow, resume]) => {
+        col.removeEventListener("pointerenter", slow);
+        col.removeEventListener("pointerleave", resume);
+        col.removeEventListener("focusin", slow);
+        col.removeEventListener("focusout", resume);
       });
     };
-  }, []);
+  }, [n]);
 
-  const rows = columns(REVIEWS, 2);
+  const cols = columns(REVIEWS, n);
 
   return (
-    <div className="er-river" data-river>
-      {rows.map((row, i) => (
-        <div className="er-rvlane" key={i} data-rvlane>
-          <ul
+    <div className="er-river" data-river style={{ "--cols": n }}>
+      {cols.map((col, i) => (
+        <div className="er-rvcol" key={i} data-rvcol>
+          <div
             className="er-rvtrack"
+            style={{ top: `${OFFSET[i]}px` }}
             ref={(el) => {
               refs.current[i] = el;
             }}
           >
-            {row.map((r) => (
-              <li key={r.name}>
-                <Card review={r} />
-              </li>
-            ))}
-            {row.map((r) => (
-              <li key={`dup-${r.name}`} aria-hidden="true">
-                <Card review={r} />
-              </li>
-            ))}
-          </ul>
+            <ul className="er-rvset">
+              {col.map((r) => (
+                <li key={r.name}>
+                  <Card review={r} />
+                </li>
+              ))}
+            </ul>
+            <ul className="er-rvset er-rvset--dup" aria-hidden="true">
+              {col.map((r) => (
+                <li key={`dup-${r.name}`}>
+                  <Card review={r} />
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       ))}
     </div>

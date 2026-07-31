@@ -1278,34 +1278,50 @@
 }
 
 /* ------------------------------------------------ WI-7: clients river
-   Two lanes drifting in opposite directions, horizontally, matching the
-   homepage's marquee. Auto-motion is banned for decorative marquees; this
-   is content the visitor is meant to graze, it drifts slower than reading
-   speed, it slows when reached for, and under reduced motion it is
-   completely still. */
+   Auto-motion is banned for decorative marquees; this is content the
+   visitor is meant to graze, it drifts slower than reading speed, it slows
+   when reached for, and under reduced motion it is completely still.
+
+   P-5 — the layout is now three columns inside the page's own container.
+   The mask is the column box, so a card can never touch or cross the
+   container edge; the columns are equal, and their static head-starts stop
+   the cards settling into rows. Mechanics unchanged. */
 .er-river {
+  --cols: 3;
+  --rvgap: 48px;
   margin-top: clamp(40px, 6vh, 72px);
   display: grid;
-  gap: clamp(16px, 2vw, 28px);
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  /* 3 × 30% + 2 × 5% = 100% of the container, and not a pixel outside it */
+  gap: 5%;
 }
-.er-rvlane {
+.er-rvcol {
+  position: relative;
   overflow: hidden;
-  /* fades at both ends, so the lane visibly continues off-canvas */
-  mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  /* kept tight on purpose: the loop distance is at least this plus a gap,
+     so a tall frame buys nothing but dead air between passes */
+  height: clamp(300px, 26vw, 380px);
+  /* fades at both ends, so the column visibly continues past the frame */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
 }
 .er-rvtrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+.er-rvset {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  width: max-content;
-  will-change: transform;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
 }
-.er-rvtrack > li {
-  flex: 0 0 clamp(260px, 30vw, 400px);
-  padding-right: clamp(16px, 2vw, 28px);
-}
+.er-rvset--dup { top: var(--set, 100%); }
+.er-rvset > li + li { margin-top: var(--rvgap); }
 
 /* Plain cards: a hairline, the quote, the name. No stars, no avatars, no
    border beyond the rule. */
@@ -1313,7 +1329,6 @@
   margin: 0;
   padding: clamp(18px, 2vw, 26px) 0 0;
   background: transparent;
-  height: 100%;
 }
 .er-rvcard__rule {
   display: block;
@@ -1323,9 +1338,12 @@
 }
 .er-rvcard__q {
   margin: 0;
-  font-size: 15px;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 16px;
   line-height: 1.7;
   letter-spacing: 0;
+  max-width: 40ch;
   color: var(--ink);
 }
 .er-rvcard__a { display: block; margin-top: 14px; }
@@ -1531,4 +1549,170 @@
      no .er-scwrap and the stack IS the presentation, so an unscoped rule
      here hid the whole section at desktop widths. */
   .er-scwrap + .er-scstack { display: none; }
+}
+
+/* ===================== P-1: hamburger nav ============================ */
+.er-navwrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+/* Taken out of flow on purpose: in flow the closed list still claimed its
+   full width, which pushed the icon itself off the right edge at 390 and
+   left nothing to tap. The wrap is now exactly the icon. */
+.er-navlinks {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + clamp(16px, 2vw, 28px));
+  display: flex;
+  gap: clamp(18px, 2.4vw, 40px);
+  white-space: nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+  /* slides leftward out from behind the icon rather than fading in place */
+  transform: translateY(-50%) translateX(18px);
+  transition:
+    opacity 0.3s var(--enter),
+    transform 0.3s var(--enter);
+}
+.er-navwrap[data-open="true"] .er-navlinks {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
+}
+/* the stagger: each link trails the one to its right */
+.er-navlinks li { transition: transform 0.3s var(--enter), opacity 0.3s var(--enter); }
+.er-navwrap[data-open="false"] .er-navlinks li:nth-child(1) { transition-delay: 120ms; }
+.er-navwrap[data-open="false"] .er-navlinks li:nth-child(2) { transition-delay: 80ms; }
+.er-navwrap[data-open="false"] .er-navlinks li:nth-child(3) { transition-delay: 40ms; }
+.er-navwrap[data-open="true"] .er-navlinks li:nth-child(2) { transition-delay: 40ms; }
+.er-navwrap[data-open="true"] .er-navlinks li:nth-child(3) { transition-delay: 80ms; }
+.er-navwrap[data-open="true"] .er-navlinks li:nth-child(4) { transition-delay: 120ms; }
+
+.er-burger {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 16px;
+  position: relative;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: block;
+}
+.er-burger span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink);
+  transition: transform 0.3s var(--enter), background-color 0.3s var(--micro);
+}
+.er-burger span:nth-child(1) { top: 2px; }
+.er-burger span:nth-child(2) { top: 50%; }
+.er-burger span:nth-child(3) { bottom: 2px; }
+/* on open the outer lines part by 2px — no X-morph */
+.er-navwrap[data-open="true"] .er-burger span:nth-child(1) { transform: translateY(-2px); }
+.er-navwrap[data-open="true"] .er-burger span:nth-child(3) { transform: translateY(2px); }
+.er-burger:focus-visible { outline: 1px solid var(--ink); outline-offset: 6px; }
+
+/* Four tracked-caps links will not fit beside the icon on a phone, so
+   below 640 they drop under the bar instead of sliding out beside it. The
+   control and the states are identical; only the direction changes. */
+@media (max-width: 640px) {
+  .er-navlinks {
+    top: calc(100% + 18px);
+    right: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 18px;
+    transform: translateY(-8px);
+  }
+  .er-navwrap[data-open="true"] .er-navlinks {
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-navlinks,
+  .er-navlinks li,
+  .er-burger span { transition-duration: 0.12s !important; transition-delay: 0s !important; }
+}
+
+/* ============ P-2: the display voice moves to the mono ===============
+   Locked: the serif survives in exactly two places — the hero headline and
+   the wordmark (nav + footer). Everything else that used to be display
+   type is now mono, one notch down the scale because mono runs wide, in
+   sentence case. The italic-mix device retires with it. */
+.er-h2,
+.er-h3,
+.er-schead__h,
+.er-sc__t,
+.er-jbeat__t,
+.er-jlist__t,
+.er-proof__fig,
+.er-jbeat__i,
+.er-trhead__h {
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace !important;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  text-transform: none;
+}
+/* the emphasis word loses its italic outside the hero */
+.er-h2 em,
+.er-h3 em,
+.er-schead__h em,
+.er-sc__t em,
+.er-trhead__h em {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* the manifesto and the CTA — still the largest voice on the page, but a
+   notch down, because the mono sets wider than the serif did */
+.er-h2 { font-size: clamp(28px, 4.2vw, 60px); line-height: 1.1; }
+/* section headers */
+.er-h3,
+.er-schead__h,
+.er-trhead__h { font-size: clamp(28px, 3.2vw, 44px); }
+/* showcase slide titles */
+.er-sc__t { font-size: clamp(32px, 3.6vw, 52px); }
+/* process step titles */
+.er-jbeat__t,
+.er-jlist__t { font-size: clamp(24px, 2.4vw, 34px); font-weight: 500; }
+/* stat numbers */
+.er-proof__fig { font-weight: 600; }
+
+/* =================== P-4: record legibility lift ==================== */
+[data-record] .er-org__n {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 13px;
+}
+[data-record] .er-org .er-rule { background: var(--hairline-hi); }
+[data-record] [data-rec-label] {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 13px;
+}
+[data-record] [data-rec-note] {
+  color: var(--ink-dim);
+  font-weight: 500;
+}
+[data-record] [data-rec-orglabel] { color: var(--ink); font-weight: 500; font-size: 13px; }
+
+/* ================ P-6: the footer wordmark comes down ================ */
+.er-bigmark {
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  opacity: 1;
+  padding-top: 0;
+  margin-bottom: 64px;
 }
