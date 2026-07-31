@@ -99,6 +99,16 @@ export default function StudioQuiet() {
     measure();
     const unwait = onField(() => measure());
     window.addEventListener("resize", measure);
+    /* Images settle the layout after this first pass, and a text rect
+       measured against the pre-image layout no longer sits over its text —
+       the hero's mask drifted off the headline the moment the showcase
+       photographs were added. `load` fires once every image is in. */
+    const onLoad = () => {
+      measure();
+      ScrollTrigger.refresh();
+    };
+    if (document.readyState === "complete") onLoad();
+    else window.addEventListener("load", onLoad);
 
     /* one ScrollTrigger, no scrub maths — it just re-pushes the on-screen
        boxes as the page moves under them */
@@ -112,6 +122,7 @@ export default function StudioQuiet() {
     return () => {
       unwait();
       window.removeEventListener("resize", measure);
+      window.removeEventListener("load", onLoad);
       st.kill();
       const s = field();
       if (s) {

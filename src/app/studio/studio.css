@@ -1465,41 +1465,18 @@
 .er-sccard__img {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 10%;
-  text-align: center;
   will-change: transform;
-  /* The grade every photograph will receive: desaturated, mapped to the
-     site's graphite and silver, blacks crushed to --bg-deep, with the
-     slide's hue allowed into the shadows at a few percent. It is this
-     single grade that will make six unrelated photographs read as one
-     commissioned set. */
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--sc-hue) 8%, #2a2a2c) 0%,
-      var(--bg-deep) 78%
-    );
-  filter: saturate(0.15) contrast(1.05);
+  /* No grade here. The exports arrive already desaturated, duotoned to the
+     site tokens, grained and hue-tinted in their shadows — a second pass
+     in CSS would stack on the first. This element exists only to carry the
+     inner parallax. */
+  background: var(--bg-deep);
 }
-.er-sccard__grain {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.5;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 3px 3px;
-}
-.er-sccard__slot { color: var(--sc-hue); }
-.er-sccard__subject {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--ink-dim);
-  max-width: 22ch;
+.er-sccard__pic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .er-scprog {
@@ -1536,7 +1513,10 @@
   display: grid;
   gap: clamp(56px, 9vh, 104px);
 }
-.er-scstack .er-sccard { max-width: 100%; }
+/* The stacked card must stay a portrait, not stretch to the measure —
+   a 4:5 mask at full width becomes a wall, and object-fit then crops the
+   subject to a letterbox. */
+.er-scstack .er-sccard { max-width: min(100%, 460px); }
 .er-scstack__body { margin-top: clamp(22px, 3vh, 34px); }
 @media (prefers-reduced-motion: reduce) {
   .er-sccard__img { transform: none !important; }

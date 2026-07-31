@@ -131,8 +131,19 @@ export default function StudioTrusted() {
          chases the cards: at this width the strip is a separate surface
          the finger controls, and coupling it to scroll would fight the
          browser's own momentum. Velocity is quartered to a drift. */
+      /* The drift runs for the page's whole life, so its velocity must NOT
+         be: writing setVelocity every frame pinned uVel at ~0.16 site-wide,
+         which fattened and brightened every dot on every section — the
+         same failure as the original velocity stick, reintroduced from the
+         other end. It only speaks while its own section is on screen. */
+      let inView = false;
+
       const amb = ScrollTrigger.create({
         trigger: ".er-trsec",
+        onToggle: (self) => {
+          inView = self.isActive;
+          if (!inView) field()?.setVelocity(0);
+        },
         start: "top bottom",
         end: "bottom top",
         onUpdate: (self) => {
@@ -171,6 +182,7 @@ export default function StudioTrusted() {
         x -= speed * dt;
         if (half > 0 && x <= -half) x += half;
         if (track) track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`;
+        if (!inView) return;
         const s = field();
         if (s) s.setVelocity(gsap.utils.clamp(-1, 1, speed / 260) * 0.55);
       };

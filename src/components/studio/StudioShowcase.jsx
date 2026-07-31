@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import gsap from "gsap";
@@ -28,57 +29,63 @@ if (typeof window !== "undefined") {
 const SERVICES = [
   {
     n: "01",
+    img: "/images/slides/slide-01-real-estate.webp",
+    alt: "A residential and commercial facade in strong raking light",
     title: ["Real estate ", "valuation"],
     em: 1,
     hue: "#8A6D3F",
     tag: "Residential · Commercial · Industrial",
     desc: "Residential, commercial and industrial property — inspected, measured and benchmarked against local market evidence.",
-    subject: "Residential / commercial facade in strong light",
   },
   {
     n: "02",
+    img: "/images/slides/slide-02-machinery.webp",
+    alt: "A radial engine and propeller, close-up on the machined detail",
     title: ["Plant & machinery ", "valuation"],
     em: 1,
     hue: "#3F5C7A",
     tag: "Age · Condition · Market",
     desc: "Age, condition and market comparables for plant, machinery and equipment — from single assets to full facilities.",
-    subject: "Industrial machinery, texture-forward close-up",
   },
   {
     n: "03",
+    img: "/images/slides/slide-03-ibc.webp",
+    alt: "A colonnade of fluted columns on a courthouse portico",
     title: ["Valuation under ", "IBC"],
     em: 1,
     hue: "#7A3F46",
     tag: "CIRP · Liquidation",
     desc: "CIRP and liquidation valuations under the Insolvency and Bankruptcy Code, built to survive committee and court review.",
-    subject: "Courthouse / columned architecture detail",
   },
   {
     n: "04",
+    img: "/images/slides/slide-04-business.webp",
+    alt: "A city skyline at dusk, towers reduced to silhouette",
     title: ["Business ", "valuation"],
     em: 1,
     hue: "#5C4A7A",
     tag: "Income · Market · Asset",
     desc: "Income, market and asset approaches to whole-business value — for transactions, disputes and planning.",
-    subject: "City skyline at dusk, graphic silhouette",
   },
   {
     n: "05",
+    img: "/images/slides/slide-05-financial.webp",
+    alt: "A close crop of a written ledger page",
     title: ["Financial reporting ", "valuation"],
     em: 1,
     hue: "#3F6E66",
     tag: "Ind-AS · IFRS",
     desc: "Ind-AS and IFRS fair-value measurements with the working papers auditors ask for.",
-    subject: "Close crop of ledger / annual-report paper texture",
   },
   {
     n: "06",
+    img: "/images/slides/slide-06-ma.webp",
+    alt: "Two towers joined by a skybridge, seen from below",
     title: ["Merger & acquisition ", "support"],
     em: 1,
     hue: "#7A5A3F",
     tag: "Restructuring",
     desc: "Valuation support through restructuring and M&A — diligence, swap ratios and fairness opinions.",
-    subject: "Two towers / joined structures, abstract-graphic",
   },
 ];
 
@@ -93,21 +100,29 @@ const subRM = (cb) => {
 };
 const getRM = () => window.matchMedia(QUERY).matches;
 
-/* TODO(asset): the six photographs. The card, its mask, the inner parallax
-   and the duotone grade are all built and working — only the images are
-   outstanding. The repo holds three usable non-people photos, two of which
-   are already logged as placeholder stock awaiting replacement, so nothing
-   here pretends to be the commissioned set. Each slot states the subject
-   it is waiting for; dropping a graded export in is a data change.
-   See docs/asset-licenses.md. */
+/* The photographs arrive already graded — desaturated, duotoned to the
+   site tokens, grained, blacks crushed, and the slide's hue in the shadows
+   at 8%. So nothing is re-graded here: a second pass in CSS would stack on
+   top of the first and crush what the exports already resolved. The card
+   contributes the mask, the parallax and the shadow only.
+   Provenance for all six is in docs/asset-licenses.md. */
 function Card({ service }) {
   return (
     <div className="er-sccard" data-sc-card>
       <div className="er-sccard__mask">
         <div className="er-sccard__img" data-sc-img>
-          <span className="er-sccard__grain" aria-hidden="true" />
-          <span className="er-label er-sccard__slot">TODO(asset)</span>
-          <span className="er-sccard__subject">{service.subject}</span>
+          <Image
+            src={service.img}
+            alt={service.alt}
+            width={1600}
+            height={2000}
+            sizes="(max-width: 900px) 88vw, min(46vw, 520px)"
+            /* eager: the section pins on arrival, and a card still
+               decoding while the track starts moving is exactly the
+               stutter the smoothness criterion rules out */
+            loading="eager"
+            className="er-sccard__pic"
+          />
         </div>
       </div>
     </div>
