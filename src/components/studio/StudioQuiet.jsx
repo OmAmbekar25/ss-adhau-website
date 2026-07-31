@@ -50,7 +50,12 @@ export default function StudioQuiet() {
       if (!s) return;
       const feather = 60 * s.worldPerPx();
 
-      rects = blocks.slice(0, 4).map((el) => {
+      /* Measure every block, not the first four. The shader takes four at a
+         time, but which four matters — slicing here meant the later
+         sections' headings were never in the list at all, so the cap never
+         engaged for them. The choice of four belongs at push time, where
+         it can be "the ones actually on screen". */
+      rects = blocks.map((el) => {
         const r = el.getBoundingClientRect();
         return {
           el,

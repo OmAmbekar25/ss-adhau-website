@@ -238,7 +238,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             Sec. 01 — Principle
           </p>
           <blockquote className="er-manifesto__quote" data-manifesto>
-            <h2 id="er-principle" className="er-display er-h2">
+            <h2 id="er-principle" className="er-display er-h2" data-quiet>
               <Line>A valuation is not</Line>
               <Line>
                 <span className="er-dim">an</span> opinion.
@@ -268,7 +268,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         >
           <div className="er-wrap er-jhead">
             <p className="er-label er-label--faint er-track">Sec. 02 — Method</p>
-            <h2 id="er-method" className="er-display er-h3">
+            <h2 id="er-method" className="er-display er-h3" data-quiet>
               <Line>
                 The method behind <em>the number</em>.
               </Line>
@@ -335,7 +335,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         <section className="er-section" aria-labelledby="er-proof">
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track">Sec. 04 — Record</p>
-            <h2 id="er-proof" className="er-display er-h3" style={{ margin: "24px 0 72px" }}>
+            <h2 id="er-proof" className="er-display er-h3" data-quiet style={{ margin: "24px 0 72px" }}>
               <Line>
                 Measured, <em>and countable</em>.
               </Line>
@@ -376,7 +376,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         <section className="er-section" aria-labelledby="er-words">
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track">Sec. 05 — Clients</p>
-            <h2 id="er-words" className="er-display er-h3" style={{ margin: "24px 0 64px" }}>
+            <h2 id="er-words" className="er-display er-h3" data-quiet style={{ margin: "24px 0 64px" }}>
               <Line>
                 In <em>their words</em>.
               </Line>
@@ -401,7 +401,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         {/* --------------------- 5.7 CTA + FOOTER --------------------- */}
         <section className="er-section er-cta" aria-labelledby="er-cta-h" data-disperse>
           <div className="er-wrap">
-            <h2 id="er-cta-h" className="er-display er-h2">
+            <h2 id="er-cta-h" className="er-display er-h2" data-quiet>
               <Line>Get a number that</Line>
               <Line>
                 <em>survives scrutiny</em>.

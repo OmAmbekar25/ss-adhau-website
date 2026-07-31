@@ -34,7 +34,11 @@
     linear-gradient(180deg, var(--bg-lift) 0%, var(--bg) 38%, var(--bg-deep) 100%)
       fixed;
   color: var(--ink);
-  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  /* WI-5.4 — two voices only: the display serif speaks, the mono measures.
+     The grotesk body family is gone from this page; everything that is not
+     a headline or a wordmark is set in the utility mono the navbar already
+     used. */
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -89,17 +93,25 @@
   letter-spacing: -0.01em;
 }
 
+/* Running text. Tracked uppercase is reserved for short labels of four
+   words or fewer (nav, eyebrows, buttons, counters) — prose is set plain,
+   sentence case, no letterspacing. */
 .er-body {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
   font-size: 16px;
   line-height: 1.7;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink-dim);
 }
 /* WI-5.4 — one step up in size and one in tone, but only where body copy
    sits over the canvas. Body on flat black is unchanged. */
+/* WI-5.5 — over the canvas the tone lifts one step; the size does not
+   change now that this is mono. Supporting text on flat black keeps the
+   standard muted ink. */
 .er-hero__body,
 [data-quiet] .er-body,
 .er-jbeat__b {
-  font-size: 18px;
   color: #b5afa5;
 }
 
@@ -471,12 +483,18 @@
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* Figures and testimony are not headlines, and the serif is locked to
+   headlines and wordmarks — so the numerals and the client quotes move to
+   the mono. It suits them: these are the parts of the page that measure
+   and report rather than assert. */
 .er-jbeat__i {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
   display: flex;
   align-items: baseline;
   gap: 18px;
   margin: 0;
-  font-size: clamp(30px, 3.4vw, 46px);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(26px, 2.9vw, 40px);
   line-height: 1;
   color: var(--ink);
 }
@@ -633,9 +651,10 @@
   }
 }
 .er-proof__fig {
-  font-family: var(--font-fraunces), var(--font-cormorant), serif;
-  font-weight: 300;
-  font-size: clamp(34px, 4.2vw, 62px);
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(30px, 3.6vw, 54px);
   line-height: 1;
   margin: 14px 0 0;
 }
@@ -691,11 +710,12 @@
   }
 }
 .er-word__q {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
   margin: 22px 0 0;
-  font-weight: 300;
-  font-size: clamp(21px, 2.2vw, 30px);
-  line-height: 1.28;
-  letter-spacing: -0.005em;
+  font-weight: 400;
+  font-size: clamp(16px, 1.5vw, 21px);
+  line-height: 1.7;
+  letter-spacing: 0;
   color: var(--ink);
 }
 .er-word__a {
@@ -1206,9 +1226,9 @@
     transform 0.25s var(--micro);
 }
 .er-row__desc {
-  font-family: var(--font-plex-sans), system-ui, sans-serif;
-  font-size: 13px;
-  line-height: 1.55;
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 15px;
+  line-height: 1.7;
   letter-spacing: 0;
   text-transform: none;
   color: var(--ink-dim);
