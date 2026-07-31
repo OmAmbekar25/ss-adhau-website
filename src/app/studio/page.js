@@ -4,6 +4,7 @@ import StudioClient from "@/components/studio/StudioClient";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
 import StudioIndex from "@/components/studio/StudioIndex";
+import StudioQuiet from "@/components/studio/StudioQuiet";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -167,6 +168,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
       </div>
 
       <StudioClient />
+      <StudioQuiet />
 
       <header className="er-nav" data-hidden="false" data-scrolled="false">
         <Link className="er-wordmark" href="/">
@@ -188,6 +190,10 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
       <main id="er-main">
         {/* ------------------------- 5.2 HERO ------------------------- */}
         <section className="er-hero">
+          {/* data-quiet marks a block the field must stay calm behind —
+              see StudioQuiet.jsx. Not a scrim: the points inside are dimmed
+              and shrunk in the shader, never moved. */}
+          <div className="er-hero__block" data-quiet>
           <p className="er-label er-hero__eyebrow er-track">
             Registered Valuers — Chartered Engineers
           </p>
@@ -210,6 +216,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
           <Link className="er-btn er-hero__cta er-fade" href="/contact">
             Request a valuation <span aria-hidden="true">→</span>
           </Link>
+          </div>
 
           <div className="er-satellites">
             <p className="er-label er-label--faint er-satellites__side er-fade">
@@ -282,14 +289,13 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
               serif titles fails the contrast floor. A wash under the
               column the type occupies keeps the copy readable while the
               right of the frame stays open for the funnel. */}
-          <div className="er-indexscrim" aria-hidden="true" />
           {/* The ambient wash. One element, one radial gradient; JS moves
               it by transform and fades it by opacity, never by rewriting
               the gradient stops. Rests at zero opacity. */}
           <div className="er-indexwash" data-wash aria-hidden="true" />
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track">Sec. 03 — Index</p>
-            <h2 id="er-index" className="er-display er-h3" style={{ margin: "24px 0 56px" }}>
+            <h2 id="er-index" className="er-display er-h3" data-quiet style={{ margin: "24px 0 56px" }}>
               <Line>
                 What we are asked <em>to value</em>.
               </Line>

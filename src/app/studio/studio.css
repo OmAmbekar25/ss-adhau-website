@@ -61,14 +61,18 @@
 
 /* ---------------------------- type ---------------------------------- */
 
+/* WI-5.3 — the light cut could not survive residual dots behind it: the
+   hairlines of a high-contrast serif simply disappeared. Raised on the
+   variable weight axis, same family and same italic, with the tracking
+   opened to compensate for the extra mass. */
 .er-display {
   font-family: var(--font-fraunces), var(--font-cormorant), serif;
-  font-weight: 300;
-  letter-spacing: -0.015em;
+  font-weight: 420;
+  letter-spacing: -0.01em;
 }
 .er-display em {
   font-style: italic;
-  font-weight: 300;
+  font-weight: 420;
 }
 
 .er-h1 {
@@ -89,6 +93,14 @@
   font-size: 16px;
   line-height: 1.7;
   color: var(--ink-dim);
+}
+/* WI-5.4 — one step up in size and one in tone, but only where body copy
+   sits over the canvas. Body on flat black is unchanged. */
+.er-hero__body,
+[data-quiet] .er-body,
+.er-jbeat__b {
+  font-size: 18px;
+  color: #b5afa5;
 }
 
 .er-label {
@@ -1086,22 +1098,10 @@
 /* the hero's copy of the primary CTA — see §5.7's removal */
 .er-hero__cta { margin-top: clamp(30px, 4.4vh, 46px); }
 
-/* wash under the index rows — see the funnel beat in StudioIndex.jsx */
+/* the index scrim was removed under WI-5: no scrim divs — the text-block
+   masks in StudioQuiet.jsx do this job in the field itself. */
 [data-index] > .er-wrap { position: relative; z-index: 1; }
-.er-indexscrim {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(
-      to right,
-      rgba(10, 13, 18, 0.92) 0%,
-      rgba(10, 13, 18, 0.82) 34%,
-      rgba(10, 13, 18, 0.42) 58%,
-      transparent 78%
-    );
-}
+
 
 /* ------------------------------------------ index: per-service hues
    One hue per service, all six in a single tonal band (L ≈ 38–45, low
@@ -1242,4 +1242,15 @@
   .er-row[data-active="true"] .er-row__tag {
     transform: none !important;
   }
+}
+
+/* The hero's quiet block. It must be a real box — `display: contents`
+   would preserve the layout exactly but leaves nothing to measure, and the
+   whole mechanism is a measurement. A flex column reproduces what the hero
+   was already doing to these children. */
+.er-hero__block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }

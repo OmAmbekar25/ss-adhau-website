@@ -370,10 +370,21 @@ function buildBand(n, B, anchors, knotR, centreY) {
 const VERT = /* glsl */ `
 uniform float uTime, uSize, uAmp, uDisperse, uDpr, uSilk;
 uniform float uVel, uVelSlow, uScatter;
+uniform float uCap;
 uniform vec2 uMouse;
 uniform float uMouseStrength, uRepelRadius;
 uniform vec4 uPlate;            // xy centre, zw half-extent, in local space
 uniform float uPlateFeather, uPlatePush;
+/* WI-5: up to four text blocks the field must stay quiet behind. Same
+   rectangle-SDF as the plate above, but these do not move a single point —
+   they only dim and shrink the ones that land inside. Displacing points
+   away from type would leave a hole shaped like the paragraph; dimming
+   them keeps the field continuous and simply calms the air the type sits
+   in. */
+uniform vec4 uText[4];
+uniform int uTextCount;
+uniform float uTextFeather;
+varying float vQuiet;
 attribute float aRand, aEdge, aDrag, aStiff;
 attribute vec3 aNormalDir, aDrift;
 varying float vGlow, vTone;
@@ -481,15 +492,28 @@ void main() {
     }
   }
 
+  /* how far inside a text block this point is: 0 clear of them all, 1
+     well within one. Feathered, so there is no visible boundary. */
+  vQuiet = 0.0;
+  for (int i = 0; i < 4; i++) {
+    if (i >= uTextCount) break;
+    vec2 q = abs(p.xy - uText[i].xy) - uText[i].zw;
+    float sd = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
+    vQuiet = max(vQuiet, 1.0 - smoothstep(0.0, uTextFeather, sd));
+  }
+
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
   /* the sprite stretches with speed — motion blur without a post pass */
   gl_PointSize = uSize * uDpr * (0.62 + 0.85 * aRand)
-    * (1.0 + abs(uVel) * 1.5) * (6.0 / max(0.5, -mv.z));
+    * (1.0 + abs(uVel) * 1.5) * (6.0 / max(0.5, -mv.z))
+    * mix(1.0, 0.6, vQuiet);
 
   float lum = 0.12 + 1.5 * aRand;
   float weave = 0.35 + 0.65 * smoothstep(-0.8, 0.85, n);
   vGlow = lum * mix(0.9, weave, uSilk) * mix(1.0, aEdge, uSilk) * (1.0 + abs(uVel) * 0.35);
+  /* the per-section cap, then the text blocks on top of it */
+  vGlow *= uCap * mix(1.0, 0.35, vQuiet);
   vTone = clamp(aRand * 1.5 + n * 0.25, 0.0, 1.0);
 }
 `;
@@ -499,7 +523,7 @@ precision mediump float;
 uniform vec3 uColorCore, uColorBase, uColorFaint;
 uniform vec3 uHue;
 uniform float uTint, uBright;
-varying float vGlow, vTone;
+varying float vGlow, vTone, vQuiet;
 void main() {
   float d = length(gl_PointCoord - 0.5);
   float halo = smoothstep(0.5, 0.06, d);
@@ -641,6 +665,10 @@ export function createStudioScene(container, opts = {}) {
        reported as "hover does nothing". It was doing something; it was
        doing it to sixty pixels. */
     uRepelRadius: { value: 1.22 },
+    uCap: { value: 1 },
+    uText: { value: [0, 1, 2, 3].map(() => new THREE.Vector4(0, 0, 0, 0)) },
+    uTextCount: { value: 0 },
+    uTextFeather: { value: 0.4 },
     uPlate: { value: new THREE.Vector4(0, 0, 0, 0) },
     uPlateFeather: { value: 0.5 },
     uPlatePush: { value: 0 },
@@ -845,6 +873,37 @@ export function createStudioScene(container, opts = {}) {
     mouseTarget.set(local.x, local.y);
   };
 
+  /* WI-5 — the brightness cap. Where type sits over the field the whole
+     section is held down; where it does not (certificate, funnel, the
+     trusted band) the cores are free to burn. Eased, so crossing a section
+     boundary is not a step. */
+  let capTarget = 1;
+  const setCap = (v) => {
+    capTarget = Math.max(0.05, Math.min(1, v));
+  };
+
+  /* The text blocks, as NDC rects. Recomputed on resize only — the caller
+     owns that; here they are just converted into the field's own space. */
+  const textScratch = new THREE.Vector3();
+  const setTextRects = (rects) => {
+    const n = Math.min(4, rects ? rects.length : 0);
+    for (let i = 0; i < n; i++) {
+      const r = rects[i];
+      const a = toLocal(r.x0, r.y0, textScratch).clone();
+      const b = toLocal(r.x1, r.y1, textScratch);
+      uniforms.uText.value[i].set(
+        (a.x + b.x) / 2,
+        (a.y + b.y) / 2,
+        Math.abs(b.x - a.x) / 2,
+        Math.abs(b.y - a.y) / 2
+      );
+    }
+    uniforms.uTextCount.value = n;
+    if (rects && rects.length && rects[0].feather != null) {
+      uniforms.uTextFeather.value = Math.max(0.05, rects[0].feather);
+    }
+  };
+
   /* The sheet's exclusion rect, given as its two opposite corners in
      normalised device coords. Passing null lifts the mask. */
   const plateA = new THREE.Vector3();
@@ -963,6 +1022,7 @@ export function createStudioScene(container, opts = {}) {
       mv.x = lerp(mv.x > 100 ? mouseTarget.x : mv.x, mouseTarget.x, 0.12);
       mv.y = lerp(mv.y > 100 ? mouseTarget.y : mv.y, mouseTarget.y, 0.12);
     }
+    uniforms.uCap.value = lerp(uniforms.uCap.value, capTarget, 0.06);
     uniforms.uPlatePush.value = lerp(
       uniforms.uPlatePush.value,
       plateStrength,
@@ -1039,6 +1099,8 @@ export function createStudioScene(container, opts = {}) {
     getTint: () => uniforms.uTint.value,
     setPlate,
     setPlateStrength,
+    setCap,
+    setTextRects,
     resume,
     pause,
     renderOnce: () => step(false),
