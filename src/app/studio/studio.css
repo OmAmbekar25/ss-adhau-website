@@ -1002,9 +1002,8 @@
   width: 100%;
   /* phone: a native swipe with snap. Desktop overrides this to a clipped
      stage that ScrollTrigger transforms. */
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
+  overflow: hidden;
+  scroll-snap-type: none;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   margin-top: clamp(32px, 5vh, 56px);
@@ -1018,6 +1017,7 @@
 }
 
 .er-ttrack {
+  will-change: transform;
   list-style: none;
   margin: 0;
   padding: 0 var(--gutter);
@@ -1278,76 +1278,34 @@
 }
 
 /* ------------------------------------------------ WI-7: clients river
-   Auto-motion is banned for decorative marquees. This is not one: it is
-   content the visitor is meant to graze, it drifts slower than reading
-   speed, it stops when looked at, and under reduced motion it does not
-   move at all. */
+   Two lanes drifting in opposite directions, horizontally, matching the
+   homepage's marquee. Auto-motion is banned for decorative marquees; this
+   is content the visitor is meant to graze, it drifts slower than reading
+   speed, it slows when reached for, and under reduced motion it is
+   completely still. */
 .er-river {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(16px, 2vw, 28px);
   margin-top: clamp(40px, 6vh, 72px);
-  /* the frame the river runs through — cards fade in and out at the ends
-     rather than being cut off by a hard edge */
-  height: clamp(420px, 62vh, 680px);
+  display: grid;
+  gap: clamp(16px, 2vw, 28px);
+}
+.er-rvlane {
   overflow: hidden;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 12%,
-    #000 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 12%,
-    #000 88%,
-    transparent 100%
-  );
+  /* fades at both ends, so the lane visibly continues off-canvas */
+  mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
 }
-@media (min-width: 700px) {
-  .er-river { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (min-width: 1440px) {
-  .er-river { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  /* the third column only exists at the widest breakpoint */
-  .er-rvcol:nth-child(3) { display: block; }
-}
-.er-rvcol:nth-child(3) { display: none; }
-@media (min-width: 1440px) { .er-rvcol:nth-child(3) { display: block; } }
-
-.er-rvcol { position: relative; overflow: hidden; }
-
-/* One transform, on one element, for the whole column. */
 .er-rvtrack {
-  display: flex;
-  flex-direction: column;
-  will-change: transform;
-  animation: er-rvdrift var(--rv-dur, 30s) linear infinite;
-  /* the pause is a slow-down, not a jump-cut */
-  animation-play-state: running;
-  transition: none;
-}
-@keyframes er-rvdrift {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(0, -50%, 0); }
-}
-/* hovering or focusing into a column stops that column only */
-.er-rvcol:hover .er-rvtrack,
-.er-rvcol:focus-within .er-rvtrack {
-  animation-play-state: paused;
-}
-
-.er-rvlist,
-.er-rvgrid {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
+  width: max-content;
+  will-change: transform;
 }
-.er-rvlist > li { padding-bottom: clamp(16px, 2vw, 28px); }
+.er-rvtrack > li {
+  flex: 0 0 clamp(260px, 30vw, 400px);
+  padding-right: clamp(16px, 2vw, 28px);
+}
 
 /* Plain cards: a hairline, the quote, the name. No stars, no avatars, no
    border beyond the rule. */
@@ -1355,6 +1313,7 @@
   margin: 0;
   padding: clamp(18px, 2vw, 26px) 0 0;
   background: transparent;
+  height: 100%;
 }
 .er-rvcard__rule {
   display: block;
@@ -1371,9 +1330,12 @@
 }
 .er-rvcard__a { display: block; margin-top: 14px; }
 
-/* reduced motion: static, and the overflow frame goes with the drift */
+/* reduced motion: static, and the lanes go with the drift */
 .er-rvstatic { margin-top: clamp(40px, 6vh, 72px); }
 .er-rvgrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: clamp(20px, 3vw, 36px);
@@ -1383,10 +1345,6 @@
 }
 .er-rvmore { margin-top: clamp(24px, 3vh, 40px); }
 .er-rvmore summary { cursor: pointer; color: var(--ink-dim); }
-
-@media (prefers-reduced-motion: reduce) {
-  .er-rvtrack { animation: none !important; }
-}
 
 /* ------------------------------------------- WI-1: service showcase
    Six slides, one viewport each, travelling sideways while the section is

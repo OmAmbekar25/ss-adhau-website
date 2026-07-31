@@ -48,13 +48,13 @@ const subRM = (cb) => {
 };
 const getRM = () => window.matchMedia(QUERY).matches;
 
-/* A card is at full presence inside the central 60% of the viewport and
-   eases out from there. Opacity and transform only — a filter transition
-   across fifteen images is exactly the kind of per-frame repaint the
-   performance floor rules out. */
-const EDGE_MIN_OPACITY = 0.55;
-const EDGE_MIN_SCALE = 0.96;
-const FULL_BAND = 0.6;
+/* The strip moves on its own. Unpinning it (WI-1's pin-budget resolution)
+   was read too literally the first time: it removed the pin AND the
+   motion, leaving a lane you had to drag. The pin stays gone — the budget
+   holds — but the strip drifts continuously the way the homepage's does,
+   slowing rather than stopping when you reach for it. */
+const BASE_SPEED = 78; // px/s
+const HOVER_SPEED = 22; // slows, never stops
 
 /* No `priority` on any of these: the strip is several viewports down, and
    preloading it would compete with the hero. It also made hydration throw
@@ -83,8 +83,6 @@ function Card({ org }) {
 export default function StudioTrusted() {
   const reduced = useSyncExternalStore(subRM, getRM, () => false);
   const trackRef = useRef(null);
-  const fillRef = useRef(null);
-  const countRef = useRef(null);
 
   useEffect(() => {
     /* Read the query live as well as from the store. `useSyncExternalStore`
@@ -148,25 +146,57 @@ export default function StudioTrusted() {
         onLeaveBack: () => field()?.setMode(0),
       });
 
+      /* ---- the drift ----
+         One transform on the track, wrapping at half its width because the
+         set is rendered twice. The field's velocity coupling is keyed to
+         this speed, so the dots still smear opposite the travel. */
+      const track = trackRef.current;
       let raf = 0;
-      let last = lane.scrollLeft;
-      const onScroll = () => {
-        if (raf) return;
-        raf = requestAnimationFrame(() => {
-          raf = 0;
-          const v = lane.scrollLeft - last;
-          last = lane.scrollLeft;
-          const s = field();
-          if (s) s.setVelocity(gsap.utils.clamp(-1, 1, v / 40) * 0.3);
-        });
+      let last = 0;
+      let x = 0;
+      let speed = BASE_SPEED;
+      let target = BASE_SPEED;
+      let half = 0;
+      const remeasure = () => {
+        half = track ? track.scrollWidth / 2 : 0;
       };
-      lane.addEventListener("scroll", onScroll, { passive: true });
+      remeasure();
+      window.addEventListener("resize", remeasure);
+
+      const frame = (now) => {
+        raf = requestAnimationFrame(frame);
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        speed += (target - speed) * Math.min(1, dt * 4);
+        x -= speed * dt;
+        if (half > 0 && x <= -half) x += half;
+        if (track) track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`;
+        const s = field();
+        if (s) s.setVelocity(gsap.utils.clamp(-1, 1, speed / 260) * 0.55);
+      };
+      raf = requestAnimationFrame(frame);
+
+      const slow = () => {
+        target = HOVER_SPEED;
+      };
+      const resume = () => {
+        target = BASE_SPEED;
+      };
+      lane.addEventListener("pointerenter", slow);
+      lane.addEventListener("pointerleave", resume);
+      lane.addEventListener("focusin", slow);
+      lane.addEventListener("focusout", resume);
 
       return () => {
         unwait();
         window.removeEventListener("resize", measure);
-        lane.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", remeasure);
+        lane.removeEventListener("pointerenter", slow);
+        lane.removeEventListener("pointerleave", resume);
+        lane.removeEventListener("focusin", slow);
+        lane.removeEventListener("focusout", resume);
         if (raf) cancelAnimationFrame(raf);
+        if (track) track.style.transform = "";
         amb.kill();
         const s = field();
         if (s) {
@@ -221,23 +251,29 @@ export default function StudioTrusted() {
                 transformed by ScrollTrigger, the phone lane is scrolled by
                 the finger. */}
             <div className="er-tlane">
+              {/* rendered twice so the wrap is seamless; the second pass
+                  is decoration and is hidden from assistive tech, so each
+                  institution is announced exactly once */}
               <ul ref={trackRef} className="er-ttrack">
                 {ORGS.map((org) => (
                   <li key={org.name}>
                     <Card org={org} />
                   </li>
                 ))}
+                {ORGS.map((org) => (
+                  <li key={`dup-${org.name}`} aria-hidden="true">
+                    <Card org={org} />
+                  </li>
+                ))}
               </ul>
             </div>
 
-            <div className="er-trprog" aria-hidden="true">
-              <span className="er-trprog__bar">
-                <i ref={fillRef} />
-              </span>
-              <span ref={countRef} className="er-trprog__n er-label">
-                {`01 / ${String(ORGS.length).padStart(2, "0")} Institutions`}
-              </span>
-            </div>
+            {/* A continuous drift has no start and no end, so the
+                progress hairline goes with the traverse that had one. The
+                count still states the size of the record. */}
+            <p className="er-trprog er-trprog__n er-label" aria-hidden="true">
+              {`${String(ORGS.length).padStart(2, "0")} Institutions`}
+            </p>
           </div>
         </div>
       )}
