@@ -221,24 +221,94 @@ function buildLattice(n, out) {
   for (; i < n; i++) put(out, i, 0, 10, 0);
 }
 
+/* The certificate.
+ *
+ * It used to be text rows only, and at this point count they packed into
+ * an illegible block — the rows read as one mass rather than as lines on a
+ * page. Three things fix that together: the rows are fewer and set further
+ * apart, their jitter is tighter so points sit ON a line instead of in a
+ * fuzzy band around it, and the frame and seal below take a real share of
+ * the field. The count is fixed, so every point the border and seal claim
+ * is a point no longer crowding the prose.
+ *
+ * The frame and the seal are the two things the homepage's certificate has
+ * and this one did not. Built here as points, since this page has exactly
+ * one particle system and nothing else is allowed to draw. */
 function buildPage(n, out) {
   const r = rng(90210);
   const segs = [];
-  const line = (y, x0, x1, w, jy = 0.08) =>
-    segs.push(seg(x0, y, 0, x1, y, 0, w, 0.06, jy));
-  line(12.3, -MARGIN, 2.4, 3.4, 0.24);
-  line(10.7, -MARGIN, -1.2, 3.0, 0.2);
-  for (let k = 0; k < 15; k++) {
-    const y = 7.7 - k * 0.9;
-    line(y, -MARGIN, -MARGIN + 2 * MARGIN * (0.46 + r() * 0.54), 1);
+  const line = (y, x0, x1, w, jy = 0.05) =>
+    segs.push(seg(x0, y, 0, x1, y, 0, w, 0.04, jy));
+  const vline = (x, y0, y1, w) =>
+    segs.push(seg(x, y0, 0, x, y1, 0, w, 0.04, 0.04));
+  /* an inset rectangle, drawn as four ruled edges */
+  const rect = (hw, hh, w) => {
+    line(hh, -hw, hw, w, 0.03);
+    line(-hh, -hw, hw, w, 0.03);
+    vline(-hw, -hh, hh, w);
+    vline(hw, -hh, hh, w);
+  };
+  /* a circle as chords — the field has no curves, only segments */
+  const ring = (cx, cy, rad, w, steps = 72) => {
+    for (let k = 0; k < steps; k++) {
+      const a0 = (k / steps) * Math.PI * 2;
+      const a1 = ((k + 1) / steps) * Math.PI * 2;
+      segs.push(
+        seg(
+          cx + Math.cos(a0) * rad, cy + Math.sin(a0) * rad, 0,
+          cx + Math.cos(a1) * rad, cy + Math.sin(a1) * rad, 0,
+          w / steps, 0.03, 0.03
+        )
+      );
+    }
+  };
+
+  /* ---- the page border: a double rule, inset from the sheet edge ---- */
+  /* Light weights on purpose. The frame is a rule, not a wall — at 3.2 it
+     took so large a share of the fixed count that the edges rendered as
+     solid bands and outshone the prose they were framing. */
+  rect(SHEET.hw - 0.5, SHEET.hh - 0.6, 1.15);
+  rect(SHEET.hw - 1.05, SHEET.hh - 1.15, 0.42);
+
+  /* ---- letterhead ---- */
+  line(12.3, -MARGIN, 2.4, 2.6, 0.18);
+  line(10.7, -MARGIN, -1.2, 2.2, 0.14);
+  line(9.6, -MARGIN, MARGIN, 1.2, 0.03); // rule under the letterhead
+
+  /* ---- body: fewer rows, set further apart, so they read as lines ---- */
+  for (let k = 0; k < 10; k++) {
+    const y = 7.4 - k * 1.24;
+    line(y, -MARGIN, -MARGIN + 2 * MARGIN * (0.46 + r() * 0.54), 0.62);
   }
+
+  /* ---- the schedule of values — three columns ---- */
   for (let k = 0; k < 3; k++) {
-    const y = -7.6 - k * 0.9;
-    line(y, -MARGIN, -3.4, 1.1);
-    line(y, -2.6, 1.4, 1.1);
-    line(y, 2.4, 6.2, 1.1);
+    const y = -7.8 - k * 1.05;
+    line(y, -MARGIN, -3.4, 0.7);
+    line(y, -2.6, 1.4, 0.7);
+    line(y, 2.4, 6.2, 0.7);
   }
-  line(-13.0, -MARGIN, -2.6, 1.6, 0.1);
+
+  /* ---- signature, left of the seal ---- */
+  line(-13.2, -MARGIN, -2.6, 1.0, 0.08);
+
+  /* ---- the seal: concentric rules with a guilloche of radial ticks ---- */
+  ring(SEAL.x, SEAL.y, SEAL.r, 1.5);
+  ring(SEAL.x, SEAL.y, SEAL.r * 0.9, 0.85);
+  ring(SEAL.x, SEAL.y, SEAL.r * 0.6, 0.6);
+  for (let k = 0; k < 44; k++) {
+    const a = (k / 44) * Math.PI * 2;
+    const c = Math.cos(a);
+    const sn = Math.sin(a);
+    segs.push(
+      seg(
+        SEAL.x + c * SEAL.r * 0.62, SEAL.y + sn * SEAL.r * 0.62, 0,
+        SEAL.x + c * SEAL.r * 0.88, SEAL.y + sn * SEAL.r * 0.88, 0,
+        0.035, 0.02, 0.02
+      )
+    );
+  }
+
   fillSegments(n, out, segs);
 }
 
@@ -582,7 +652,7 @@ export function createStudioScene(container, opts = {}) {
     { px: -0.18, py: 0.0, pz: 7.4, tx: 0, ty: 0.0, tz: 0, rx: 0.4 },
     { px: 3.4, py: 2.1, pz: 5.6, tx: 0, ty: 0.1, tz: 0, rx: 0.0 },
     { px: -1.7, py: 4.9, pz: 6.6, tx: 0, ty: 0.6, tz: 0, rx: 0.0 },
-    { px: 0.0, py: 0.1, pz: 6.0, tx: 0, ty: 0.0, tz: 0, rx: 0.0 },
+    { px: 0.0, py: 0.1, pz: 6.9, tx: 0, ty: 0.0, tz: 0, rx: 0.0 },
   ];
 
   let story = 0;
@@ -690,6 +760,13 @@ export function createStudioScene(container, opts = {}) {
      forget. */
   const VEL_HOLD = 0.14; // seconds a reading stays live before it lapses
   let velHold = 0;
+  /* The index rows lean on the funnel while one of them is held: it turns
+     harder and lifts in brightness. Eased in the loop, never set hard. */
+  let focus = 0;
+  let focusEased = 0;
+  const setFocus = (v) => {
+    focus = clamp01(v);
+  };
   const setVelocity = (v) => {
     velTarget = Math.max(-1, Math.min(1, v));
     velHold = VEL_HOLD;
@@ -793,11 +870,13 @@ export function createStudioScene(container, opts = {}) {
     const silk = uniforms.uSilk.value;
     /* 1 while it is still a funnel, 0 once the cloth has formed */
     const whirl = Math.pow(1 - Math.min(1, story), 2);
+    focusEased = lerp(focusEased, focus, 0.08);
     if (animate) {
-      spinAngle += dt * BASE_SPIN * (1 + whirl * 22);
+      spinAngle += dt * BASE_SPIN * (1 + whirl * 22) * (1 + focusEased * 1.7);
       velHold -= dt;
       if (velHold <= 0) velTarget = 0;
     }
+    uniforms.uBright.value = 1 + focusEased * 0.55 * whirl;
     spin.rotation.y =
       lerp(SPIN_HOME, spinAngle, whirl) * Math.min(1, silk * 1.6);
 
@@ -895,6 +974,7 @@ export function createStudioScene(container, opts = {}) {
     setVelocity,
     setPointer,
     setMouse,
+    setFocus,
     setPlate,
     setPlateStrength,
     resume,

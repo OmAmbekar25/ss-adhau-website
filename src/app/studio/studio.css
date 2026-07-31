@@ -1087,3 +1087,20 @@
 
 /* the hero's copy of the primary CTA — see §5.7's removal */
 .er-hero__cta { margin-top: clamp(30px, 4.4vh, 46px); }
+
+/* wash under the index rows — see the funnel beat in StudioIndex.jsx */
+[data-index] > .er-wrap { position: relative; z-index: 1; }
+.er-indexscrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      rgba(10, 13, 18, 0.92) 0%,
+      rgba(10, 13, 18, 0.82) 34%,
+      rgba(10, 13, 18, 0.42) 58%,
+      transparent 78%
+    );
+}

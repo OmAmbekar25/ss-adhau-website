@@ -3,6 +3,7 @@ import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
+import StudioIndex from "@/components/studio/StudioIndex";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -243,7 +244,12 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         </section>
 
         {/* ---------------------- 5.5 INDEX ROWS ---------------------- */}
-        <section className="er-section" aria-labelledby="er-index">
+        <section className="er-section" aria-labelledby="er-index" data-index>
+          {/* The funnel forms behind these rows, and a point field over
+              serif titles fails the contrast floor. A wash under the
+              column the type occupies keeps the copy readable while the
+              right of the frame stays open for the funnel. */}
+          <div className="er-indexscrim" aria-hidden="true" />
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track">Sec. 03 — Index</p>
             <h2 id="er-index" className="er-display er-h3" style={{ margin: "24px 0 56px" }}>
@@ -266,6 +272,8 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </ul>
           </div>
         </section>
+
+        <StudioIndex />
 
         <StudioTrusted />
 
