@@ -4,6 +4,7 @@ import {
   Archivo,
   IBM_Plex_Mono,
   Fraunces,
+  Geist_Mono,
 } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -40,6 +41,17 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
   axes: ["SOFT", "WONK", "opsz"],
   variable: "--font-fraunces",
+  display: "swap",
+});
+
+/* WI-5.4 — the site's measuring voice. Geist Mono is variable 100-900 and
+   free under the SIL licence; only 400 and 500 are loaded, which is every
+   weight the two-voice system actually uses. IBM Plex Mono stays as the
+   fallback in the stack while the rest of the site migrates. */
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -158,7 +170,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${wixMadefor.variable} ${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} antialiased`}
+        className={`${wixMadefor.variable} ${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} ${geistMono.variable} antialiased`}
       >
         <SmoothScroll>
           <ChromeGate>

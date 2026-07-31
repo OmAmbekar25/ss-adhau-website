@@ -5,6 +5,8 @@ import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
 import StudioIndex from "@/components/studio/StudioIndex";
 import StudioQuiet from "@/components/studio/StudioQuiet";
+import StudioRiver from "@/components/studio/StudioRiver";
+import StudioRecord from "@/components/studio/StudioRecord";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -105,18 +107,6 @@ const INSTITUTIONS = [
 /* Real reviews, carried over from src/components/MarqueeCards.jsx. The
    @handles and stock avatars there are template leftovers, not the
    clients' own, so they are dropped rather than reproduced. */
-const REVIEWS = [
-  { name: "Subhash Kamti", text: "Best valuer of Chhindwara." },
-  {
-    name: "Prateek Agrawal",
-    text: "Good knowledge. Satisfactory work. Thank you for your service sir.",
-  },
-  {
-    name: "Priyanka Singh",
-    text: "The office staff is knowledgeable and responsive.",
-  },
-  { name: "Anukul Singh", text: "Best." },
-];
 
 /* A headline line: the mask wrapper is authored, never split at runtime. */
 function Line({ children }) {
@@ -169,6 +159,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
       <StudioClient />
       <StudioQuiet />
+      <StudioRecord />
 
       <header className="er-nav" data-hidden="false" data-scrolled="false">
         <Link className="er-wordmark" href="/">
@@ -332,9 +323,11 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         <StudioTrusted />
 
         {/* ------------------------ 5.6 PROOF ------------------------- */}
-        <section className="er-section" aria-labelledby="er-proof">
+        <section className="er-section" aria-labelledby="er-proof" data-record>
           <div className="er-wrap">
-            <p className="er-label er-label--faint er-track">Sec. 04 — Record</p>
+            <p className="er-label er-label--faint er-track" data-rec-eyebrow>
+              Sec. 04 — Record
+            </p>
             <h2 id="er-proof" className="er-display er-h3" data-quiet style={{ margin: "24px 0 72px" }}>
               <Line>
                 Measured, <em>and countable</em>.
@@ -343,29 +336,42 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
             <div className="er-proof">
               {PROOF.map((item) => (
-                <div key={item.label}>
+                <div key={item.label} data-rec-col>
                   <span className="er-rule" />
-                  <p className="er-label er-label--faint er-track" style={{ marginTop: 20 }}>
+                  <p
+                    className="er-label er-label--faint er-track"
+                    data-rec-label
+                    style={{ marginTop: 20 }}
+                  >
                     {item.label}
                   </p>
-                  <p className="er-display er-proof__fig">
+                  <p className="er-display er-proof__fig" data-rec-fig>
                     <Line>{item.figure}</Line>
                   </p>
-                  <p className="er-body er-fade" style={{ marginTop: 10, fontSize: 14 }}>
+                  <p
+                    className="er-body er-fade"
+                    data-rec-note
+                    style={{ marginTop: 10, fontSize: 14 }}
+                  >
                     {item.note}
                   </p>
                 </div>
               ))}
             </div>
 
-            <p className="er-label er-label--faint er-track er-proof__note">
+            <p
+              className="er-label er-label--faint er-track er-proof__note"
+              data-rec-orglabel
+            >
               Reports accepted by
             </p>
             <ul className="er-orgs">
               {INSTITUTIONS.map((name) => (
-                <li className="er-org" key={name}>
+                <li className="er-org" key={name} data-rec-org>
                   <span className="er-rule" />
-                  <span className="er-org__n">{name}</span>
+                  <span className="er-org__n er-fade" data-rec-orgname>
+                    {name}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -382,19 +388,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
               </Line>
             </h2>
 
-            <ul className="er-words">
-              {REVIEWS.map((review) => (
-                <li className="er-word" key={review.name}>
-                  <span className="er-rule" />
-                  <blockquote className="er-word__q er-display">
-                    “{review.text}”
-                  </blockquote>
-                  <p className="er-label er-label--faint er-word__a er-fade">
-                    {review.name}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <StudioRiver />
           </div>
         </section>
 

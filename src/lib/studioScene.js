@@ -561,7 +561,7 @@ export function createStudioScene(container, opts = {}) {
   const count = opts.count || 40000;
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+    renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     if (!renderer.getContext()) return null;
   } catch {
     return null;
@@ -569,7 +569,11 @@ export function createStudioScene(container, opts = {}) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  renderer.setClearColor(opts.bg ?? 0x06080b, 1);
+  /* WI-6 — transparent, so the page's own background levels show through.
+     The canvas is fixed across the whole viewport, so an opaque clear
+     colour here WAS the site's background and no CSS level could ever be
+     seen. Additive blending still composites correctly over it. */
+  renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   container.appendChild(renderer.domElement);
 
@@ -665,7 +669,9 @@ export function createStudioScene(container, opts = {}) {
        reported as "hover does nothing". It was doing something; it was
        doing it to sixty pixels. */
     uRepelRadius: { value: 1.22 },
-    uCap: { value: 1 },
+    /* WI-6 — on graphite the field reads brighter than it did on black, so
+       the ceiling comes down ~10% to hold the same perceived glow. */
+    uCap: { value: 0.9 },
     uText: { value: [0, 1, 2, 3].map(() => new THREE.Vector4(0, 0, 0, 0)) },
     uTextCount: { value: 0 },
     uTextFeather: { value: 0.4 },
@@ -877,9 +883,10 @@ export function createStudioScene(container, opts = {}) {
      section is held down; where it does not (certificate, funnel, the
      trusted band) the cores are free to burn. Eased, so crossing a section
      boundary is not a step. */
-  let capTarget = 1;
+  const CAP_MAX = 0.9;
+  let capTarget = CAP_MAX;
   const setCap = (v) => {
-    capTarget = Math.max(0.05, Math.min(1, v));
+    capTarget = Math.max(0.05, Math.min(CAP_MAX, v * CAP_MAX));
   };
 
   /* The text blocks, as NDC rects. Recomputed on resize only — the caller

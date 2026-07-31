@@ -160,6 +160,7 @@ export default function StudioClient() {
         (section) => {
           if (section.hasAttribute("data-journey")) return; // owns its own reveals
           if (section.querySelector("[data-manifesto]")) return;
+          if (section.hasAttribute("data-record")) return; // WI-8 owns its own
           const tl = build(section).paused(true);
           ScrollTrigger.create({
             trigger: section,

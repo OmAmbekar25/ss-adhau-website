@@ -6,14 +6,22 @@
    ========================================================================== */
 
 .er {
-  /* --- palette: monochrome, one accent (§1) --- */
-  --bg: #0d1116;
-  --bg-deep: #06080b;
-  --bg-lift: #222a33;
-  --bg-raise: #161d25;
+  /* --- palette: monochrome, one accent (§1) ---
+     WI-6 — warm graphite, not black. Near-black is the harshest choice on
+     an emissive screen: it maximises the halo an astigmatic reader sees
+     around light type. Flat fills only; sections change level at a
+     hairline, never through a gradient. */
+  --bg: #151515;
+  --bg-deep: #0f0f10;
+  --surface: #1c1c1e;
+  --bg-lift: #1c1c1e;
+  --bg-raise: #1c1c1e;
   --ink: #eceef0;
   --ink-dim: #939aa3;
-  --ink-faint: #5a626c;
+  /* WI-6 re-verify: --ink-faint measured 2.96:1 on the new graphite and
+     fails the 4.5 floor the retheme sets for every text role. Lifted one
+     step; --ink and --ink-dim measured 15.7 and 6.43 and are unchanged. */
+  --ink-faint: #8b8b90;
   --hairline: rgba(255, 255, 255, 0.1);
   --hairline-hi: rgba(255, 255, 255, 0.22);
   --accent: #c9a25e;
@@ -28,17 +36,17 @@
 
   position: relative;
   z-index: 1;
-  /* depth rather than a flat field: a cool lift at the top falling to
-     near-black, so the particles sit in atmosphere instead of a void */
-  background:
-    linear-gradient(180deg, var(--bg-lift) 0%, var(--bg) 38%, var(--bg-deep) 100%)
-      fixed;
+  /* Flat. The gradient that used to live here could not survive WI-6's
+     "no gradients between the bg levels" — and it was never really visible
+     anyway: the canvas covers the viewport, so its clear colour was the
+     page's real background. That is now transparent, and this is. */
+  background: var(--bg);
   color: var(--ink);
   /* WI-5.4 — two voices only: the display serif speaks, the mono measures.
      The grotesk body family is gone from this page; everything that is not
      a headline or a wordmark is set in the utility mono the navbar already
      used. */
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -97,7 +105,7 @@
    words or fewer (nav, eyebrows, buttons, counters) — prose is set plain,
    sentence case, no letterspacing. */
 .er-body {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 16px;
   line-height: 1.7;
   letter-spacing: 0;
@@ -116,7 +124,7 @@
 }
 
 .er-label {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   line-height: 1;
   letter-spacing: 0.22em;
@@ -216,7 +224,7 @@
   padding: 0;
 }
 .er-navlink {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -237,6 +245,19 @@
 
 /* ----------------------------- hero ---------------------------------- */
 
+/* The deeper level has to paint BEHIND the canvas, not over it. `.er` is a
+   stacking context (position + z-index 1), so a child at z-index -1 sits
+   under the canvas at 0 while still being above `.er`'s own background.
+   Putting the fill straight on the section would have hidden the field. */
+.er-hero::before,
+.er-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg-deep);
+  pointer-events: none;
+}
 .er-hero {
   position: relative;
   min-height: 100svh;
@@ -384,7 +405,7 @@
   color: var(--ink);
 }
 .er-step__i {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   color: inherit;
@@ -488,7 +509,7 @@
    the mono. It suits them: these are the parts of the page that measure
    and report rather than assert. */
 .er-jbeat__i {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   display: flex;
   align-items: baseline;
   gap: 18px;
@@ -530,7 +551,7 @@
 .er-jrail li em {
   display: block;
   margin-top: 12px;
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-style: normal;
   font-size: 10px;
   letter-spacing: 0.2em;
@@ -594,7 +615,7 @@
   }
 }
 .er-row__i {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--ink-faint);
@@ -611,7 +632,7 @@
   transition: font-style 0.01s;
 }
 .er-row__tag {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -651,7 +672,7 @@
   }
 }
 .er-proof__fig {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   font-size: clamp(30px, 3.6vw, 54px);
@@ -688,7 +709,7 @@
 .er-org__n {
   display: block;
   margin-top: 14px;
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -710,7 +731,7 @@
   }
 }
 .er-word__q {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   margin: 22px 0 0;
   font-weight: 400;
   font-size: clamp(16px, 1.5vw, 21px);
@@ -736,7 +757,7 @@
   border: 1px solid var(--hairline);
   color: var(--ink);
   text-decoration: none;
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -774,7 +795,7 @@
 }
 .er-footcol h2 {
   margin: 0 0 18px;
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.22em;
@@ -864,7 +885,7 @@
   gap: 16px;
   /* flat, not a gradient: the lift token is a blue-grey and the load
      screen measured at hue 210. The site opens on black. */
-  background: #050505;
+  background: var(--bg);
   clip-path: inset(0 0 0 0);
 }
 .er-loading .er-loader {
@@ -1167,7 +1188,7 @@
   border-bottom-color: color-mix(in srgb, var(--row-hue) 30%, transparent);
 }
 .er-row[data-active="true"] .er-row__a {
-  background: color-mix(in srgb, var(--row-hue) 8%, transparent);
+  background: color-mix(in srgb, var(--row-hue) 8%, var(--surface));
 }
 /* The hue at full strength, lifted toward white. The six palette hues sit
    at L 38-45 by design; used raw on near-black the index number lands at
@@ -1226,7 +1247,7 @@
     transform 0.25s var(--micro);
 }
 .er-row__desc {
-  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 15px;
   line-height: 1.7;
   letter-spacing: 0;
@@ -1273,4 +1294,115 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+
+/* ------------------------------------------------ WI-7: clients river
+   Auto-motion is banned for decorative marquees. This is not one: it is
+   content the visitor is meant to graze, it drifts slower than reading
+   speed, it stops when looked at, and under reduced motion it does not
+   move at all. */
+.er-river {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(16px, 2vw, 28px);
+  margin-top: clamp(40px, 6vh, 72px);
+  /* the frame the river runs through — cards fade in and out at the ends
+     rather than being cut off by a hard edge */
+  height: clamp(420px, 62vh, 680px);
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 12%,
+    #000 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 12%,
+    #000 88%,
+    transparent 100%
+  );
+}
+@media (min-width: 700px) {
+  .er-river { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1440px) {
+  .er-river { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* the third column only exists at the widest breakpoint */
+  .er-rvcol:nth-child(3) { display: block; }
+}
+.er-rvcol:nth-child(3) { display: none; }
+@media (min-width: 1440px) { .er-rvcol:nth-child(3) { display: block; } }
+
+.er-rvcol { position: relative; overflow: hidden; }
+
+/* One transform, on one element, for the whole column. */
+.er-rvtrack {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  animation: er-rvdrift var(--rv-dur, 30s) linear infinite;
+  /* the pause is a slow-down, not a jump-cut */
+  animation-play-state: running;
+  transition: none;
+}
+@keyframes er-rvdrift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -50%, 0); }
+}
+/* hovering or focusing into a column stops that column only */
+.er-rvcol:hover .er-rvtrack,
+.er-rvcol:focus-within .er-rvtrack {
+  animation-play-state: paused;
+}
+
+.er-rvlist,
+.er-rvgrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.er-rvlist > li { padding-bottom: clamp(16px, 2vw, 28px); }
+
+/* Plain cards: a hairline, the quote, the name. No stars, no avatars, no
+   border beyond the rule. */
+.er-rvcard {
+  margin: 0;
+  padding: clamp(18px, 2vw, 26px) 0 0;
+  background: transparent;
+}
+.er-rvcard__rule {
+  display: block;
+  height: 1px;
+  background: var(--hairline);
+  margin-bottom: clamp(14px, 1.6vw, 20px);
+}
+.er-rvcard__q {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.er-rvcard__a { display: block; margin-top: 14px; }
+
+/* reduced motion: static, and the overflow frame goes with the drift */
+.er-rvstatic { margin-top: clamp(40px, 6vh, 72px); }
+.er-rvgrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(20px, 3vw, 36px);
+}
+@media (min-width: 700px) {
+  .er-rvgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.er-rvmore { margin-top: clamp(24px, 3vh, 40px); }
+.er-rvmore summary { cursor: pointer; color: var(--ink-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .er-rvtrack { animation: none !important; }
 }
