@@ -82,8 +82,6 @@ function Card({ org }) {
 
 export default function StudioTrusted() {
   const reduced = useSyncExternalStore(subRM, getRM, () => false);
-  const wrapRef = useRef(null);
-  const pinRef = useRef(null);
   const trackRef = useRef(null);
   const fillRef = useRef(null);
   const countRef = useRef(null);
@@ -98,184 +96,14 @@ export default function StudioTrusted() {
     if (reduced || window.matchMedia(QUERY).matches) return;
     const mm = gsap.matchMedia();
 
-    /* -------------------- desktop: the pinned traverse ------------------ */
-    mm.add("(min-width: 901px)", () => {
-      const wrap = wrapRef.current;
-      const track = trackRef.current;
-      const cards = gsap.utils.toArray(".er-tcard", track);
-
-      /* Measured, not assumed: the card width is a clamp() and the strip's
-         real width is whatever the browser resolved it to. */
-      let travel = 0;
-
-      const measure = () => {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const stripW = track.scrollWidth;
-        const cardW = cards[0] ? cards[0].getBoundingClientRect().width : 0;
-        /* one card of overshoot past the end, so the last logo clears the
-           centre instead of stopping against the right edge */
-        travel = Math.max(0, stripW - vw + cardW);
-
-        const shift = gsap.getProperty(track, "x") || 0;
-
-        /* The pin runs slightly shorter than the travel, so the strip
-           carries a little more speed than the wheel. At 1:1 a fifteen-card
-           strip would pin for five viewports, which is longer than the
-           whole rest of the page. Capped so it never outruns the two other
-           long sections. */
-        wrap.style.height = `${vh + Math.min(travel, vh * 2.4)}px`;
-
-        const s = field();
-        if (s) {
-          /* Everything is measured against the PIN, not the viewport. This
-             runs on mount, when the section is several thousand pixels
-             below the fold — a viewport-relative rect would put the band
-             that far off the bottom of the frame. The pin is exactly one
-             viewport tall and full width, so its box is the frame the
-             cards will be seen in. */
-          const pin = pinRef.current.getBoundingClientRect();
-
-          /* card centres as world x, measured where they sit before the
-             strip has moved — the travel arrives separately, as an offset */
-          const anchors = cards.map((el) => {
-            const r = el.getBoundingClientRect();
-            return s.mapX(r.left + r.width / 2 - shift - pin.left - vw / 2);
-          });
-
-          /* the band sits on the card row, not on the frame's centre — the
-             plate is the thing it is behind */
-          const plate = cards[0]
-            ? cards[0].querySelector(".er-tcard__plate").getBoundingClientRect()
-            : null;
-          const rowY = plate
-            ? plate.top - pin.top + plate.height / 2 - vh / 2
-            : 0;
-
-          s.setBandAnchors(anchors, cardW * 0.5 * s.worldPerPx(), s.mapY(rowY));
-        }
-        ScrollTrigger.refresh();
-      };
-
-      measure();
-      /* The scene mounts on an idle callback and may not exist yet — the
-         band's anchors are useless until it does, so measure again the
-         moment it attaches. */
-      const unwait = onField(() => measure());
-
-      /* Card presence is a pure function of position, so it is correct at
-         any scrub position and reverses exactly. */
-      const paint = () => {
-        const vw = window.innerWidth;
-        const half = vw / 2;
-        cards.forEach((el) => {
-          const r = el.getBoundingClientRect();
-          const d = Math.abs(r.left + r.width / 2 - half) / half;
-          const t = gsap.utils.clamp(0, 1, (d - FULL_BAND) / (1 - FULL_BAND));
-          const e = t * t * (3 - 2 * t);
-          gsap.set(el, {
-            opacity: 1 - (1 - EDGE_MIN_OPACITY) * e,
-            scale: 1 - (1 - EDGE_MIN_SCALE) * e,
-          });
-        });
-
-        /* the counter names the institution at the centre out of the real
-           list length, so it tracks the list rather than a hard-coded
-           number that drifts the next time an institution is added */
-        if (countRef.current) {
-          let best = 0;
-          let bestD = Infinity;
-          cards.forEach((el, i) => {
-            const r = el.getBoundingClientRect();
-            const d = Math.abs(r.left + r.width / 2 - half);
-            if (d < bestD) {
-              bestD = d;
-              best = i;
-            }
-          });
-          const label = `${String(best + 1).padStart(2, "0")} / ${String(
-            ORGS.length
-          ).padStart(2, "0")} Institutions`;
-          if (countRef.current.textContent !== label) {
-            countRef.current.textContent = label;
-          }
-        }
-      };
-
-      const st = ScrollTrigger.create({
-        trigger: wrap,
-        start: "top top",
-        end: "bottom bottom",
-        pin: pinRef.current,
-        /* scrub: 1 — the catch-up lag IS the weighted drag. `true` is too
-           rigid and reads as a rail rather than a mass with inertia. */
-        scrub: 1,
-        invalidateOnRefresh: true,
-        onRefresh: () => paint(),
-        onUpdate: (self) => {
-          const p = self.progress;
-          const x = -travel * p;
-          gsap.set(track, { x });
-
-          const s = field();
-          if (s) {
-            s.setMode(1);
-            s.setBandOffset(x * s.worldPerPx());
-            /* normalised, clamped: the field reads the strip's speed and
-               smears opposite it */
-            s.setVelocity(gsap.utils.clamp(-1, 1, self.getVelocity() / 2600));
-          }
-          if (fillRef.current) gsap.set(fillRef.current, { scaleX: p });
-          paint();
-        },
-      });
-
-      /* the handover: the ribbon condenses into the band across the
-         approach and re-forms on the way out — no popping at any position */
-      const handover = ScrollTrigger.create({
-        trigger: wrap,
-        start: "top bottom",
-        end: "top top",
-        scrub: true,
-        onUpdate: (self) => {
-          const s = field();
-          if (s) s.setMode(self.progress);
-        },
-      });
-      const exit = ScrollTrigger.create({
-        trigger: wrap,
-        start: "bottom bottom",
-        end: "bottom top",
-        scrub: true,
-        onUpdate: (self) => {
-          const s = field();
-          if (s) {
-            s.setMode(1 - self.progress);
-            s.setVelocity(0);
-          }
-        },
-      });
-
-      window.addEventListener("resize", measure);
-
-      return () => {
-        unwait();
-        window.removeEventListener("resize", measure);
-        st.kill();
-        handover.kill();
-        exit.kill();
-        wrap.style.height = "";
-        const s = field();
-        if (s) {
-          s.setMode(0);
-          s.setVelocity(0);
-          s.setBandOffset(0);
-        }
-      };
-    });
-
+    /* WI-1 pin-budget resolution: this strip gives up its pin so the
+       service showcase can have one. The native lane that used to be the
+       phone's behaviour is now the only behaviour at every width — logo
+       cards do not need cinematic scrubbing, and a strip you can throw
+       with a finger or a shift-wheel is better than one that holds the
+       page hostage for two viewports. */
     /* ------------- phone: a native swipe, and an ambient band ----------- */
-    mm.add("(max-width: 900px)", () => {
+    mm.add("all", () => {
       const lane = document.querySelector(".er-tlane");
       if (!lane) return;
 
@@ -385,8 +213,8 @@ export default function StudioTrusted() {
           </ul>
         </div>
       ) : (
-        <div ref={wrapRef} className="er-trwrap">
-          <div ref={pinRef} className="er-trpin">
+        <div className="er-trwrap">
+          <div className="er-trpin">
             <div className="er-wrap">{header}</div>
 
             {/* One list, two presentations: the desktop track is

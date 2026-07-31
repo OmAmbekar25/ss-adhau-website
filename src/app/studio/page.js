@@ -3,7 +3,7 @@ import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
-import StudioIndex from "@/components/studio/StudioIndex";
+import StudioShowcase from "@/components/studio/StudioShowcase";
 import StudioQuiet from "@/components/studio/StudioQuiet";
 import StudioRiver from "@/components/studio/StudioRiver";
 import StudioRecord from "@/components/studio/StudioRecord";
@@ -274,51 +274,8 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
           <StudioJourney />
         </section>
 
-        {/* ---------------------- 5.5 INDEX ROWS ---------------------- */}
-        <section className="er-section" aria-labelledby="er-index" data-index>
-          {/* The funnel forms behind these rows, and a point field over
-              serif titles fails the contrast floor. A wash under the
-              column the type occupies keeps the copy readable while the
-              right of the frame stays open for the funnel. */}
-          {/* The ambient wash. One element, one radial gradient; JS moves
-              it by transform and fades it by opacity, never by rewriting
-              the gradient stops. Rests at zero opacity. */}
-          <div className="er-indexwash" data-wash aria-hidden="true" />
-          <div className="er-wrap">
-            <p className="er-label er-label--faint er-track">Sec. 03 — Index</p>
-            <h2 id="er-index" className="er-display er-h3" data-quiet style={{ margin: "24px 0 56px" }}>
-              <Line>
-                What we are asked <em>to value</em>.
-              </Line>
-            </h2>
-            <ul className="er-rows">
-              {SERVICES.map((service, i) => (
-                <li
-                  className="er-row"
-                  key={service.title}
-                  data-row
-                  data-hue={service.hue}
-                >
-                  <Link className="er-row__a" href="/services">
-                    <span className="er-row__i">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h3 className="er-row__t">{service.title}</h3>
-                    {/* One slot, two occupants, both absolutely placed:
-                        the row can never reflow or change height when the
-                        tag gives way to the description. */}
-                    <span className="er-row__slot">
-                      <span className="er-row__tag">{service.tag}</span>
-                      <span className="er-row__desc">{service.desc}</span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <StudioIndex />
+        {/* ------------------- 5.5 SERVICE SHOWCASE ------------------- */}
+        <StudioShowcase />
 
         <StudioTrusted />
 
