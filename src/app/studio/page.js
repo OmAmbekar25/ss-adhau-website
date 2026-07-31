@@ -31,13 +31,46 @@ const NAV = [
   { label: "Contact", href: "/contact" },
 ];
 
+/* TODO(copy): the firm may trim these descriptions; they ship as written.
+   Each row also carries a hue — see --hue-01..06 in studio.css. The six sit
+   in one tonal band so moving between them reads as turning one dial. */
 const SERVICES = [
-  { title: "Real estate valuation", tag: "Residential · Commercial · Industrial" },
-  { title: "Plant & machinery valuation", tag: "Age · Condition · Market" },
-  { title: "Valuation under IBC", tag: "CIRP · Liquidation" },
-  { title: "Business valuation", tag: "Income · Market · Asset" },
-  { title: "Financial reporting valuation", tag: "Ind-AS · IFRS" },
-  { title: "Merger & acquisition support", tag: "Restructuring" },
+  {
+    title: "Real estate valuation",
+    tag: "Residential · Commercial · Industrial",
+    hue: "#8A6D3F",
+    desc: "Residential, commercial and industrial property — inspected, measured and benchmarked against local market evidence.",
+  },
+  {
+    title: "Plant & machinery valuation",
+    tag: "Age · Condition · Market",
+    hue: "#3F5C7A",
+    desc: "Age, condition and market comparables for plant, machinery and equipment — from single assets to full facilities.",
+  },
+  {
+    title: "Valuation under IBC",
+    tag: "CIRP · Liquidation",
+    hue: "#7A3F46",
+    desc: "CIRP and liquidation valuations under the Insolvency and Bankruptcy Code, built to survive committee and court review.",
+  },
+  {
+    title: "Business valuation",
+    tag: "Income · Market · Asset",
+    hue: "#5C4A7A",
+    desc: "Income, market and asset approaches to whole-business value — for transactions, disputes and planning.",
+  },
+  {
+    title: "Financial reporting valuation",
+    tag: "Ind-AS · IFRS",
+    hue: "#3F6E66",
+    desc: "Ind-AS and IFRS fair-value measurements with the working papers auditors ask for.",
+  },
+  {
+    title: "Merger & acquisition support",
+    tag: "Restructuring",
+    hue: "#7A5A3F",
+    desc: "Valuation support through restructuring and M&A — diligence, swap ratios and fairness opinions.",
+  },
 ];
 
 const PROOF = [
@@ -250,6 +283,10 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
               column the type occupies keeps the copy readable while the
               right of the frame stays open for the funnel. */}
           <div className="er-indexscrim" aria-hidden="true" />
+          {/* The ambient wash. One element, one radial gradient; JS moves
+              it by transform and fades it by opacity, never by rewriting
+              the gradient stops. Rests at zero opacity. */}
+          <div className="er-indexwash" data-wash aria-hidden="true" />
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track">Sec. 03 — Index</p>
             <h2 id="er-index" className="er-display er-h3" style={{ margin: "24px 0 56px" }}>
@@ -259,13 +296,24 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </h2>
             <ul className="er-rows">
               {SERVICES.map((service, i) => (
-                <li className="er-row" key={service.title} data-row>
+                <li
+                  className="er-row"
+                  key={service.title}
+                  data-row
+                  data-hue={service.hue}
+                >
                   <Link className="er-row__a" href="/services">
                     <span className="er-row__i">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <h3 className="er-row__t">{service.title}</h3>
-                    <span className="er-row__tag">{service.tag}</span>
+                    {/* One slot, two occupants, both absolutely placed:
+                        the row can never reflow or change height when the
+                        tag gives way to the description. */}
+                    <span className="er-row__slot">
+                      <span className="er-row__tag">{service.tag}</span>
+                      <span className="er-row__desc">{service.desc}</span>
+                    </span>
                   </Link>
                 </li>
               ))}

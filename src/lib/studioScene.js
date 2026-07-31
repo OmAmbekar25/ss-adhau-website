@@ -446,7 +446,14 @@ void main() {
   float r = length(d);
   if (r < uRepelRadius && r > 0.0001) {
     float f = smoothstep(uRepelRadius, 0.0, r);
-    p.xy += normalize(d) * f * f * uMouseStrength * aDrag;
+    /* Hard cap at half the radius. Unclamped this works out to 0.498x
+       (strength 0.38 x aDrag's 1.6 ceiling against a 1.22 radius) — inside
+       the limit, but only by arithmetic coincidence, and any future retune
+       of either term would silently punch holes through the tornado and
+       the certificate. Capping the displacement rather than the radius
+       keeps the reach while making the invariant structural. */
+    float push = min(f * f * uMouseStrength * aDrag, uRepelRadius * 0.5);
+    p.xy += normalize(d) * push;
   }
 
   /* The sheet's exclusion mask. A signed distance to the rectangle, and a
@@ -490,7 +497,8 @@ void main() {
 const FRAG = /* glsl */ `
 precision mediump float;
 uniform vec3 uColorCore, uColorBase, uColorFaint;
-uniform float uBright;
+uniform vec3 uHue;
+uniform float uTint, uBright;
 varying float vGlow, vTone;
 void main() {
   float d = length(gl_PointCoord - 0.5);
@@ -504,6 +512,20 @@ void main() {
      filaments reach the near-white core. Branchless: two clamped mixes. */
   vec3 tint = mix(uColorFaint, uColorBase, clamp(vTone * 2.0, 0.0, 1.0));
   tint = mix(tint, uColorCore, clamp(vTone * 2.0 - 1.0, 0.0, 1.0));
+
+  /* The index section's hue.
+     Luminance-preserving: the hue is rescaled to the grey it replaces, so
+     tinting shifts chroma and never brightness — the silver ramp survives
+     underneath. Weighted DOWN as vTone rises, so the gauze and body carry
+     most of the colour and the brightest filaments stay near-white. The
+     field has to read as grey dust catching coloured light, not as dyed
+     confetti. uTint rests at 0 everywhere but that one section. */
+  if (uTint > 0.001) {
+    const vec3 W = vec3(0.299, 0.587, 0.114);
+    float lum = dot(tint, W);
+    vec3 hued = uHue * (lum / max(0.0001, dot(uHue, W)));
+    tint = mix(tint, hued, uTint * (1.0 - 0.72 * clamp(vTone, 0.0, 1.0)));
+  }
 
   gl_FragColor = vec4(tint, (halo + core * 0.55) * vGlow * uBright);
 }
@@ -628,6 +650,8 @@ export function createStudioScene(container, opts = {}) {
     uColorCore: { value: new THREE.Color(opts.core ?? 0xe4e4e0) },
     uColorBase: { value: new THREE.Color(opts.base ?? 0xb9b9b4) },
     uColorFaint: { value: new THREE.Color(opts.faint ?? 0x6e6e68) },
+    uHue: { value: new THREE.Color(0x6e6e68) },
+    uTint: { value: 0 },
   };
 
   const material = new THREE.ShaderMaterial({
@@ -760,6 +784,24 @@ export function createStudioScene(container, opts = {}) {
      forget. */
   const VEL_HOLD = 0.14; // seconds a reading stays live before it lapses
   let velHold = 0;
+  /* The index section's per-service hue.
+     Same lapse discipline as velocity below: whoever is driving the tint
+     restates it, and the moment nothing does it falls back to neutral. That
+     is what guarantees the brief's "uTint MUST rest at 0 in every other
+     section" — structurally, rather than by trusting every exit path to
+     remember. The dev assertion catches a caller that stops restating it
+     while still expecting colour. */
+  const TINT_HOLD = 0.25;
+  const hueTarget = new THREE.Color(0x6e6e68);
+  let tintTarget = 0;
+  let tintHold = 0;
+  let tintWarned = false;
+  const setTint = (hex, amount) => {
+    if (hex != null) hueTarget.set(hex);
+    tintTarget = clamp01(amount);
+    tintHold = TINT_HOLD;
+  };
+
   /* The index rows lean on the funnel while one of them is held: it turns
      harder and lifts in brightness. Eased in the loop, never set hard. */
   let focus = 0;
@@ -870,6 +912,24 @@ export function createStudioScene(container, opts = {}) {
     const silk = uniforms.uSilk.value;
     /* 1 while it is still a funnel, 0 once the cloth has formed */
     const whirl = Math.pow(1 - Math.min(1, story), 2);
+    /* ~600ms crossfades, per the brief. Hue lerps straight from one
+       service to the next while the amount holds, so row-to-row never dips
+       through neutral grey. */
+    if (animate) {
+      tintHold -= dt;
+      if (tintHold <= 0) {
+        if (process.env.NODE_ENV !== "production" && tintTarget > 0 && !tintWarned) {
+          tintWarned = true;
+          console.warn(
+            "[studioScene] tint lapsed while still requested — a caller stopped restating setTint()"
+          );
+        }
+        tintTarget = 0;
+      }
+    }
+    uniforms.uTint.value = lerp(uniforms.uTint.value, tintTarget, 0.055);
+    uniforms.uHue.value.lerp(hueTarget, 0.055);
+
     focusEased = lerp(focusEased, focus, 0.08);
     if (animate) {
       spinAngle += dt * BASE_SPIN * (1 + whirl * 22) * (1 + focusEased * 1.7);
@@ -975,6 +1035,8 @@ export function createStudioScene(container, opts = {}) {
     setPointer,
     setMouse,
     setFocus,
+    setTint,
+    getTint: () => uniforms.uTint.value,
     setPlate,
     setPlateStrength,
     resume,

@@ -603,10 +603,6 @@
 .er-row__a:focus-visible .er-row__t {
   font-style: italic;
 }
-.er-row__a:hover .er-row__i,
-.er-row__a:focus-visible .er-row__i {
-  color: var(--ink);
-}
 .er-row:has(.er-row__a:hover),
 .er-row:has(.er-row__a:focus-visible) {
   border-bottom-color: var(--hairline-hi);
@@ -834,7 +830,9 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: linear-gradient(180deg, var(--bg-lift) 0%, var(--bg-deep) 100%);
+  /* flat, not a gradient: the lift token is a blue-grey and the load
+     screen measured at hue 210. The site opens on black. */
+  background: #050505;
   clip-path: inset(0 0 0 0);
 }
 .er-loading .er-loader {
@@ -1103,4 +1101,145 @@
       rgba(10, 13, 18, 0.42) 58%,
       transparent 78%
     );
+}
+
+/* ------------------------------------------ index: per-service hues
+   One hue per service, all six in a single tonal band (L ≈ 38–45, low
+   chroma) so moving between rows reads as turning one dial rather than
+   changing themes. `--row-hue` is written onto the section by JS; it rests
+   unset, and every rule below degrades to the neutral grey state. */
+[data-index] {
+  --row-hue: transparent;
+}
+
+/* The ambient wash. Sanctioned deviation from §5's ban on decorative
+   background gradients: this is functional state signalling — scoped to
+   this section, resting at zero, capped at 14% so every contrast floor
+   still passes underneath it. One element, one gradient; only transform
+   and opacity animate. */
+.er-indexwash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 40vh;
+  margin-top: -20vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  background: radial-gradient(
+    58% 50% at 50% 50%,
+    var(--row-hue) 0%,
+    transparent 72%
+  );
+  transition: opacity 0.8s var(--enter);
+}
+
+/* --- row furniture: only the active row changes --- */
+.er-row {
+  position: relative;
+  transition:
+    border-color 0.6s var(--enter),
+    background-color 0.6s var(--enter);
+}
+.er-row[data-active="true"] {
+  border-bottom-color: color-mix(in srgb, var(--row-hue) 30%, transparent);
+}
+.er-row[data-active="true"] .er-row__a {
+  background: color-mix(in srgb, var(--row-hue) 8%, transparent);
+}
+/* The hue at full strength, lifted toward white. The six palette hues sit
+   at L 38-45 by design; used raw on near-black the index number lands at
+   about 2.4:1 and fails the contrast floor the brief also sets. Mixing
+   toward white keeps the hue identity unmistakable and clears 4.5:1. */
+.er-row[data-active="true"] .er-row__i {
+  color: color-mix(in srgb, var(--row-hue) 55%, #ffffff);
+}
+.er-row__a,
+.er-row__i {
+  transition:
+    background-color 0.6s var(--enter),
+    color 0.6s var(--enter);
+}
+/* the scroll-soft state is colour only, at half strength, and never
+   brings the description with it */
+.er-row[data-active="soft"] .er-row__a {
+  background: color-mix(in srgb, var(--row-hue) 4%, transparent);
+}
+.er-row[data-active="soft"] .er-row__i {
+  color: color-mix(in srgb, var(--row-hue) 40%, var(--ink-dim));
+}
+
+/* --- the slot: tag and description share one box, so no reflow --- */
+.er-row__slot {
+  position: relative;
+  display: block;
+  grid-column: 2;
+  min-height: 3.4em;
+}
+@media (min-width: 900px) {
+  .er-row__slot {
+    grid-column: auto;
+    width: clamp(220px, 27vw, 340px);
+    min-height: 3.2em;
+  }
+}
+.er-row__slot > * {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  will-change: transform, opacity;
+}
+@media (min-width: 900px) {
+  .er-row__slot > * {
+    justify-content: flex-end;
+    text-align: right;
+  }
+}
+.er-row__tag {
+  grid-column: auto;
+  opacity: 1;
+  transition:
+    opacity 0.25s var(--micro),
+    transform 0.25s var(--micro);
+}
+.er-row__desc {
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+  max-width: 34ch;
+  opacity: 0;
+  transform: translateX(24px);
+  transition:
+    opacity 0.35s var(--enter) 0.06s,
+    transform 0.35s var(--enter) 0.06s;
+}
+.er-row[data-active="true"] .er-row__tag {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+.er-row[data-active="true"] .er-row__desc {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .er-indexwash,
+  .er-row,
+  .er-row__a,
+  .er-row__i,
+  .er-row__tag,
+  .er-row__desc {
+    transition-duration: 0.12s !important;
+    transition-delay: 0s !important;
+  }
+  .er-row__desc,
+  .er-row[data-active="true"] .er-row__tag {
+    transform: none !important;
+  }
 }

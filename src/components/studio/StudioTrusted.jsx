@@ -86,6 +86,7 @@ export default function StudioTrusted() {
   const pinRef = useRef(null);
   const trackRef = useRef(null);
   const fillRef = useRef(null);
+  const countRef = useRef(null);
 
   useEffect(() => {
     /* Read the query live as well as from the store. `useSyncExternalStore`
@@ -177,6 +178,28 @@ export default function StudioTrusted() {
             scale: 1 - (1 - EDGE_MIN_SCALE) * e,
           });
         });
+
+        /* the counter names the institution at the centre out of the real
+           list length, so it tracks the list rather than a hard-coded
+           number that drifts the next time an institution is added */
+        if (countRef.current) {
+          let best = 0;
+          let bestD = Infinity;
+          cards.forEach((el, i) => {
+            const r = el.getBoundingClientRect();
+            const d = Math.abs(r.left + r.width / 2 - half);
+            if (d < bestD) {
+              bestD = d;
+              best = i;
+            }
+          });
+          const label = `${String(best + 1).padStart(2, "0")} / ${String(
+            ORGS.length
+          ).padStart(2, "0")} Institutions`;
+          if (countRef.current.textContent !== label) {
+            countRef.current.textContent = label;
+          }
+        }
       };
 
       const st = ScrollTrigger.create({
@@ -383,7 +406,9 @@ export default function StudioTrusted() {
               <span className="er-trprog__bar">
                 <i ref={fillRef} />
               </span>
-              <span className="er-trprog__n er-label">07 Institutions</span>
+              <span ref={countRef} className="er-trprog__n er-label">
+                {`01 / ${String(ORGS.length).padStart(2, "0")} Institutions`}
+              </span>
             </div>
           </div>
         </div>
