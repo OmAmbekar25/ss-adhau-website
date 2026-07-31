@@ -1,6 +1,7 @@
 import Link from "next/link";
 import "./studio.css";
 import StudioClient from "@/components/studio/StudioClient";
+import StudioFluid from "@/components/studio/StudioFluid";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
 import StudioShowcase from "@/components/studio/StudioShowcase";
@@ -172,6 +173,10 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
       </div>
 
       <StudioClient />
+      {/* Right after the field and before any content: both canvases sit
+          at z-index 0, so tree order is what puts the wake above the dots
+          and both of them under the type. */}
+      <StudioFluid />
       <StudioQuiet />
       <StudioNav />
       <StudioRecord />

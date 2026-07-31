@@ -50,3 +50,30 @@ AI-generated imagery, no landmark cliches.
 | `consulting.jpg`, `law.jpg` | Homepage sections | Placeholder stock - replace (S15, 2026-07-29) |
 | `user.jpg`, `dummyuser.jpg`, `valuelady.jpg` | Unused / template leftovers | Not used on `/studio` |
 | `public/logos/*` | Institution marks | Third-party marks reproduced as issued |
+
+## Code: the fluid cursor trail
+
+Not an image, but third-party work all the same and recorded on the same
+terms.
+
+| Component | Source | Licence | Use |
+| --- | --- | --- | --- |
+| `src/lib/fluidTrail.js` | [PavelDoGreat/WebGL-Fluid-Simulation](https://github.com/PavelDoGreat/WebGL-Fluid-Simulation), © 2017 Pavel Dobryakov | MIT | Solver only — advection, curl, vorticity confinement, Jacobi pressure, gradient subtract |
+
+The MIT notice is reproduced in full at the head of the file, as the
+licence requires.
+
+What was taken is the solver. Everything the original wraps around it is
+gone: the rainbow dye and its colour cycling, bloom, sunrays, the shading
+toggle, the idle auto-splats, the click burst, and dat.gui with every
+config surface it exposed. This page has one dye colour (`#E4E4E0`) and no
+controls.
+
+Two things depart from the original rather than merely subtract from it.
+The dye is a single channel (`R16F`) instead of RGBA, because with one
+fixed colour the other three channels carry nothing and the dye buffer is
+the largest surface in the sim. And the decay is `exp(-d * dt)` rather
+than the original's `1 / (1 + d * dt)`, so the fade takes the same number
+of seconds at 30Hz, 144Hz and on a machine dropping frames — the
+reciprocal form only matches the intended rate as the timestep goes to
+zero.

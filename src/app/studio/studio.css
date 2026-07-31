@@ -51,6 +51,33 @@
   overflow-x: clip;
 }
 
+/* The fluid trail sits between the two: above the particle field, below
+   every piece of content on the page. It is a wake, not a layer the type
+   has to survive — and it never takes a pointer event, so the field's own
+   repulsion keeps receiving them unchanged.
+
+   Screen, not normal alpha: over graphite the silver has to lighten what
+   is under it the way mist does, rather than sit on top of it as paint.
+
+   z-index 0, the same as the particle canvas, NOT 1. The sections are all
+   `position: relative` at auto, so they paint in the same layer as a
+   z-index 0 canvas and tree order decides — this element is mounted right
+   after the particle canvas and before any content, which puts it above
+   the field and below every word on the page. At z-index 1 it would have
+   been above the type instead. */
+.er-fluid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.45s var(--micro);
+}
+.er-fluid[data-ready="true"] { opacity: 1; }
+
 /* the canvas lives behind everything, for the whole page */
 .er-canvas {
   position: fixed;
