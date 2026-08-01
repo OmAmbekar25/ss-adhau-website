@@ -1,4 +1,12 @@
-/* THE TERRITORY — geometry and payloads for /locations.
+/* THE TERRITORY — map geometry, retained but NOT IN USE.
+ *
+ * Nothing imports this file. The territory build it was made for was
+ * reverted at client direction on 2026-08-01 and /locations went back to
+ * the scroll-driven map — see §15. It is kept rather than deleted because
+ * the extraction, the projection and the nine verified city positions are
+ * the part of that build worth keeping: whatever draws this territory next
+ * should start here instead of doing it again. Licence and provenance in
+ * docs/asset-licenses.md.
  *
  * GEOMETRY PROVENANCE. The brief asked for the Simplemaps India SVG; this
  * environment's network policy refuses simplemaps.com (the proxy answers

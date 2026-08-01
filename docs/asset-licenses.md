@@ -116,6 +116,14 @@ The two state outlines and the projected city coordinates in
 | Madhya Pradesh + Maharashtra admin-1 boundaries | [`datamaps`](https://github.com/markmarkoh/datamaps) v0.5.10, `dist/datamaps.ind.js` | **MIT** | The package's boundary data derives from [Natural Earth](https://www.naturalearthdata.com/), which is **public domain** — no attribution required, and none is owed in the page. |
 | City coordinates (9) | Well-known settlement latitudes/longitudes | — | Facts, not a dataset. Each one is verified below rather than trusted. |
 
+> **Status: retained, not in use.** The territory build this was extracted
+> for was reverted at client direction on 2026-08-01 — see §15 of
+> `docs/creative-direction.md`. `src/data/territory.js` is kept in the repo
+> deliberately and is imported by nothing: the extraction, the projection
+> and the nine verified city positions are work that survives the design
+> that commissioned them, and the next map on this site should start from
+> them rather than repeat them.
+
 **The brief asked for the Simplemaps India SVG (MIT) and this is not it.**
 `simplemaps.com` is refused by this environment's network policy — the
 proxy answers 403 to CONNECT — so the geometry could not be fetched from
