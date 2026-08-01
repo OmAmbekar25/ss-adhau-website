@@ -25,6 +25,24 @@ export const PHONE = "+91 8793 000 929";
 export const PHONE_HREF = "tel:+918793000929";
 export const WHATSAPP_HREF = "https://wa.me/918793000929";
 
+/* The mark and the wordmark are ONE link, in both places. They are one
+   thing to a reader, and two adjacent links to the same destination is a
+   nuisance to anyone tabbing through. `alt=""` because the wordmark
+   beside it already says the name — the mark is decorative in this
+   pairing, not unlabelled. */
+function Mark({ size }) {
+  return (
+    <img
+      className="er-mark"
+      src="/images/mark-white.png"
+      alt=""
+      width={size}
+      height={Math.round((162 / 160) * size)}
+      decoding="async"
+    />
+  );
+}
+
 export function StudioHeader() {
   return (
     <>
@@ -32,7 +50,10 @@ export function StudioHeader() {
       <StudioNavScroll />
       <header className="er-nav" data-hidden="false" data-scrolled="false">
         <Link className="er-wordmark" href="/">
-          S S Adhau<sup>®</sup>
+          <Mark size={26} />
+          <span>
+            S S Adhau<sup>®</sup>
+          </span>
         </Link>
         <nav aria-label="Primary">
           {/* P-1 — the links live behind a hamburger. Hover reveals them
@@ -72,6 +93,13 @@ export function StudioFooter() {
   return (
     <footer className="er-footer">
       <div className="er-wrap">
+        {/* the mark and the small serif wordmark, above the columns and
+            left-aligned — P-6's size, which is the footer's own */}
+        <Link className="er-footmark" href="/">
+          <Mark size={44} />
+          <span className="er-display">S S Adhau</span>
+        </Link>
+
         <div className="er-footcols">
           <div className="er-footcol">
             <h2>Index</h2>
@@ -105,10 +133,6 @@ export function StudioFooter() {
             </ul>
           </div>
         </div>
-
-        <p className="er-bigmark er-display er-fade" aria-hidden="true">
-          S S Adhau
-        </p>
 
         <div className="er-colophon">
           <p className="er-label er-label--faint">

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import "@/app/studio/studio.css";
 import "./register.css";
@@ -15,7 +16,6 @@ import {
   ALSO_IN_SCOPE,
   REGISTER_INTRO,
   CITIES,
-  PROOF,
 } from "@/data/services";
 
 /* THE REGISTER — the catalogue hub.
@@ -106,23 +106,31 @@ export default function ServicesRegister() {
 
       <main id="er-main">
         {/* ------------------------------ hero ---------------------- */}
-        <section className="er-reghero" data-svc-block>
-          <div className="er-wrap">
-            <p className="er-label er-reghero__eyebrow" data-svc-track>
-              The register
-            </p>
-            {/* the serif's one string on this page */}
-            <h1 className="er-display er-reghero__t" data-svc-title>
-              <span className="er-line">
-                <span>Everything we are asked to value.</span>
-              </span>
-            </h1>
-            <ReadingText text={REGISTER_INTRO} />
-            <p className="er-label er-reghero__sat" data-svc-fade>
-              {CITIES.join(" · ")}
-            </p>
-          </div>
-        </section>
+        <div className="er-wrap">
+          <section className="er-reghero" data-svc-block>
+            <div>
+              <p className="er-label er-reghero__eyebrow" data-svc-track>
+                The register
+              </p>
+              {/* the serif's one string on this page */}
+              <h1 className="er-display er-reghero__t" data-svc-title>
+                <span className="er-line">
+                  <span>Everything we are asked to value.</span>
+                </span>
+              </h1>
+            </div>
+            {/* R-1 — the right column, centred against the title block:
+                nothing is left floating in empty space at 1280 and up. */}
+            <div>
+              <ReadingText text={REGISTER_INTRO} />
+              <p className="er-label er-reghero__sat" data-svc-fade>
+                {/* the separator is glued to the city before it, so a line
+                    can never open on a stray middot */}
+                {CITIES.join("\u00a0· ")}
+              </p>
+            </div>
+          </section>
+        </div>
         <div className="er-wrap">
           <span
             className="er-reghero__rule"
@@ -157,8 +165,21 @@ export default function ServicesRegister() {
                     <span className="er-label er-row__i">{s.n}</span>
                     <h3 className="er-row__t">{s.plain}</h3>
                     <span className="er-row__slot">
+                      {/* One run of inline text, not one box per label:
+                          as flex items the labels shrank below their own
+                          width and overlapped. Each label is a nowrap
+                          box inside the run, and the separator is glued
+                          to the label before it by a no-break space, so
+                          a line can only break AFTER a middot. */}
                       <span className="er-label er-row__tag">
-                        {s.chips.slice(0, 3).join(" · ")}
+                        <span className="er-row__tagline">
+                          {s.chips.slice(0, 3).map((c, i, a) => (
+                            <Fragment key={c}>
+                              <b>{c}</b>
+                              {i < a.length - 1 ? " · " : ""}
+                            </Fragment>
+                          ))}
+                        </span>
                       </span>
                       <span className="er-row__desc">{s.paragraph2}</span>
                     </span>
@@ -221,12 +242,11 @@ export default function ServicesRegister() {
               href="/studio#er-record"
               data-svc-fade
             >
-              {PROOF.map((p) => (
-                <span key={p.label}>
-                  {p.figure} <em>{p.label}</em>
-                </span>
-              ))}
-              <span>IBBI &amp; Income Tax Dept. registered</span>
+              <span>
+                IBBI and Income Tax Dept. registered. Reports accepted by
+                banks, tribunals and departments across Madhya Pradesh and
+                Maharashtra.
+              </span>
               <span className="er-regproof__arrow" aria-hidden="true">
                 →
               </span>

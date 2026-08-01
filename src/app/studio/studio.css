@@ -229,7 +229,19 @@
 .er-nav[data-hidden="true"] {
   transform: translateY(-101%);
 }
+/* R-4 — the brand mark returns to the chrome.
+   Cropped from the supplied lockup's roundel and painted white from its
+   own alpha channel; see the generator note in §15. It is decorative in
+   this pairing because the wordmark beside it carries the name. */
+.er-mark {
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+}
 .er-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 300;
   font-size: 20px;
@@ -734,14 +746,38 @@
 }
 
 /* footer */
+/* R-5 — the footer's content anchors to the bottom.
+   It used to open with a clamp of up to 200px and close with another of up
+   to 96px, which on a tall viewport left a dead vertical span between the
+   page and the columns that read as an unfinished page rather than a
+   quiet one. The spacings are now exact: at most 128px above the columns,
+   exactly 96px between them and the bottom-bar hairline. */
 .er-footer {
-  padding-top: clamp(96px, 14vh, 200px);
+  padding-top: clamp(72px, 9vh, 128px);
+}
+.er-footmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: clamp(40px, 6vh, 64px);
+  color: var(--ink);
+  text-decoration: none;
+}
+.er-footmark span {
+  /* P-6's size for the footer wordmark, kept — only its placement and
+     alignment change: left, beside the mark, above the columns. */
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 .er-footcols {
   display: grid;
   grid-template-columns: 1fr;
   gap: 40px;
-  padding-bottom: clamp(56px, 8vh, 96px);
+  /* the gap to the bottom-bar hairline is set here and nowhere else, so
+     it is exactly what it says */
+  padding-bottom: 96px;
 }
 @media (min-width: 760px) {
   .er-footcols {
@@ -816,7 +852,9 @@
 .er-colophon {
   padding: 28px 0 32px;
   border-top: 1px solid var(--hairline);
-  margin-top: clamp(24px, 4vh, 48px);
+  /* no margin: the 96px above this hairline belongs to .er-footcols, and
+     a second clamped gap here was stacking on top of it */
+  margin-top: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 10px 28px;
