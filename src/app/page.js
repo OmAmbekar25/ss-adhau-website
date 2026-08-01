@@ -42,7 +42,7 @@ export const metadata = {
 
 /* ---------------------------------------------------------------- content
    Every figure below is verifiable from this repository: the offices and
-   cities from src/components/OurPresence.jsx, the institutions from
+   cities from src/data/territory.js, the institutions from
    src/components/TrustedShowcase.jsx, the services from
    src/components/Services.jsx. Nothing is estimated.
    TODO(copy): the brief also asked for "years in practice" and "reports

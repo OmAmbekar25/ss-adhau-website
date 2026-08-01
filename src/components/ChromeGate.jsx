@@ -11,13 +11,14 @@ import { usePathname } from "next/navigation";
  * `/services` joined the list when the register replaced the legacy page.
  * `/` joined it when the studio page was promoted to the home page and the
  * legacy home was deleted — the entry it replaces is `/studio`, which no
- * longer exists as a route.
+ * longer exists as a route. `/locations` joined when the territory replaced
+ * the map journey and picked up StudioChrome with it.
  *
  * The root is matched EXACTLY and is deliberately not run through the
  * prefix test below: every path on the site starts with "/", so a prefix
  * match on the root would strip the chrome from every page on it.
  */
-const BARE_EXACT = ["/"];
+const BARE_EXACT = ["/", "/locations"];
 const BARE_TREE = ["/services"];
 
 export default function ChromeGate({ children }) {

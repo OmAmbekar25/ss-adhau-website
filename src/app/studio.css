@@ -905,17 +905,25 @@
 
 /* --------------------------- a11y floor ------------------------------ */
 
-/* ---- the services-family hero title reveal ----
+/* ---- the document-family hero title reveal ----
    A CSS animation, not a GSAP tween, and scoped so it cannot reach the
-   studio page's own headline. The title is the LCP element on these
-   routes, and while it was armed by CSS and released by JS it could not
-   appear until the motion module had loaded and run — Lighthouse put LCP
-   at 5.8s on a page whose Speed Index was 2.4s. Running the reveal from
-   the stylesheet means it starts when the stylesheet does. */
-.er-js :is(.er-svc, .er-reg) [data-svc-title] .er-line > span {
+   home page's own headline. The title is the LCP element on these routes,
+   and while it was armed by CSS and released by JS it could not appear
+   until the motion module had loaded and run — Lighthouse put LCP at 5.8s
+   on a page whose Speed Index was 2.4s. Running the reveal from the
+   stylesheet means it starts when the stylesheet does.
+
+   THE SELECTOR IS A LIST, AND A LIST IS A THING YOU CAN FORGET TO JOIN.
+   `.er-loc` shipped without being added here, so the armed state applied
+   and the release never did: the locations h1 sat at translateY(158px)
+   behind its own overflow mask, invisible, with `animation: none`. It read
+   as a Lighthouse problem (5.4s of "render delay" on a text element)
+   before it read as a missing headline. Any new document route joins this
+   list, or its title does not exist. */
+.er-js :is(.er-svc, .er-reg, .er-loc) [data-svc-title] .er-line > span {
   animation: er-line-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
-.er-js :is(.er-svc, .er-reg) [data-svc-track] {
+.er-js :is(.er-svc, .er-reg, .er-loc) [data-svc-track] {
   animation: er-track-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
 @keyframes er-track-in {
@@ -927,8 +935,8 @@
   to { transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .er-js :is(.er-svc, .er-reg) [data-svc-title] .er-line > span,
-  .er-js :is(.er-svc, .er-reg) [data-svc-track] {
+  .er-js :is(.er-svc, .er-reg, .er-loc) [data-svc-title] .er-line > span,
+  .er-js :is(.er-svc, .er-reg, .er-loc) [data-svc-track] {
     animation: none;
     transform: none;
   }

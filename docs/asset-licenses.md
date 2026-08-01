@@ -105,3 +105,54 @@ than the original's `1 / (1 + d * dt)`, so the fade takes the same number
 of seconds at 30Hz, 144Hz and on a machine dropping frames — the
 reciprocal form only matches the intended rate as the timestep goes to
 zero.
+
+## Map geometry — /locations (the territory)
+
+The two state outlines and the projected city coordinates in
+`src/data/territory.js`.
+
+| Item | Source | License | Notes |
+|---|---|---|---|
+| Madhya Pradesh + Maharashtra admin-1 boundaries | [`datamaps`](https://github.com/markmarkoh/datamaps) v0.5.10, `dist/datamaps.ind.js` | **MIT** | The package's boundary data derives from [Natural Earth](https://www.naturalearthdata.com/), which is **public domain** — no attribution required, and none is owed in the page. |
+| City coordinates (9) | Well-known settlement latitudes/longitudes | — | Facts, not a dataset. Each one is verified below rather than trusted. |
+
+**The brief asked for the Simplemaps India SVG (MIT) and this is not it.**
+`simplemaps.com` is refused by this environment's network policy — the
+proxy answers 403 to CONNECT — so the geometry could not be fetched from
+the named source. `datamaps` was chosen from what the npm registry (which
+the policy does allow) had: MIT, Natural-Earth-derived, and therefore the
+same licence class the brief specified.
+
+`@svg-maps/india` was available and was **passed over deliberately**: it is
+CC-BY-4.0, and attribution-required geometry on a commercial site is a
+licence to honour visibly in the page, not quietly in a repository file.
+Choosing the public-domain source avoids putting a credit line into an art
+direction that has no place for one.
+
+### How it was processed
+
+Not lifted as finished SVG paths. The two states were taken from the
+TopoJSON and projected here, which is what makes the city dots exact: the
+outlines and the coordinates go through one `geoMercator`, so there is no
+foreign projection to reverse-engineer and no calibration to eyeball.
+
+1. `IN.MP` and `IN.MH` filtered out of `topo.objects.ind.geometries`.
+2. `topojson-simplify` presimplify → simplify at quantile 0.2, applied to
+   the **topology** so the arcs the two states share stay shared and the
+   common border cannot open a seam. 61KB of path data → 12KB.
+3. `geoMercator().fitExtent()` into a 1000-wide box with 6% padding;
+   height falls out of the data at 1189.
+4. Coordinates rounded to 0.1 user units (0.07px at the rendered size).
+
+### Verification
+
+Every city was checked with `d3.geoContains` against the polygon it should
+fall in: **Nagpur in Maharashtra, the other eight in Madhya Pradesh, nine
+of nine correct.** Point-in-polygon against the real geometry rather than
+a visual comparison against a reference map — the source of truth is the
+shape being drawn, so that is what the dots were tested against.
+
+The extraction script is not kept in the repo: it is a one-off with two
+dev-only dependencies (`topojson-client`, `topojson-simplify`, `d3-geo`),
+and the steps above are enough to reproduce it. `src/data/territory.js`
+carries the same note at the top.
