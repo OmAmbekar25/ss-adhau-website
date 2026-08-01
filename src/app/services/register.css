@@ -1,0 +1,335 @@
+/* ==========================================================================
+   THE REGISTER — /services
+   The catalogue hub. Sits under `.er`, so the locked system in studio.css
+   is the system, and `service.css` is not loaded here: this page shares
+   the reading face with the service pages but none of their layout.
+
+   No canvas, no pins, no images. Hairlines and type.
+   ========================================================================== */
+
+.er-reg {
+  --hue: var(--ink);
+  --hue-text: var(--ink);
+}
+
+.er-reg__col {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+.er-reg__block {
+  padding-block: clamp(64px, 9vh, 96px);
+}
+
+/* -------------------------------- hero -------------------------------- */
+/* Compact: this is a door, not a room. */
+.er-reghero {
+  min-height: 50svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: clamp(120px, 18vh, 190px);
+  padding-bottom: clamp(28px, 5vh, 56px);
+}
+.er-reghero__eyebrow {
+  display: block;
+  margin-bottom: clamp(20px, 3vh, 34px);
+  color: var(--ink-dim);
+}
+/* The serif's one string on this page — over the 52px mono cap, so the
+   locked exception applies exactly as it does to a service-page title. */
+.er-reghero__t {
+  margin: 0 0 clamp(30px, 5vh, 52px);
+  font-size: clamp(38px, 5.2vw, 76px);
+  line-height: 1.04;
+  color: var(--ink);
+  max-width: 16ch;
+}
+/* the cities the firm actually travels to */
+.er-reghero__sat {
+  margin: clamp(28px, 4vh, 44px) 0 0;
+  color: var(--ink-dim);
+  line-height: 1.9;
+}
+.er-reghero__rule {
+  display: block;
+  height: 1px;
+  background: var(--hairline-hi);
+  transform-origin: left center;
+}
+
+/* ---------------------------- the six rows ---------------------------- */
+/* The index-row colour-world system, brought back from the studio page it
+   was retired from when WI-1 replaced the index with a pinned showcase.
+   Two things changed on the way, both because the locks moved under it:
+
+   the title is MONO, not the display serif it used to be — P-2 put the
+   display voice in the mono under 52px and left the serif three
+   instances, none of which is a list row;
+
+   and the italic-on-hover swap is gone with it, because P-2 retired the
+   italic-mix device outside the hero.
+
+   The hue behaviour is unchanged: panel at 8%, hairlines toward the hue,
+   numeral tinted, tags giving way to the description. */
+
+.er-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+}
+.er-row {
+  --row-hue: transparent;
+  --row-hue-text: var(--ink-faint);
+  border-bottom: 1px solid var(--hairline);
+  transition: border-color 0.45s var(--micro);
+}
+.er-row__a {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px 20px;
+  align-items: center;
+  padding: clamp(22px, 3.4vh, 40px) 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.45s var(--micro);
+}
+@media (min-width: 900px) {
+  .er-row__a {
+    grid-template-columns: 64px 1fr auto;
+    gap: 32px;
+  }
+}
+.er-row__i {
+  color: var(--row-hue-text);
+  transition: color 0.45s var(--micro);
+}
+/* mono, per the type lock, and inside the 52px cap */
+.er-row__t {
+  margin: 0;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 500;
+  font-size: clamp(21px, 2.6vw, 38px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* The tag and the description share one box, so the swap cannot reflow
+   the row — this is the original slot, unchanged. */
+.er-row__slot {
+  position: relative;
+  display: block;
+  grid-column: 2;
+  min-height: 3.4em;
+}
+@media (min-width: 900px) {
+  .er-row__slot {
+    grid-column: auto;
+    width: clamp(220px, 27vw, 340px);
+    min-height: 3.2em;
+  }
+}
+.er-row__slot > * {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  will-change: transform, opacity;
+}
+@media (min-width: 900px) {
+  .er-row__slot > * {
+    justify-content: flex-end;
+    text-align: right;
+  }
+}
+.er-row__tag {
+  margin: 0;
+  color: var(--ink-faint);
+  opacity: 1;
+  transition:
+    opacity 0.25s var(--micro),
+    transform 0.25s var(--micro);
+}
+.er-row__desc {
+  margin: 0;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+  max-width: 34ch;
+  opacity: 0;
+  transform: translateX(24px);
+  transition:
+    opacity 0.4s var(--enter) 0.06s,
+    transform 0.4s var(--enter) 0.06s;
+}
+
+/* --- active: the full colour world, at strength --- */
+.er-row[data-active="true"] {
+  border-bottom-color: color-mix(in srgb, var(--row-hue) 34%, var(--hairline-hi));
+}
+.er-row[data-active="true"] .er-row__a {
+  background: color-mix(in srgb, var(--row-hue) 8%, transparent);
+}
+.er-row[data-active="true"] .er-row__tag {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+.er-row[data-active="true"] .er-row__desc {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* --- scroll-soft: colour only, half strength, and the description
+       stays put. This is what a row looks like when the page is being
+       scrolled rather than pointed at. --- */
+.er-row[data-active="soft"] {
+  border-bottom-color: color-mix(in srgb, var(--row-hue) 17%, var(--hairline));
+}
+.er-row[data-active="soft"] .er-row__a {
+  background: color-mix(in srgb, var(--row-hue) 4%, transparent);
+}
+
+.er-row__explore {
+  grid-column: 2;
+  color: var(--ink-faint);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.35s var(--micro),
+    transform 0.35s var(--micro);
+}
+@media (min-width: 900px) {
+  .er-row__explore {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+.er-row[data-active="true"] .er-row__explore {
+  opacity: 1;
+  transform: translateY(0);
+  color: var(--row-hue-text);
+}
+
+/* --------------------------- also in scope ---------------------------- */
+
+.er-reglist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+  display: grid;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 820px) {
+  .er-reglist {
+    grid-template-columns: 1fr 1fr;
+    column-gap: clamp(32px, 5vw, 72px);
+  }
+}
+.er-reglist li {
+  border-bottom: 1px solid var(--hairline);
+  padding: clamp(20px, 2.6vh, 28px) 0;
+}
+.er-reglist__t {
+  margin: 0 0 8px;
+  font-weight: 500;
+  color: var(--ink);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.er-reglist__d {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 13px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  text-transform: none;
+  max-width: 44ch;
+}
+
+.er-regclose {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 44px);
+  padding-top: clamp(40px, 6vh, 64px);
+}
+.er-regclose__line {
+  margin: 0;
+  color: var(--ink-dim);
+  max-width: 34ch;
+  line-height: 1.7;
+}
+.er-regclose__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 17px 26px;
+  border: 1px solid var(--hairline-hi);
+  border-radius: 2px;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    background-color 0.4s var(--micro),
+    border-color 0.4s var(--micro);
+}
+.er-regclose__cta:hover,
+.er-regclose__cta:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--ink-faint);
+}
+
+/* ----------------------------- proof line ----------------------------- */
+
+.er-regproof {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 14px;
+  row-gap: 10px;
+  border-top: 1px solid var(--hairline-hi);
+  padding: clamp(26px, 4vh, 38px) 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.er-regproof span + span::before {
+  content: "·";
+  margin-right: 14px;
+  color: var(--hairline-hi);
+}
+.er-regproof em {
+  font-style: normal;
+  color: var(--ink-dim);
+}
+.er-regproof:hover,
+.er-regproof:focus-visible {
+  color: var(--ink);
+}
+.er-regproof:hover .er-regproof__arrow,
+.er-regproof:focus-visible .er-regproof__arrow {
+  transform: translateX(4px);
+}
+.er-regproof__arrow {
+  margin-left: auto;
+  color: var(--ink-faint);
+  transition: transform 0.35s var(--micro);
+}
+
+/* --------------------------- entrance states -------------------------- */
+
+.er-js .er-reg [data-svc-fade] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.er-js .er-reg [data-svc-rule] {
+  transform: scaleX(0);
+}

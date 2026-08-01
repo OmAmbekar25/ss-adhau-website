@@ -216,3 +216,73 @@ export const nextOf = (slug) => {
    TODO(client): typical days from site visit, which may differ per service. */
 export const PRACTICAL =
   "Offices in Nagpur & Chhindwara · inspections across MP & Maharashtra · IBBI & Income Tax Dept. registered";
+
+/* ------------------------------------------------------- the register
+   /services is the catalogue. Six practices carry their own pages (the
+   SERVICES array above); everything below is within scope and reachable
+   by phone, which is exactly what the page says. No page, no numeral, no
+   link — a list of what the firm does, not a menu of what it sells. */
+
+export const REGISTER_INTRO =
+  "Twelve services under one discipline: a registered valuer or chartered engineer inspects, measures and signs. Six practices carry their own pages below. The rest are within scope and a phone call away.";
+
+/* Carried over from the legacy page, which is the only thing on it worth
+   keeping: the places the firm actually travels to. */
+export const CITIES = [
+  "Nagpur",
+  "Chhindwara",
+  "Betul",
+  "Seoni",
+  "Balaghat",
+  "Jabalpur",
+  "Bhopal",
+  "Indore",
+  "Pandhurna",
+];
+
+export const ALSO_IN_SCOPE = [
+  {
+    title: "Agricultural land valuation",
+    desc: "Soil class, irrigation and location, valued for acquisition, conversion and finance.",
+  },
+  {
+    title: "Specialized assets",
+    desc: "Infrastructure, utilities and purpose-built properties valued on inspection and use.",
+  },
+  {
+    title: "Fairness opinions",
+    desc: "Independent opinions for related-party and structured transactions, signed and defended.",
+  },
+  {
+    title: "Valuation for insurance",
+    desc: "Reinstatement and indemnity values with the schedules insurers ask for.",
+  },
+  {
+    title: "Regulatory valuations",
+    desc: "Income Tax, Company Law and other statutory requirements, formatted to the rule that asks.",
+  },
+  {
+    title: "Litigation support",
+    desc: "Reports and testimony for disputes, arbitration and court proceedings.",
+  },
+  {
+    title: "Chartered Engineer certificates",
+    desc: "CE certification for statutory, banking and regulatory needs.",
+  },
+  {
+    title: "Project cost estimation & vetting",
+    desc: "Independent build-up and review of project costs at every stage.",
+  },
+  {
+    title: "Architectural & structural consulting",
+    desc: "Planning, design development and technical documentation.",
+  },
+];
+
+/* Every figure is already on /studio's record section, which is where the
+   row links. Nothing here is estimated. */
+export const PROOF = [
+  { figure: "02", label: "Offices" },
+  { figure: "09", label: "Cities" },
+  { figure: "15", label: "Institutions" },
+];

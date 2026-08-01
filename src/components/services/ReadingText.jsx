@@ -1,3 +1,5 @@
+import "./reading.css";
+
 /* A paragraph that can be filled word by word without becoming a pile of
  * spans as far as assistive technology, selection or search are concerned.
  *

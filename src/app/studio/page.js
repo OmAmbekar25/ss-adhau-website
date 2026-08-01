@@ -269,7 +269,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         <StudioTrusted />
 
         {/* ------------------------ 5.6 PROOF ------------------------- */}
-        <section className="er-section" aria-labelledby="er-proof" data-record>
+        <section id="er-record" className="er-section" aria-labelledby="er-proof" data-record>
           <div className="er-wrap">
             <p className="er-label er-label--faint er-track" data-rec-eyebrow>
               Record

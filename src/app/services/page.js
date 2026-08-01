@@ -1,200 +1,241 @@
-import ServiceHero from "@/components/ui/Servicehero";
-import WhyChooseUs from "@/components/WhyChooseUs";
+import Link from "next/link";
+import "@/app/studio/studio.css";
+import "./register.css";
 import {
-  Building2,
-  Factory,
-  Wheat,
-  ShieldCheck,
-  Scale,
-  FileText,
-  Landmark,
-  Gavel,
-  BarChart3,
-  LineChart,
-  Briefcase,
-  ClipboardCheck,
-  Award,
-  Calculator,
-  Ruler,
-  Layers,
-} from "lucide-react";
+  StudioHeader,
+  StudioFooter,
+  PHONE,
+  PHONE_HREF,
+} from "@/components/studio/StudioChrome";
+import ServiceMotion from "@/components/services/ServiceMotion";
+import ReadingText from "@/components/services/ReadingText";
+import RegisterRows from "@/components/services/RegisterRows";
+import {
+  SERVICES,
+  ALSO_IN_SCOPE,
+  REGISTER_INTRO,
+  CITIES,
+  PROOF,
+} from "@/data/services";
 
-const services = [
-  {
-    title: "Valuation of Real Estate",
-    description:
-      "Independent valuation of residential, commercial, and industrial properties for sale, purchase, mortgage, and compliance purposes.",
-    icon: Building2,
-    bg: "bg-violet-100",
-    color: "text-violet-600",
-  },
-  {
-    title: "Valuation of Plant & Machinery",
-    description:
-      "Assessment of plant, equipment, and machinery considering age, condition, usage, and market value.",
-    icon: Factory,
-    bg: "bg-green-100",
-    color: "text-green-600",
-  },
-  {
-    title: "Valuation of Agricultural Lands",
-    description:
-      "Professional valuation of agricultural and rural lands based on soil quality, location, and regulatory factors.",
-    icon: Wheat,
-    bg: "bg-orange-100",
-    color: "text-orange-600",
-  },
-  {
-    title: "Valuer for Specialized Assets",
-    description:
-      "Valuation of unique and specialized assets including infrastructure, utilities, and purpose-built properties.",
-    icon: ShieldCheck,
-    bg: "bg-blue-100",
-    color: "text-blue-600",
-  },
-  {
-    title: "Fairness Opinion",
-    description:
-      "Independent fairness opinions to support mergers, acquisitions, and related-party transactions.",
-    icon: Scale,
-    bg: "bg-purple-100",
-    color: "text-purple-600",
-  },
-  {
-    title: "Valuation under Insolvency and Bankruptcy Code",
-    description:
-      "IBC-compliant valuation services for CIRP, liquidation, and resolution processes.",
-    icon: FileText,
-    bg: "bg-rose-100",
-    color: "text-rose-600",
-  },
-  {
-    title: "Valuation for Insurance",
-    description:
-      "Asset valuation for insurance coverage, reinstatement value, and risk assessment.",
-    icon: Landmark,
-    bg: "bg-indigo-100",
-    color: "text-brass",
-  },
-  {
-    title: "Valuation for Regulatory Purposes",
-    description:
-      "Valuations for Income Tax, Company Law matters, and other statutory requirements.",
-    icon: Gavel,
-    bg: "bg-teal-100",
-    color: "text-teal-600",
-  },
-  {
-    title: "Litigation Support & Business Valuation",
-    description:
-      "Expert valuation reports and support for disputes, arbitration, and court proceedings.",
-    icon: BarChart3,
-    bg: "bg-cyan-100",
-    color: "text-cyan-600",
-  },
-  {
-    title: "Financial Reporting (IFRS, IND AS, US GAAP)",
-    description:
-      "Valuations aligned with international and Indian accounting standards for financial reporting.",
-    icon: LineChart,
-    bg: "bg-emerald-100",
-    color: "text-emerald-600",
-  },
-  {
-    title: "Mergers & Acquisitions",
-    description:
-      "Valuation support for strategic transactions, restructuring, and corporate advisory engagements.",
-    icon: Briefcase,
-    bg: "bg-amber-100",
-    color: "text-amber-600",
-  },
-  {
-    title: "Project Cost Vetting",
-    description:
-      "Independent review and vetting of project costs to ensure accuracy and feasibility.",
-    icon: ClipboardCheck,
-    bg: "bg-lime-100",
-    color: "text-lime-600",
-  },
-  {
-    title: "Chartered Engineer Certificate",
-    description:
-      "Issuance of Chartered Engineer certificates for statutory, banking, and regulatory needs.",
-    icon: Award,
-    bg: "bg-fuchsia-100",
-    color: "text-fuchsia-600",
-  },
-  {
-    title: "Project Cost Estimation",
-    description:
-      "Detailed estimation of project costs across planning, execution, and feasibility stages.",
-    icon: Calculator,
-    bg: "bg-sky-100",
-    color: "text-sky-600",
-  },
-  {
-    title: "Architectural Services",
-    description:
-      "End-to-end architectural planning, design development, and technical documentation.",
-    icon: Ruler,
-    bg: "bg-neutral-100",
-    color: "text-neutral-700",
-  },
-  
-];
+/* THE REGISTER — the catalogue hub.
+ *
+ * This REPLACES the legacy /services page rather than restyling it. Gone
+ * with it: the stock imagery, the pastel icon circles and every lucide
+ * icon, the "Why Choose Us?" block and its six adjective cards, the
+ * legacy nav and footer, and the "Delivering accurate and independent..."
+ * copy. One thing survived, because it was the only specific and true
+ * content on the page: the list of places the firm travels to.
+ *
+ * No canvas on this route, same as the service pages.
+ */
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.ssadhauvaluers.com";
 
 export const metadata = {
-  title: "Services | SS Adhau Valuers and Engineers",
-  description: "Professional valuation services across India",
+  title: "Services — S S Adhau Valuers & Engineers",
+  description:
+    "Twelve valuation and engineering services across Madhya Pradesh and Maharashtra, each inspected, measured and signed by a registered valuer or chartered engineer.",
+  alternates: { canonical: "/services" },
 };
 
-export default function ServicesPage() {
+/* One ItemList of everything the firm does, with the six that have pages
+   carrying their URLs. Nothing is asserted here that the page does not
+   already say in words. */
+function jsonLd() {
+  const items = [
+    ...SERVICES.map((s) => ({
+      "@type": "Service",
+      name: s.plain,
+      url: `${SITE}/services/${s.slug}`,
+      provider: { "@id": `${SITE}/#organization` },
+    })),
+    ...ALSO_IN_SCOPE.map((s) => ({
+      "@type": "Service",
+      name: s.title,
+      description: s.desc,
+      provider: { "@id": `${SITE}/#organization` },
+    })),
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE}/#organization`,
+        name: "S S Adhau Valuers & Engineers",
+        url: SITE,
+        telephone: PHONE,
+        areaServed: CITIES.map((c) => ({ "@type": "City", name: c })),
+      },
+      {
+        "@type": "ItemList",
+        name: "Valuation and engineering services",
+        itemListElement: items.map((item, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item,
+        })),
+      },
+    ],
+  };
+}
+
+export default function ServicesRegister() {
   return (
-    <>
-     <div className="overflow-x-hidden">
-       <ServiceHero />
-      <div className="flex flex-col items-center mb-10 ">
-         <h2 className="text-4xl md:text-5xl uppercase font-semibold text-linen">
-          We Provide
-        </h2>
+    <div className="er er-reg">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd()) }}
+      />
+      {/* arms the entrance states before first paint — see ServicePage */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "(function(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;document.documentElement.classList.add('er-js');}catch(e){}})()",
+        }}
+      />
+      <ServiceMotion rootSelector=".er-reg" />
+      <RegisterRows />
 
-        <div className="w-24 h-[3px] rounded-full bg-gradient-to-r from-brass to-brass/10 mt-1" />
-      </div>
-      {/* <div className="flex justify-center"> */}
-        <div className="grid  lg:px-44 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative">
-        {/* Background blur – unchanged */}
-        <div className="size-[520px] top-0 left-1/2 -translate-x-1/2 rounded-full absolute blur-[300px] -z-10 bg-brass/10" />
+      <a className="er-skip" href="#er-main">
+        Skip to content
+      </a>
 
-        {services.map((service, index) => {
-          const Icon = service.icon;
+      <StudioHeader />
 
-          return (
-            <div
-              key={index}
-              className="flex flex-col items-center justify-center max-w-80 mx-auto"
-            >
-              <div
-                className={`p-6 aspect-square rounded-full ${service.bg} flex items-center justify-center`}
+      <main id="er-main">
+        {/* ------------------------------ hero ---------------------- */}
+        <section className="er-reghero" data-svc-block>
+          <div className="er-wrap">
+            <p className="er-label er-reghero__eyebrow" data-svc-track>
+              The register
+            </p>
+            {/* the serif's one string on this page */}
+            <h1 className="er-display er-reghero__t" data-svc-title>
+              <span className="er-line">
+                <span>Everything we are asked to value.</span>
+              </span>
+            </h1>
+            <ReadingText text={REGISTER_INTRO} />
+            <p className="er-label er-reghero__sat" data-svc-fade>
+              {CITIES.join(" · ")}
+            </p>
+          </div>
+        </section>
+        <div className="er-wrap">
+          <span
+            className="er-reghero__rule"
+            data-svc-herorule
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* -------------------------- the six ----------------------- */}
+        {/* The index-row colour worlds, back from the studio page that
+            retired them. See register.css for what the type lock changed
+            on the way. */}
+        <section
+          className="er-reg__block"
+          data-svc-block
+          aria-labelledby="er-reg-six"
+        >
+          <div className="er-wrap">
+            <h2 id="er-reg-six" className="er-sr-only">
+              Practices with their own pages
+            </h2>
+            <ol className="er-rows">
+              {SERVICES.map((s) => (
+                <li
+                  key={s.slug}
+                  className="er-row"
+                  data-row
+                  data-active="false"
+                  style={{ "--row-hue": s.hue, "--row-hue-text": s.hueText }}
+                >
+                  <Link className="er-row__a" href={`/services/${s.slug}`}>
+                    <span className="er-label er-row__i">{s.n}</span>
+                    <h3 className="er-row__t">{s.plain}</h3>
+                    <span className="er-row__slot">
+                      <span className="er-label er-row__tag">
+                        {s.chips.slice(0, 3).join(" · ")}
+                      </span>
+                      <span className="er-row__desc">{s.paragraph2}</span>
+                    </span>
+                    <span
+                      className="er-label er-row__explore"
+                      aria-hidden="true"
+                    >
+                      Explore →
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* --------------------- also within scope ------------------ */}
+        <section
+          className="er-reg__block"
+          data-svc-block
+          aria-labelledby="er-reg-also"
+        >
+          <div className="er-wrap">
+            <h2 id="er-reg-also" className="er-label" data-svc-fade>
+              Also within scope
+            </h2>
+            <ul className="er-reglist">
+              {ALSO_IN_SCOPE.map((s) => (
+                <li key={s.title} data-svc-fade>
+                  <p className="er-label er-reglist__t">{s.title}</p>
+                  <p className="er-label er-reglist__d">{s.desc}</p>
+                </li>
+              ))}
+            </ul>
+
+            <div className="er-regclose">
+              <p className="er-label er-regclose__line" data-svc-fade>
+                If it can be inspected, it can be valued.
+              </p>
+              <a
+                className="er-label er-regclose__cta"
+                href={PHONE_HREF}
+                data-svc-fade
               >
-                <Icon className={`w-7 h-7 ${service.color}`} />
-              </div>
-
-              <div className="mt-5 space-y-2 text-center">
-                <h3 className="text-lg font-semibold text-linen">
-                  {service.title}
-                </h3>
-
-                <p className="text-md text-fog leading-relaxed">
-                  {service.description}
-                </p>
-              </div>
+                Speak to a valuer
+                <span aria-hidden="true">·</span>
+                {PHONE}
+              </a>
             </div>
-          );
-        })}
-      </div>
-      {/* </div> */}
-      <WhyChooseUs />
-     </div>
-    </>
+          </div>
+        </section>
+
+        {/* ---------------------------- proof ----------------------- */}
+        {/* No "Why Choose Us". Four facts already on the record, linking
+            to the section of /studio that sets them out. */}
+        <section className="er-reg__block" data-svc-block>
+          <div className="er-wrap">
+            <Link
+              className="er-label er-regproof"
+              href="/studio#er-record"
+              data-svc-fade
+            >
+              {PROOF.map((p) => (
+                <span key={p.label}>
+                  {p.figure} <em>{p.label}</em>
+                </span>
+              ))}
+              <span>IBBI &amp; Income Tax Dept. registered</span>
+              <span className="er-regproof__arrow" aria-hidden="true">
+                →
+              </span>
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <StudioFooter />
+    </div>
   );
 }

@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /* Entrance-only. The page is otherwise still.
  *
@@ -18,20 +24,28 @@ import { useEffect } from "react";
  * The armed states live in CSS under `.er-js`, so a failure to reach this
  * file leaves a complete static page rather than an invisible one.
  *
- * GSAP and ScrollTrigger are imported DYNAMICALLY. Statically they land in
- * the page's first chunk and are parsed before hydration finishes, and on
- * a throttled mobile profile that showed up as 93% of LCP spent in render
- * delay — the hero image had arrived (preload put its load delay at 0%)
- * and simply could not be painted, because the main thread was busy with
- * an animation library that exists to decorate the page after it appears.
- * Entrance motion has no business delaying the entrance.
+ * GSAP is imported statically. It was dynamic for a while, on the
+ * reasoning that an animation library should not delay the paint it
+ * decorates — measured both ways on the production build and the scores
+ * were identical, so the earlier claim that the split helped was noise.
+ * Static is fewer moving parts, so static it is.
+ *
+ * The hero title and the eyebrow are NOT animated here: both are CSS
+ * animations (see studio.css). A hero element that waits for this module
+ * defines LCP whenever the module happens to arrive — and the eyebrow was
+ * worse than late, it was a flash: it had no CSS armed state, so GSAP was
+ * hiding an element the browser had already painted and then revealing it
+ * again. Anything in the first viewport belongs in the stylesheet.
  */
 
 const ENTER = "power3.out";
 
-export default function ServiceMotion() {
+/* `rootSelector` lets the register reuse this verbatim. The hero pieces
+   are all guarded, so a page without a hero image, a veil or a hero rule
+   simply skips those steps rather than needing its own module. */
+export default function ServiceMotion({ rootSelector = ".er-svc" }) {
   useEffect(() => {
-    const root = document.querySelector(".er-svc");
+    const root = document.querySelector(rootSelector);
     if (!root) return;
 
     /* Reduced motion never loads the library at all: there is nothing for
@@ -49,39 +63,15 @@ export default function ServiceMotion() {
       return;
     }
 
-    let ctx = null;
-    let dead = false;
-
-    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then((mods) => {
-      if (dead) return;
-      const gsap = mods[0].default || mods[0];
-      const { ScrollTrigger } = mods[1];
-      gsap.registerPlugin(ScrollTrigger);
-      ctx = build(gsap, ScrollTrigger, root);
-    });
-
-    return () => {
-      dead = true;
-      if (ctx) ctx.revert();
-    };
-  }, []);
+    const ctx = build(gsap, ScrollTrigger, root);
+    return () => ctx.revert();
+  }, [rootSelector]);
 
   return null;
 }
 
 function build(gsap, ScrollTrigger, root) {
   return gsap.context(() => {
-      /* Hand the armed states over from CSS to GSAP before tweening any of
-         them. GSAP reads a CSS `translateY(115%)` off the computed matrix
-         as a pixel `y`, not as yPercent, so tweening yPercent alone
-         animates nothing and the line stays clipped — which is exactly
-         what happened here: the hero title rendered as an empty gap. Same
-         trap, and the same fix, as the studio page's headline. */
-      gsap.set(root.querySelectorAll("[data-svc-title] .er-line > span"), {
-        yPercent: 115,
-        y: 0,
-      });
-
       /* ------------------------- the hero ------------------------- */
       /* 0.00s image settles out of 1.05 while the hue veil clears — this
          is the colour-world handoff from the slide the visitor clicked. */
@@ -107,26 +97,16 @@ function build(gsap, ScrollTrigger, root) {
           0
         );
       }
-      /* 0.20s the numeral tracks in, the title unmasks */
-      tl.fromTo(
-        root.querySelectorAll("[data-svc-track]"),
-        { opacity: 0, letterSpacing: "0.35em" },
-        { opacity: 1, letterSpacing: "0.22em", duration: 0.7, ease: ENTER },
-        0.2
-      );
-      tl.fromTo(
-        root.querySelectorAll("[data-svc-title] .er-line > span"),
-        { yPercent: 115 },
-        { yPercent: 0, duration: 0.9, ease: ENTER, stagger: 0.06 },
-        0.2
-      );
       /* 0.45s the hairline draws */
-      tl.fromTo(
-        root.querySelector("[data-svc-herorule]"),
-        { scaleX: 0 },
-        { scaleX: 1, duration: 0.8, ease: ENTER },
-        0.45
-      );
+      const heroRule = root.querySelector("[data-svc-herorule]");
+      if (heroRule) {
+        tl.fromTo(
+          heroRule,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.8, ease: ENTER },
+          0.45
+        );
+      }
 
       /* --------------------- the blocks below --------------------- */
       const once = (el, build) =>
