@@ -1,9 +1,11 @@
 /* The six service payloads.
  *
  * One template renders all of these; there is no per-page layout fork
- * anywhere in `/services/[slug]`. If a page needs something the others do
- * not have, it goes in this file as data — `img3` is the only such case,
- * and only real estate carries one.
+ * anywhere in `/services/[slug]`, and now no per-page DATA fork either:
+ * every page is hero plus one image, with no exceptions. Real estate's
+ * third image (`page-01-pattern`) stays in `/public` and in the licence
+ * table for future use, but nothing references it and it has no preload
+ * or AVIF manifest entry.
  *
  * `hue` and `hueText` mirror the locked colour worlds in studio.css
  * (`--hue-NN` / `--hue-NN-text`). The pair is the lock: the raw hue is for
@@ -26,6 +28,8 @@ export const SERVICES = [
     plain: "Real estate valuation",
     paragraph:
       "Residential, commercial and industrial property: flats, plots, shops, offices, warehouses and factory premises. Every valuation begins with a physical inspection by a registered valuer. Boundaries, built-up area, construction quality and occupancy are measured on site and set against local market evidence. The report states its approach and assumptions in full, carries the valuer's name and IBBI registration, and is formatted to your bank's standard. Fifteen banks, tribunals and departments accept our reports.",
+    paragraph2:
+      "Flats and plots are measured against the sanctioned plan, shops and offices against carpet and built-up records, and factory premises against their layout and utilities. Where the purpose demands it, rental evidence and comparable sales from the same locality are placed in the report, so the reader can follow the road from evidence to number.",
     chips: [
       "Bank mortgage",
       "Court & settlement",
@@ -47,10 +51,6 @@ export const SERVICES = [
       src: "/images/pages/page-01-interior.webp",
       alt: "An interior looking out over the city through a full-height window",
     },
-    img3: {
-      src: "/images/pages/page-01-pattern.webp",
-      alt: "The zigzag of a balcony run seen head-on",
-    },
     meta: "Registered valuer property valuation in Nagpur and Chhindwara. Residential, commercial and industrial reports accepted by banks, courts and the Income Tax Department.",
   },
   {
@@ -63,6 +63,8 @@ export const SERVICES = [
     plain: "Plant & machinery valuation",
     paragraph:
       "Machinery, equipment and complete plant setups, from a single lathe to a full production line. A valuer inspects each asset in person and records make, capacity, age, condition and remaining useful life, then sets the findings against current market and replacement costs. Nothing is valued from a photograph. The signed report holds up in loan sanction, insurance and dispute, because every figure in it traces back to an inspection entry.",
+    paragraph2:
+      "Where records are incomplete, the machine itself becomes the record: nameplates, serial numbers and condition are photographed and entered against each line item. Depreciation is worked from observed condition and remaining life, not from a standard table alone.",
     chips: ["Loan collateral", "Insurance", "Disputes", "Asset purchase"],
     /* TODO(client): confirm */
     keepReady: [
@@ -91,6 +93,8 @@ export const SERVICES = [
     plain: "Valuation under IBC",
     paragraph:
       "Valuations for CIRP and liquidation under the Insolvency and Bankruptcy Code, prepared by IBBI-registered valuers as the Code requires. Fair value and liquidation value are determined separately, with method and assumptions recorded for the committee of creditors and the tribunal. Our reports have been accepted by the Debts Recovery Tribunal and resolution professionals across Madhya Pradesh and Maharashtra, and we stand behind them when questioned.",
+    paragraph2:
+      "Timelines under the Code are short, and we sequence inspection, working papers and the signed report to meet the committee's calendar. Every assumption is written down, because a valuation that cannot be questioned cannot be relied on.",
     chips: ["CIRP", "Liquidation", "Resolution professionals"],
     /* TODO(client): confirm */
     keepReady: [
@@ -118,6 +122,8 @@ export const SERVICES = [
     plain: "Business valuation",
     paragraph:
       "Whole-business value for transactions, disputes and planning, using income, market and asset approaches as the situation requires. We state which approach carried the conclusion and why, so the number can be examined rather than taken on faith. Financials are read alongside the assets we physically verify, which is what separates a valuation from an estimate.",
+    paragraph2:
+      "Where the business holds land, buildings or machinery, the same registered valuers verify them in person. The business number is then built on asset values that have already been defended once.",
     chips: ["Transactions", "Disputes", "Succession planning"],
     /* TODO(client): confirm */
     keepReady: [
@@ -145,6 +151,8 @@ export const SERVICES = [
     plain: "Financial reporting valuation",
     paragraph:
       "Fair value measurements under Ind-AS and IFRS, with working papers prepared for the audit that follows. Auditors receive the basis of valuation, the inputs used and their sources, documented to be checked line by line. Reports are accepted by the Income Tax Department and statutory auditors.",
+    paragraph2:
+      "Working papers follow the same discipline as the report: each input carries its source, each adjustment its reason. When the auditor asks how a figure was reached, the answer is already on file.",
     chips: ["Ind-AS", "IFRS", "Audit support"],
     /* TODO(client): confirm */
     keepReady: [
@@ -172,6 +180,8 @@ export const SERVICES = [
     plain: "M&A support",
     paragraph:
       "Valuation support through mergers, acquisitions and restructuring: diligence on asset values, swap ratio workings and fairness opinions. Both sides of a transaction get the same rigour, a physically verified asset base and a stated method, signed by a registered valuer who answers for the number.",
+    paragraph2:
+      "Sensitive information moves under written confidentiality, and both sides receive identical documentation. Scope is agreed before work begins, so the opinion arrives when the deal needs it, not after.",
     chips: ["Diligence", "Swap ratios", "Fairness opinions"],
     /* TODO(client): confirm */
     keepReady: [

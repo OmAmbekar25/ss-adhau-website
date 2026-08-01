@@ -4,11 +4,16 @@ import { useEffect } from "react";
 
 /* Entrance-only. The page is otherwise still.
  *
- * Nothing here pins, nothing scrubs, nothing travels sideways, and no
- * canvas is mounted on this route — this is a document, and the motion's
- * whole job is to let it arrive rather than to be looked at. Every
- * scroll-triggered block fires ONCE at 20% of the viewport and is then
- * finished with.
+ * Nothing here pins and nothing travels sideways, and no canvas is
+ * mounted on this route — this is a document, and the motion's whole job
+ * is to let it arrive rather than to be looked at. Every block entrance
+ * fires ONCE at 20% of the viewport and is then finished with.
+ *
+ * The one scrubbed thing is the reading fill: the paragraphs' words go
+ * from the resting tone to full ink as the paragraph crosses the reading
+ * band. It is scrubbed rather than fired because it is tied to where the
+ * eye is, not to whether the block has arrived — and it is opacity only,
+ * so it never triggers layout.
  *
  * The armed states live in CSS under `.er-js`, so a failure to reach this
  * file leaves a complete static page rather than an invisible one.
@@ -30,10 +35,17 @@ export default function ServiceMotion() {
     if (!root) return;
 
     /* Reduced motion never loads the library at all: there is nothing for
-       it to do, and the armed states are simply dropped by removing the
-       class that armed them. */
+       it to do, the words sit at full opacity by a `!important` in the
+       stylesheet, and the armed states are dropped by removing the class
+       that armed them. */
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.remove("er-js");
+      /* The word split is server-rendered, because the server cannot know
+         this preference. With no fill to run there is nothing for it to
+         do, so it is unwrapped back to a single text node. */
+      root.querySelectorAll("[data-svc-read]").forEach((el) => {
+        el.textContent = el.textContent;
+      });
       return;
     }
 
@@ -149,6 +161,34 @@ function build(gsap, ScrollTrigger, root) {
           }
         });
       });
+
+    /* ---------------------- the reading fill --------------------- */
+    /* One trigger per paragraph. The words are already in the markup —
+       ReadingText splits on the server — so there is nothing to measure
+       and nothing to build here beyond the tween.
+
+       Begins when the paragraph's top reaches 85% of the viewport and is
+       complete by 45%: the fill runs slightly ahead of where the eye
+       lands, so a reader never catches up with it. */
+    root.querySelectorAll("[data-svc-read]").forEach((para) => {
+      const words = para.querySelectorAll("[data-w]");
+      if (!words.length) return;
+      gsap.fromTo(
+        words,
+        { opacity: 0.5 }, // the contrast floor, not the brief's 0.18 — see service.css
+        {
+          opacity: 1,
+          ease: "none",
+          stagger: { each: 0.01, from: "start" },
+          scrollTrigger: {
+            trigger: para,
+            start: "top 85%",
+            end: "top 45%",
+            scrub: true,
+          },
+        }
+      );
+    });
 
     ScrollTrigger.refresh();
   }, root);

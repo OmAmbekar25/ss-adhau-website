@@ -5,6 +5,7 @@ import {
   IBM_Plex_Mono,
   Fraunces,
   Geist_Mono,
+  Newsreader,
 } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
@@ -51,6 +52,38 @@ const geistMono = Geist_Mono({
   weight: ["400", "500", "600"],
   variable: "--font-geist-mono",
   display: "swap",
+});
+
+/* The third voice. The system was two — a display serif that speaks and a
+   mono that measures — and mono is a poor reading face at paragraph
+   length: uniform advance width defeats the word-shape recognition that
+   makes prose skimmable. Newsreader is the reading serif and nothing else;
+   see §15 for the restated lock.
+
+   Subset to latin, roman and italic at 400 only. No `axes`: next/font
+   rejects an axis list alongside a pinned weight, because naming axes
+   means taking the whole variable font and letting weight vary too. The
+   brief asks for 400 and 400 italic and nothing else, so the static cuts
+   are both the literal reading and the smaller download — Newsreader's
+   static instances are already drawn at a text optical size, which is
+   what pinning opsz was for. */
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-newsreader",
+  display: "swap",
+  /* Declared for the whole site but preloaded for none of it. Every font
+     in this layout is preloaded on every route, so `/studio` was
+     downloading all ten files and rendering with three — adding a reading
+     face made that worse rather than better. Without the preload link the
+     @font-face is still there and the browser fetches the file only when
+     something on the page actually sets a glyph in it: service pages get
+     it, everything else does not. The reading text sits below the hero
+     fold, so the later start costs nothing visible.
+     TODO: the same is true of Cormorant, Archivo and IBM Plex Mono on
+     these two routes — a sitewide change, out of scope here. */
+  preload: false,
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -168,7 +201,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} ${geistMono.variable} antialiased`}
+        className={`${plexSans.variable} ${newsreader.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} ${geistMono.variable} antialiased`}
       >
         <SmoothScroll>
           <ChromeGate>

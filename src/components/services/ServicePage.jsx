@@ -8,13 +8,13 @@ import {
 } from "@/components/studio/StudioChrome";
 import ServiceMotion from "./ServiceMotion";
 import ServicePicture, { ServiceHeroPreload } from "./ServicePicture";
+import ReadingText from "./ReadingText";
 import { PRACTICAL, nextOf } from "@/data/services";
 
 /* ONE template. Six payloads. No per-page fork.
  *
- * The only thing any page has that the others do not is a third image, and
- * that is data (`img3`), not a branch in the layout — real estate has one
- * and the block simply does not render for the other five.
+ * Every page is the same shape now, right down to the image count: hero
+ * plus one image, two reading paragraphs, no exceptions and no branches.
  *
  * The page mounts already in its service's colour world: `--hue` for the
  * things that are not text (the CTA border, hairline accents, the NEXT
@@ -105,13 +105,16 @@ export default function ServicePage({ service }) {
           />
         </div>
 
-        {/* --------------------------- paragraph -------------------- */}
+        {/* ------------------------- the reading -------------------- */}
+        {/* The text serif, and the only place on the page it appears. Not
+            wrapped in `data-svc-fade`: these paragraphs have their own
+            scrubbed fill and must not also be faded in as a block, or the
+            two would fight over the same opacity. */}
         <section className="er-svc__block" data-svc-block>
           <div className="er-wrap">
             <div className="er-svc__col">
-              <p className="er-body er-svc__para" data-svc-fade>
-                {service.paragraph}
-              </p>
+              <ReadingText text={service.paragraph} />
+              <ReadingText text={service.paragraph2} />
             </div>
           </div>
         </section>
@@ -172,28 +175,6 @@ export default function ServicePage({ service }) {
             </div>
           </div>
         </section>
-
-        {/* Real estate's third image. Data, not a layout fork: the other
-            five have no `img3` and this block does not exist for them. */}
-        {service.img3 && (
-          <section className="er-svc__block" data-svc-block>
-            <div className="er-wrap">
-              <div className="er-svc__col">
-                <figure className="er-svcfig er-svcfig--aside">
-                  <div className="er-svcfig__mask" data-svc-mask>
-                    <ServicePicture
-                      base={strip(service.img3.src)}
-                      alt={service.img3.alt}
-                      sizes="(max-width: 700px) 92vw, 640px"
-                      width={1600}
-                      height={2000}
-                    />
-                  </div>
-                </figure>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* ------------------------ practical line ------------------ */}
         <section className="er-svc__block" data-svc-block>
