@@ -81,13 +81,13 @@ function MapSvg({ active, staticAll = false }) {
     <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} className="h-full w-full">
       <defs>
         <linearGradient id="mj-fill" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#A9752E" />
-          <stop offset="100%" stopColor="#C89B52" />
+          <stop offset="0%" stopColor="#C9A25E" />
+          <stop offset="100%" stopColor="#D9BC8A" />
         </linearGradient>
       </defs>
 
-      <path d={MP_PATH} fill="#FFFFFF" stroke="#D8D5CC" strokeWidth="1" vectorEffect="non-scaling-stroke" />
-      <path d={MH_PATH} fill="#FBFAF7" stroke="#D8D5CC" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+      <path d={MP_PATH} fill="#EFEEEA" stroke="#CFCCC4" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+      <path d={MH_PATH} fill="#E7E5DF" stroke="#CFCCC4" strokeWidth="1" vectorEffect="non-scaling-stroke" />
 
       <path d={ROUTE_D} fill="none" stroke="url(#mj-fill)" strokeWidth="3" strokeLinecap="round" />
 
@@ -97,8 +97,8 @@ function MapSvg({ active, staticAll = false }) {
           <g key={LOCATIONS[i].city} transform={`translate(${p.x} ${p.y})`}>
             <circle
               r="6"
-              fill={lit ? "#A9752E" : "#F7F6F2"}
-              stroke={lit ? "#A9752E" : "#B9B5A9"}
+              fill={lit ? "#C9A25E" : "#EFEEEA"}
+              stroke={lit ? "#C9A25E" : "#AEAAA1"}
               strokeWidth="1.5"
             />
             {lit && (
@@ -114,7 +114,7 @@ function MapSvg({ active, staticAll = false }) {
             <text
               y="-14"
               textAnchor="middle"
-              style={{ fill: "#1D2D5C", fontSize: 13, fontWeight: 500 }}
+              style={{ fill: "#23252b", fontSize: 13, fontWeight: 500 }}
             >
               {LOCATIONS[i].city}
             </text>
@@ -129,7 +129,7 @@ function StaticMap() {
   return (
     <section className="bg-noir px-6 py-16 md:px-10">
       <div className="mx-auto max-w-7xl">
-        <div className="h-[70vh] overflow-hidden rounded-3xl border border-[rgba(242,239,233,0.12)] bg-[#F5F2EA]">
+        <div className="h-[70vh] overflow-hidden er-loc__sheet rounded-3xl border border-[rgba(242,239,233,0.12)] bg-[#F5F2EA]">
           <MapSvg staticAll active={N - 1} />
         </div>
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -309,7 +309,7 @@ function AnimatedMap() {
         <div ref={pinRef} className="relative h-screen overflow-hidden bg-noir">
           <div className="relative z-10 mx-auto grid h-full max-w-[1600px] grid-cols-[55%_45%] items-stretch">
             {/* Left — the 3D map */}
-            <div className="relative h-full overflow-hidden">
+            <div className="er-loc__gl relative h-full overflow-hidden">
               <div ref={glRef} className="absolute inset-0" />
               {/* projected city labels */}
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -337,11 +337,11 @@ function AnimatedMap() {
               <div className="mb-8 flex items-baseline gap-3">
                 <span
                   ref={counterRef}
-                  className="font-display text-4xl font-bold text-linen"
+                  className="mj-counter text-4xl font-bold text-linen"
                 >
                   01
                 </span>
-                <span className="text-lg text-fog">
+                <span className="mj-counter-of text-lg text-fog">
                   / {String(N).padStart(2, "0")}
                 </span>
               </div>
@@ -353,7 +353,11 @@ function AnimatedMap() {
                 Nine cities. Two states. One standard.
               </h2>
 
-              <div className="mt-10 max-w-lg" key={active}>
+              <div
+                className="mt-10 max-w-lg"
+                key={active}
+                aria-live="polite"
+              >
                 <div className="mj-card-in">
                   <OfficeCard loc={loc} />
                 </div>
@@ -390,7 +394,7 @@ function AnimatedMap() {
           Nine cities. Two states. One standard.
         </h2>
 
-        <div className="mt-8 h-72 overflow-hidden rounded-3xl border border-[rgba(242,239,233,0.12)] bg-[#F5F2EA]">
+        <div className="mt-8 h-72 overflow-hidden er-loc__sheet rounded-3xl border border-[rgba(242,239,233,0.12)] bg-[#F5F2EA]">
           <MapSvg staticAll active={mobileActive} />
         </div>
 

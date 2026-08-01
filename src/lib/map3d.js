@@ -21,9 +21,26 @@ import gsap from "gsap";
  */
 
 const DEPTH = 7;
-const GOLD = 0xa9752e;
-const GOLD_LIGHT = 0xc89b52;
-const CREAM = 0xfff3da;
+/* U-2 — the route travels in the site's accent, not the burnt orange it
+   was drawn in. `--accent` is #C9A25E; the highlight and the emissive are
+   the SAME hue lifted in lightness (hsl 36deg 50%, L 58 -> 72 -> 82)
+   rather than three warm colours that happen to sit near each other.
+   Timing, path and the ring pulses are untouched — this is pigment. */
+const GOLD = 0xc9a25e; // --accent
+/* The route's own emissive sits only one step above the accent, not three.
+   Lifted further (L 72/82%) the additive halo and the beacon light washed
+   the whole route to a pale yellow — the hue was right and the value was
+   not, which reads as a different colour. */
+const GOLD_LIGHT = 0x8f7238; // same hue, L 39%
+const CREAM = 0xc9a25e; // the accent itself — the station core
+const GLOW = 0x9c7d3f; // same hue, L 43% — every emissive on the route
+
+/* U-1 — the sheet's own white warms to the paper tone. The two states are
+   still two tones apart so the border reads without a line; both move onto
+   the #EFEEEA family the rest of the site's paper uses. Shapes, relief and
+   projection are untouched. */
+const PAPER = 0xefeeea;
+const PAPER_2 = 0xe7e5df;
 
 function ringToShape(ring) {
   const shape = new THREE.Shape();
@@ -75,8 +92,8 @@ export function createMap3D(container, { polyMP, polyMH, cityPts, labelEls }) {
     });
     return group;
   };
-  scene.add(buildState(polyMP, 0xffffff));
-  scene.add(buildState(polyMH, 0xf6f2e9));
+  scene.add(buildState(polyMP, PAPER));
+  scene.add(buildState(polyMH, PAPER_2));
 
   const lineMat = track(new THREE.LineBasicMaterial({ color: 0xd8d5cc }));
   [...polyMP, ...polyMH].forEach((ring) => {
@@ -151,7 +168,7 @@ export function createMap3D(container, { polyMP, polyMH, cityPts, labelEls }) {
   const coreMat = track(
     new THREE.MeshStandardMaterial({
       color: CREAM,
-      emissive: 0xe9c98f,
+      emissive: GLOW,
       emissiveIntensity: 1.1,
       roughness: 0.3,
     })
@@ -178,7 +195,7 @@ export function createMap3D(container, { polyMP, polyMH, cityPts, labelEls }) {
     track(
       new THREE.MeshStandardMaterial({
         color: CREAM,
-        emissive: 0xe9c98f,
+        emissive: GLOW,
         emissiveIntensity: 1.7,
         roughness: 0.15,
       })

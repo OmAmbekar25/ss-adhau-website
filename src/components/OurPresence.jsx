@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SHOW_DISTANCE_FACTS, FACTS } from "@/data/locationFacts";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -579,16 +580,16 @@ export function OfficeCard({ loc }) {
     : ["Service area", "On-site inspections", "Served from our offices"];
 
   return (
-    <div className="rounded-3xl border border-[rgba(242,239,233,0.12)] bg-white/[0.04] p-7 backdrop-blur-xl">
+    <div className="mj-card rounded-3xl border border-[rgba(242,239,233,0.12)] bg-white/[0.04] p-7 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-brass">
+          <p className="mj-card__eyebrow text-xs font-semibold uppercase tracking-[0.3em] text-brass">
             {isOffice ? "Office" : "Service area"}
           </p>
-          <h3 className="mt-1 text-3xl text-linen">
+          <h3 className="mj-card__city mt-1 text-3xl text-linen">
             {loc.city}
           </h3>
-          <p className="text-sm text-fog">{loc.region}</p>
+          <p className="mj-card__state text-sm text-fog">{loc.region}</p>
         </div>
         {/* photo placeholder */}
         <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-brass/10 text-brass/60">
@@ -602,18 +603,26 @@ export function OfficeCard({ loc }) {
         {chips.map((c) => (
           <span
             key={c}
-            className="rounded-full bg-white/[0.06] px-3 py-1 text-[11px] font-medium text-fog"
+            className="mj-card__chip rounded-full bg-white/[0.06] px-3 py-1 text-[11px] font-medium text-fog"
           >
             {c}
           </span>
         ))}
       </div>
 
-      <div className="mt-5 space-y-3 text-sm leading-relaxed text-fog">
+      {/* U-4 (optional, additive) — the distance fact. Off unless the flag
+          in src/data/locationFacts.js is switched on; every value there is
+          TODO(client-verify) and renders with "≈", so nothing claims to
+          be measured. Purely additional: no existing line moves. */}
+      {SHOW_DISTANCE_FACTS && !isOffice && FACTS[loc.city] ? (
+        <p className="mj-card__fact">{FACTS[loc.city]}</p>
+      ) : null}
+
+      <div className="mj-card__meta mt-5 space-y-3 text-sm leading-relaxed text-fog">
         {isOffice ? (
-          <p>{loc.address}</p>
+          <p className="mj-card__body">{loc.address}</p>
         ) : (
-          <p>
+          <p className="mj-card__body">
             Site inspections and valuations conducted on location, serviced
             from our Nagpur and Chhindwara offices.
           </p>
@@ -637,9 +646,10 @@ export function OfficeCard({ loc }) {
         href={mapHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-6 inline-flex h-10 items-center justify-center rounded-full border border-brass/60 px-5 text-xs font-semibold text-brass transition hover:bg-brass hover:text-noir"
+        className="mj-card__maps mt-6 inline-flex h-10 items-center justify-center rounded-full border border-brass/60 px-5 text-xs font-semibold text-brass transition hover:bg-brass hover:text-noir"
       >
         View on Google Maps
+        <span aria-hidden="true"> →</span>
       </a>
     </div>
   );
