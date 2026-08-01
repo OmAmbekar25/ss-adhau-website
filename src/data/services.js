@@ -288,7 +288,7 @@ export const ALSO_IN_SCOPE = [
   },
 ];
 
-/* Every figure is already on /studio's record section, which is where the
+/* Every figure is already on the home page's record section, which is where the
    row links. Nothing here is estimated. */
 export const PROOF = [
   { figure: "02", label: "Offices" },

@@ -1,7 +1,10 @@
-/* The firm's five process steps, shared by the two places that tell the
-   story: the homepage journey (`ValuationJourney`) and the studio page
-   (`StudioJourney`). One source, so the two can never drift apart.
-   Order matters — it maps 1:1 onto the five forms in lib/reportScene.js. */
+/* The firm's five process steps.
+   Two places told this story and one of them is gone: `ValuationJourney`
+   and its `lib/reportScene.js` were deleted with the legacy home page, so
+   the home page's `StudioJourney` is now the only reader. The file stays
+   as data rather than being folded into the component — the steps are the
+   firm's process, not one section's copy.
+   Order matters — it maps 1:1 onto the five forms in lib/studioScene.js. */
 
 const valuationBeats = [
   {

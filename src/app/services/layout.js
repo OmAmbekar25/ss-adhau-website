@@ -3,7 +3,7 @@ import { Newsreader } from "next/font/google";
 /* The third voice, declared for the routes that actually read.
  *
  * It began in the root layout, where every font is preloaded on every
- * route — `/studio` was downloading a reading face it never sets a glyph
+ * route — the home page was downloading a reading face it never sets a glyph
  * in. Turning the preload off fixed that and broke something else: without
  * it the file arrives after first paint, and the swap reflowed the intro
  * paragraph badly enough to put 0.127 of layout shift on a page that had

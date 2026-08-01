@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import Link from "next/link";
-import "@/app/studio/studio.css";
+import "@/app/studio.css";
 import "./register.css";
 import {
   StudioHeader,
@@ -58,17 +58,12 @@ function jsonLd() {
       provider: { "@id": `${SITE}/#organization` },
     })),
   ];
+  /* The Organization itself is emitted by the root layout on every page
+     (M-4), so this graph references it by @id rather than restating it —
+     two definitions of one node is how they drift apart. */
   return {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Organization",
-        "@id": `${SITE}/#organization`,
-        name: "S S Adhau Valuers & Engineers",
-        url: SITE,
-        telephone: PHONE,
-        areaServed: CITIES.map((c) => ({ "@type": "City", name: c })),
-      },
       {
         "@type": "ItemList",
         name: "Valuation and engineering services",
@@ -292,12 +287,12 @@ export default function ServicesRegister() {
 
         {/* ---------------------------- proof ----------------------- */}
         {/* No "Why Choose Us". Four facts already on the record, linking
-            to the section of /studio that sets them out. */}
+            to the section of the home page that sets them out. */}
         <section className="er-reg__block er-reg__block--proof" data-svc-block>
           <div className="er-wrap">
             <Link
               className="er-label er-regproof"
-              href="/studio#er-record"
+              href="/#er-record"
               data-svc-fade
             >
               <span>

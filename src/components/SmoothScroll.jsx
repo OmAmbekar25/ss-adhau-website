@@ -10,6 +10,12 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+/* The one instance, exposed so anything that needs to MOVE the page moves
+   it through Lenis rather than around it — see HashScroll. Null under
+   reduced motion, where there is no Lenis and a native scroll is right. */
+let instance = null;
+export const getLenis = () => instance;
+
 export default function SmoothScroll({ children }) {
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -22,6 +28,7 @@ export default function SmoothScroll({ children }) {
        noticeable piece of motion on the site, so it is tuned deliberately:
        0.075 reads as weight, not as lag. */
     const lenis = new Lenis({ autoRaf: false, lerp: 0.075 });
+    instance = lenis;
     lenis.on("scroll", ScrollTrigger.update);
 
     const syncWithGsap = (time) => lenis.raf(time * 1000);
@@ -31,6 +38,7 @@ export default function SmoothScroll({ children }) {
     return () => {
       gsap.ticker.remove(syncWithGsap);
       lenis.destroy();
+      instance = null;
     };
   }, []);
 

@@ -11,6 +11,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import SmoothScroll from "../components/SmoothScroll";
 import ChromeGate from "../components/ChromeGate";
+import HashScroll from "../components/HashScroll";
 
 // Hero typography (v3 design language) — self-hosted at build by next/font
 const cormorant = Cormorant_Garamond({
@@ -102,6 +103,23 @@ export const metadata = {
   },
 };
 
+/* M-4 — the Organization node lives in the root layout, so every page
+   carries it and anything that references `#organization` by @id (the
+   services register's ItemList, for one) resolves against a node the
+   document actually contains. The LocalBusiness below stays: it is the
+   thing with two street addresses, opening hours and a phone number, and
+   Organization is the thing everything else points at. */
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
+  name: "S S Adhau Valuers & Engineers",
+  url: SITE_URL,
+  email: "ssadhauvaluers@gmail.com",
+  telephone: "+91-8793000929",
+  logo: `${SITE_URL}/images/mark-white.png`,
+};
+
 const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "ProfessionalService",
@@ -158,10 +176,14 @@ const localBusinessSchema = {
 
 export default function RootLayout({ children }) {
   return (
-    // suppressHydrationWarning: the studio page's pre-paint script writes
+    // suppressHydrationWarning: the home page's pre-paint script writes
     // classes onto <html> before hydration — intentional, not a mismatch.
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
@@ -171,6 +193,7 @@ export default function RootLayout({ children }) {
         className={`${plexSans.variable} ${cormorant.variable} ${fraunces.variable} ${archivo.variable} ${plexMono.variable} ${geistMono.variable} antialiased`}
       >
         <SmoothScroll>
+          <HashScroll />
           <ChromeGate>
             <Navbar />
           </ChromeGate>

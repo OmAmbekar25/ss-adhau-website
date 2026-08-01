@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import "@/app/studio/studio.css";
+import "@/app/studio.css";
 import "./service.css";
 import ServicePage from "@/components/services/ServicePage";
 import { SERVICES, bySlug } from "@/data/services";
@@ -35,40 +35,15 @@ export async function generateMetadata({ params }) {
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.ssadhauvaluers.com";
 
-/* Organization + Service, with the phone number on both, so the entity and
-   the offering are linked rather than described twice. Every claim here is
-   already on the page — nothing is asserted in structured data that a
-   reader cannot also see. */
+/* Service only. The Organization it names as provider is emitted by the
+   root layout on every page (M-4), with the same `#organization` @id — so
+   this graph points at that node instead of restating the firm's name,
+   phone and two addresses on six more pages, which is six more places for
+   them to drift out of date. */
 function jsonLd(s) {
-  const org = {
-    "@type": "Organization",
-    "@id": `${SITE}/#organization`,
-    name: "S S Adhau Valuers & Engineers",
-    url: SITE,
-    telephone: PHONE,
-    address: [
-      {
-        "@type": "PostalAddress",
-        streetAddress: "Manish Nagar",
-        addressLocality: "Nagpur",
-        postalCode: "440015",
-        addressRegion: "Maharashtra",
-        addressCountry: "IN",
-      },
-      {
-        "@type": "PostalAddress",
-        streetAddress: "Parasia Road",
-        addressLocality: "Chhindwara",
-        postalCode: "480001",
-        addressRegion: "Madhya Pradesh",
-        addressCountry: "IN",
-      },
-    ],
-  };
   return {
     "@context": "https://schema.org",
     "@graph": [
-      org,
       {
         "@type": "Service",
         "@id": `${SITE}/services/${s.slug}#service`,

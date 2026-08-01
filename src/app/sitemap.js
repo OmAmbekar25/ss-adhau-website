@@ -1,3 +1,5 @@
+import { SERVICES } from "@/data/services";
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.ssadhauvaluers.com";
 
 const teamSlugs = [
@@ -25,6 +27,18 @@ export default function sitemap() {
     })
   );
 
+  /* The six practice pages have been live since they shipped and were
+     never listed — `/services` was in the map, the pages it links to were
+     not. `/studio` never appeared here at all, so the route move needs
+     nothing removed: "" IS the promoted page now, and it was already
+     carrying priority 1. */
+  const serviceRoutes = SERVICES.map((s) => ({
+    url: `${SITE_URL}/services/${s.slug}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   const teamRoutes = teamSlugs.map((slug) => ({
     url: `${SITE_URL}/team/${slug}`,
     lastModified: new Date().toISOString(),
@@ -32,5 +46,5 @@ export default function sitemap() {
     priority: 0.5,
   }));
 
-  return [...staticRoutes, ...teamRoutes];
+  return [...staticRoutes, ...serviceRoutes, ...teamRoutes];
 }
