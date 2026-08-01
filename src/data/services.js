@@ -243,38 +243,47 @@ export const CITIES = [
 export const ALSO_IN_SCOPE = [
   {
     title: "Agricultural land valuation",
+    glyph: "agricultural",
     desc: "Soil class, irrigation and location, valued for acquisition, conversion and finance.",
   },
   {
     title: "Specialized assets",
+    glyph: "specialized",
     desc: "Infrastructure, utilities and purpose-built properties valued on inspection and use.",
   },
   {
     title: "Fairness opinions",
+    glyph: "fairness",
     desc: "Independent opinions for related-party and structured transactions, signed and defended.",
   },
   {
     title: "Valuation for insurance",
+    glyph: "insurance",
     desc: "Reinstatement and indemnity values with the schedules insurers ask for.",
   },
   {
     title: "Regulatory valuations",
+    glyph: "regulatory",
     desc: "Income Tax, Company Law and other statutory requirements, formatted to the rule that asks.",
   },
   {
     title: "Litigation support",
+    glyph: "litigation",
     desc: "Reports and testimony for disputes, arbitration and court proceedings.",
   },
   {
     title: "Chartered Engineer certificates",
+    glyph: "certificates",
     desc: "CE certification for statutory, banking and regulatory needs.",
   },
   {
     title: "Project cost estimation & vetting",
+    glyph: "project",
     desc: "Independent build-up and review of project costs at every stage.",
   },
   {
     title: "Architectural & structural consulting",
+    glyph: "architectural",
     desc: "Planning, design development and technical documentation.",
   },
 ];

@@ -170,6 +170,54 @@ function build(gsap, ScrollTrigger, root) {
       );
     });
 
+    /* ------------------- the scope ledger's rules ---------------- */
+    /* R-11 — these do NOT fade in, they are ruled. Each half of each rule
+       is scrubbed from the gutter outward between the rule's entry at 92%
+       of the viewport and 65%, so the act of scrolling is what draws the
+       line. Transform only, one trigger per rule (not per half), and the
+       guard means the service pages, which have no ledger, build nothing.
+
+       Scrubbed rather than fired because the client's ask was that the
+       scroll rule the ledger — a fired tween would run at its own speed
+       regardless of how the reader moved, which is the opposite. */
+    root.querySelectorAll("[data-ledger-rule]").forEach((rule) => {
+      /* the between-items rule is `display: none` above 820, and a
+         trigger on a box with no rects has nothing to measure against */
+      if (!rule.getClientRects().length) return;
+      gsap.fromTo(
+        rule.querySelectorAll("i"),
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: rule,
+            start: "top 92%",
+            end: "top 65%",
+            scrub: true,
+          },
+        }
+      );
+    });
+
+    /* -------------------- the glyphs draw themselves ------------- */
+    /* R-10 — 0.8s on the entrance curve, once, when the row arrives.
+       Fired rather than scrubbed: the glyph is the row announcing
+       itself, and it should look the same however fast the reader is
+       travelling. */
+    root.querySelectorAll("[data-ledger-item]").forEach((item) => {
+      const paths = item.querySelectorAll("[data-glyph] path");
+      if (!paths.length) return;
+      once(item, () => {
+        gsap.to(paths, {
+          strokeDashoffset: 0,
+          duration: 0.8,
+          ease: ENTER,
+          stagger: 0.04,
+        });
+      });
+    });
+
     ScrollTrigger.refresh();
   }, root);
 }

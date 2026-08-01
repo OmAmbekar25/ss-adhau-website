@@ -20,6 +20,19 @@
 .er-reg__block {
   padding-block: clamp(64px, 9vh, 96px);
 }
+/* R-12 — the dead space under the closing row was two paddings meeting:
+   this block's bottom and the proof block's top, ~162px of nothing at
+   1440. One of them sets the clearance now, and it is exactly 96px. */
+.er-reg__block--close {
+  padding-bottom: 96px;
+}
+.er-reg__block--proof {
+  padding-top: 0;
+  /* and the same 96px is the page's clearance above the footer, rather
+     than a viewport-relative clamp that read as 81px at 1440 and 96 at
+     1500 — the clearance either is the measure or it is not */
+  padding-bottom: 96px;
+}
 
 /* -------------------------------- hero -------------------------------- */
 /* R-1 — two columns, so nothing floats in empty space.
@@ -264,65 +277,157 @@
   color: var(--row-hue-text);
 }
 
-/* --------------------------- also in scope ---------------------------- */
+/* ---------------------------- the scope ledger ------------------------ */
+/* R-9 — ONE grid owns both columns. The previous section was two
+   independent stacks of bordered list items, and two stacks drift: the
+   moment a description on the left wrapped to a third line, every rule
+   below it fell out of step with its neighbour. Here the rule is a row of
+   the same grid, so the hairline under the left item and the hairline
+   under the right item are one rule with the gutter cut out of it. */
 
-.er-reglist {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--hairline);
+.er-ledger {
   display: grid;
   grid-template-columns: 1fr;
 }
 @media (min-width: 820px) {
-  .er-reglist {
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: min-content;
-    column-gap: clamp(32px, 5vw, 72px);
+  .er-ledger {
+    grid-template-columns: 1fr 96px 1fr;
+  }
+  .er-ledger__item[data-side="l"] {
+    grid-column: 1;
+  }
+  .er-ledger__item[data-side="r"] {
+    grid-column: 3;
   }
 }
-/* R-6 — the two columns start level and every item is spaced the same.
-   `grid-auto-rows: min-content` stops a tall item in one column from
-   stretching its neighbour, which is what made the tops drift apart. */
-.er-reglist li {
-  border-bottom: 1px solid var(--hairline);
-  padding: 20px 0 20px; /* 40px between items, split across the hairline */
+
+.er-ledger__item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 18px;
+  padding-block: 40px;
 }
-.er-reglist__t {
-  margin: 0 0 8px;
-  font-weight: 500;
-  color: var(--ink);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 15px;
-  line-height: 1.3;
-}
-.er-reglist__d {
-  margin: 0;
+/* the glyph is baseline-aligned to the title, not centred on the block —
+   a drawing that floats level with the middle of a two-line paragraph
+   reads as decoration; one that sits on the title reads as its mark */
+.er-ledger__glyph {
   color: var(--ink-dim);
-  font-size: 13px;
+  overflow: visible;
+  /* the cap height of the 19px title, so the 24px box sits on its line */
+  margin-top: -2px;
+  transition: color 0.4s var(--micro);
+}
+.er-ledger__item:hover .er-ledger__glyph,
+.er-ledger__item:focus-within .er-ledger__glyph {
+  color: var(--ink);
+}
+
+/* R-8 — the type repair. This section was tracked caps from top to
+   bottom: nine titles and nine descriptions, all `.er-label`. The lock
+   reserves tracked uppercase for labels of four words or fewer, and
+   "Architectural & structural consulting" is not a label — it is a name,
+   and the line under it is prose. So the title takes the mono at reading
+   weight in sentence case, and the description takes the reading face
+   the service pages already use. Only the eyebrow above and the closing
+   line stay in the label voice. */
+.er-ledger__t {
+  margin: 0 0 10px;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 19px;
+  line-height: 1.3;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+}
+.er-ledger__d {
+  margin: 0;
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-size: 16.5px;
   line-height: 1.65;
   letter-spacing: 0;
   text-transform: none;
-  max-width: 44ch;
+  color: var(--ink-dim);
+  max-width: 40ch;
+  text-wrap: pretty;
 }
 
-/* R-6 — one row: the line on the left, the button on the right, sharing a
-   baseline rather than a centre line, so the sentence sits ON the button's
-   text rather than floating beside its box. */
+/* --- the rule itself --- */
+.er-ledger__rule {
+  display: flex;
+  gap: 96px;
+  grid-column: 1 / -1;
+  height: 1px;
+}
+.er-ledger__rule--head {
+  gap: 0;
+  margin-bottom: clamp(28px, 4vh, 40px);
+}
+.er-ledger__rule i {
+  flex: 1 1 0;
+  height: 1px;
+  background: var(--hairline);
+}
+/* R-11 — each half grows away from the gutter, so the rule is drawn
+   outward from the centre in both directions at once */
+.er-ledger__rule i:first-child {
+  transform-origin: right center;
+}
+.er-ledger__rule i:last-child {
+  transform-origin: left center;
+}
+/* Above 820 the pair's two items are side by side and share the rule
+   under them, so the between-items rule is not laid out at all. */
+.er-ledger__rule--mid {
+  display: none;
+}
+@media (max-width: 819px) {
+  /* one column: no gutter to draw away from, so the rule is one piece
+     drawn from its left edge */
+  .er-ledger__rule {
+    gap: 0;
+  }
+  .er-ledger__rule--mid {
+    display: flex;
+  }
+  .er-ledger__rule i:first-child {
+    flex: 0 0 0;
+  }
+  .er-ledger__rule i:last-child {
+    transform-origin: left center;
+  }
+}
+
+/* R-6 / R-12 — one hairline-topped row: the line on the left, the button
+   on the right, sharing a baseline rather than a centre line, so the
+   sentence sits ON the button's text rather than floating beside its box.
+   Nothing below the button — the dead space under it was this block's
+   own bottom padding stacking on the next block's top padding, ~162px of
+   nothing at 1440. The clearance below is set once, by the next block. */
 .er-regclose {
   display: flex;
   flex-wrap: wrap;
   align-items: last baseline;
   justify-content: space-between;
   gap: clamp(20px, 4vw, 44px);
-  padding-top: clamp(44px, 6vh, 64px);
+  border-top: 1px solid var(--hairline-hi);
+  margin-top: clamp(44px, 6vh, 64px);
+  padding-top: clamp(36px, 5vh, 48px);
 }
+/* R-12 — a sentence in the reading face, italic, at the size of
+   something meant to be read rather than scanned */
 .er-regclose__line {
   margin: 0;
-  color: var(--ink-dim);
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
   max-width: 34ch;
-  line-height: 1.7;
 }
 .er-regclose__cta {
   display: inline-flex;
@@ -337,6 +442,16 @@
   transition:
     background-color 0.4s var(--micro),
     border-color 0.4s var(--micro);
+}
+/* the label and the number are each unbreakable; at 390 the pair no
+   longer wraps as "SPEAK TO A / VALUER · +91 8793 000 / 929" */
+.er-regclose__cta {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.er-regclose__cta b {
+  font-weight: inherit;
+  white-space: nowrap;
 }
 .er-regclose__cta:hover,
 .er-regclose__cta:focus-visible {
@@ -379,6 +494,11 @@
 }
 
 /* --------------------------- entrance states -------------------------- */
+/* Armed in CSS, released by JS. Every armed state below is inside
+   `.er-js`, which the inline script adds only when reduced motion is NOT
+   asked for and which the motion module removes if it is — so a page that
+   never reaches the module, or a reader who has asked for stillness, gets
+   the finished section rather than an invisible one. */
 
 .er-js .er-reg [data-svc-fade] {
   opacity: 0;
@@ -386,4 +506,38 @@
 }
 .er-js .er-reg [data-svc-rule] {
   transform: scaleX(0);
+}
+/* R-11 — the rules start unruled */
+.er-js .er-reg [data-ledger-rule] i {
+  transform: scaleX(0);
+  will-change: transform;
+}
+/* R-10 — and the glyphs start undrawn. `pathLength="1"` makes one dash
+   array right for all nine paths whatever their real length, so the
+   pylon and the umbrella draw at the same rate. */
+.er-js .er-reg [data-glyph] path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+/* The hover redraw. A keyframe rather than a transition because it runs
+   once and returns, and because a CSS animation outranks the inline
+   `stroke-dashoffset: 0` the entrance leaves behind. */
+@keyframes er-glyph-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.er-ledger__item:hover [data-glyph] path,
+.er-ledger__item:focus-within [data-glyph] path {
+  animation: er-glyph-draw 0.4s var(--enter) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-ledger__item:hover [data-glyph] path,
+  .er-ledger__item:focus-within [data-glyph] path {
+    animation: none;
+  }
 }

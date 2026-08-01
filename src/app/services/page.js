@@ -11,6 +11,7 @@ import {
 import ServiceMotion from "@/components/services/ServiceMotion";
 import ReadingText from "@/components/services/ReadingText";
 import RegisterRows from "@/components/services/RegisterRows";
+import ScopeGlyph from "@/components/services/ScopeGlyph";
 import {
   SERVICES,
   ALSO_IN_SCOPE,
@@ -79,6 +80,30 @@ function jsonLd() {
       },
     ],
   };
+}
+
+/* Two items to a row, and the odd one out keeps the left column. */
+function pairs(list) {
+  const out = [];
+  for (let i = 0; i < list.length; i += 2) out.push(list.slice(i, i + 2));
+  return out;
+}
+
+/* The rule is two halves that grow apart from the gutter, which is what
+   makes it read as being ruled rather than faded in. The 96px gap between
+   them is the grid's own middle track, so the rule breaks exactly where
+   the columns do. The head rule closes the gap to nothing. */
+function Rule({ head = false, mid = false }) {
+  const cls =
+    "er-ledger__rule" +
+    (head ? " er-ledger__rule--head" : "") +
+    (mid ? " er-ledger__rule--mid" : "");
+  return (
+    <span className={cls} data-ledger-rule aria-hidden="true">
+      <i />
+      <i />
+    </span>
+  );
 }
 
 export default function ServicesRegister() {
@@ -198,25 +223,56 @@ export default function ServicesRegister() {
 
         {/* --------------------- also within scope ------------------ */}
         <section
-          className="er-reg__block"
+          className="er-reg__block er-reg__block--close"
           data-svc-block
           aria-labelledby="er-reg-also"
         >
           <div className="er-wrap">
+            {/* R-11 — the section's head rule draws like the ledger's
+                own, and is the only one without a gap: a gap belongs to a
+                pair of columns, and this rule heads the whole section. */}
+            <Rule head />
             <h2 id="er-reg-also" className="er-label" data-svc-fade>
               Also within scope
             </h2>
-            <ul className="er-reglist">
-              {ALSO_IN_SCOPE.map((s) => (
-                <li key={s.title} data-svc-fade>
-                  <p className="er-label er-reglist__t">{s.title}</p>
-                  <p className="er-label er-reglist__d">{s.desc}</p>
-                </li>
+
+            {/* R-9 — one grid owns both columns, so the rule under the
+                left item and the rule under the right item are the same
+                rule. Two stacks of bordered list items drift apart the
+                moment one description wraps; a ledger cannot. */}
+            <div className="er-ledger">
+              {pairs(ALSO_IN_SCOPE).map((pair) => (
+                <Fragment key={pair[0].title}>
+                  {pair.map((s, i) => (
+                    <Fragment key={s.title}>
+                      <div
+                        className="er-ledger__item"
+                        data-side={i === 0 ? "l" : "r"}
+                        data-ledger-item
+                      >
+                        <ScopeGlyph name={s.glyph} />
+                        <div>
+                          <p className="er-ledger__t">{s.title}</p>
+                          <p className="er-ledger__d">{s.desc}</p>
+                        </div>
+                      </div>
+                      {/* Stacked, the pair's two items are vertical
+                          neighbours with only the pair's own rule under
+                          the second — so the first would run into the
+                          second unruled. This rule exists for that case
+                          and is not laid out at all above 820. */}
+                      {i === 0 && pair.length === 2 ? <Rule mid /> : null}
+                    </Fragment>
+                  ))}
+                  <Rule />
+                </Fragment>
               ))}
-            </ul>
+            </div>
 
             <div className="er-regclose">
-              <p className="er-label er-regclose__line" data-svc-fade>
+              {/* R-12 — a sentence, so it is set in the reading face and
+                  not in the label's tracked caps */}
+              <p className="er-regclose__line" data-svc-fade>
                 If it can be inspected, it can be valued.
               </p>
               <a
@@ -224,9 +280,11 @@ export default function ServicesRegister() {
                 href={PHONE_HREF}
                 data-svc-fade
               >
-                Speak to a valuer
+                {/* two unbreakable halves: the line may break between
+                    them, never inside "Speak to a valuer" or the number */}
+                <b>Speak to a valuer</b>
                 <span aria-hidden="true">·</span>
-                {PHONE}
+                <b>{PHONE}</b>
               </a>
             </div>
           </div>
@@ -235,7 +293,7 @@ export default function ServicesRegister() {
         {/* ---------------------------- proof ----------------------- */}
         {/* No "Why Choose Us". Four facts already on the record, linking
             to the section of /studio that sets them out. */}
-        <section className="er-reg__block" data-svc-block>
+        <section className="er-reg__block er-reg__block--proof" data-svc-block>
           <div className="er-wrap">
             <Link
               className="er-label er-regproof"
