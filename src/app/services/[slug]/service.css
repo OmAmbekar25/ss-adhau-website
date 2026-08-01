@@ -1,0 +1,370 @@
+/* ==========================================================================
+   SERVICE PAGES — /services/[slug]
+   Everything here sits under `.er`, so the locked system in studio.css is
+   the system: tokens, the two-voice type lock, the two motion curves. This
+   file adds layout for one document shape and invents nothing.
+
+   Character: a quiet, classic document. Generous space, hairlines, one
+   image talking at a time. No canvas, no pins, no horizontal travel.
+   ========================================================================== */
+
+.er-svc {
+  /* --hue / --hue-text are written per page from the service payload; they
+     are the same locked pair as the showcase's colour worlds. The raw hue
+     is for non-text only. */
+  --hue: var(--ink);
+  --hue-text: var(--ink);
+}
+
+/* The reading column. Text holds 720px, images are allowed out to 960 —
+   the picture may be wider than the argument, but not by much. */
+.er-svc__col {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+.er-svc__wide {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+/* Vertical rhythm: 128-160px between blocks, and nothing tighter. */
+.er-svc__block {
+  padding-block: clamp(72px, 11vh, 80px);
+}
+
+/* ------------------------------- hero ------------------------------- */
+
+.er-svchero {
+  position: relative;
+  width: 100%;
+  height: 72svh;
+  min-height: 420px;
+  overflow: hidden;
+  /* the graded image's own blacks dissolve into the page rather than
+     ending at an edge */
+  background: var(--bg);
+}
+.er-svchero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  will-change: transform;
+}
+/* the bottom third fades to the page, so the type below sits on graphite
+   and not on photograph */
+.er-svchero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(21, 21, 21, 0.35) 0%,
+    rgba(21, 21, 21, 0.15) 32%,
+    rgba(21, 21, 21, 0.82) 78%,
+    var(--bg) 100%
+  );
+}
+/* The colour-world handoff from the slide. It is a real element rather
+   than a keyframe on the image because it has to sit ABOVE the photograph
+   and below the type, and it must be removable under reduced motion
+   without touching anything else. */
+.er-svchero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--hue);
+  opacity: 0;
+}
+.er-svchero__body {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: clamp(28px, 5vh, 56px);
+}
+.er-svchero__n {
+  display: block;
+  color: var(--hue-text);
+  margin-bottom: clamp(12px, 2vh, 20px);
+}
+/* The one serif on the page — the locked exception, above the 52px cap. */
+.er-svchero__t {
+  margin: 0;
+  font-size: clamp(48px, 6vw, 88px);
+  line-height: 1.04;
+  color: var(--ink);
+}
+
+/* the hairline under the band */
+.er-svchero__rule {
+  display: block;
+  height: 1px;
+  background: var(--hairline-hi);
+  transform-origin: left center;
+}
+
+/* ---------------------------- the paragraph -------------------------- */
+
+.er-svc__para {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.8;
+  max-width: 62ch;
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+/* -------------------------------- chips ------------------------------ */
+
+.er-svc__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 14px;
+  row-gap: 12px;
+}
+/* separators are drawn, not typed, so they never end a line */
+.er-svc__chips li + li::before {
+  content: "·";
+  margin-right: 14px;
+  color: var(--hairline-hi);
+}
+.er-svc__chips li {
+  color: var(--ink-dim);
+}
+
+/* ------------------------------- images ------------------------------ */
+
+/* `margin: 0` here would beat the `margin-inline: auto` on `.er-svc__wide`
+   — same specificity, declared later — and the picture would sit hard
+   against the left gutter instead of centred. Only the block margins are
+   zeroed. */
+.er-svcfig {
+  margin-block: 0;
+  margin-inline: auto;
+  position: relative;
+}
+.er-svcfig__mask {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--hairline);
+  background: var(--bg-deep);
+  /* the standard two-layer shadow */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 28px 60px rgba(0, 0, 0, 0.42);
+}
+.er-svcfig__mask img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+/* Grain, as everywhere else: one repeating SVG, no second image request. */
+.er-svcfig__mask::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.13;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.55'/></svg>");
+  background-size: 140px 140px;
+}
+/* Real estate's third image: narrower, and hung off the right edge of the
+   READING column, not the 960 image box — against the measure the eye is
+   already following, so it reads as an aside to the text rather than as a
+   second full-width plate that happens to be small. */
+.er-svcfig--aside {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* ---------------------------- keep ready ----------------------------- */
+
+.er-svcdisc {
+  border-top: 1px solid var(--hairline-hi);
+}
+.er-svcdisc__sum {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  padding: 22px 0;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  /* 44px minimum target, met by the padding above */
+}
+.er-svcdisc__sum::-webkit-details-marker {
+  display: none;
+}
+.er-svcdisc__sign {
+  display: inline-block;
+  color: var(--hue-text);
+  transition: transform 0.3s var(--micro);
+}
+.er-svcdisc[open] .er-svcdisc__sign {
+  transform: rotate(45deg);
+}
+/* grid-template-rows 0fr -> 1fr is the only way to transition to a height
+   the content decides */
+.er-svcdisc__wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s var(--micro);
+}
+.er-svcdisc[open] .er-svcdisc__wrap {
+  grid-template-rows: 1fr;
+}
+.er-svcdisc__inner {
+  overflow: hidden;
+}
+.er-svcdisc__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 12px;
+}
+.er-svcdisc__list li {
+  border-top: 1px solid var(--hairline);
+  padding: 16px 0;
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* --------------------------- practical line -------------------------- */
+
+.er-svc__practical {
+  margin: 0;
+  color: var(--ink-dim);
+  line-height: 1.9;
+}
+
+/* --------------------------------- CTA ------------------------------- */
+
+.er-svc__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 3vw, 34px);
+}
+.er-svc__call {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 26px;
+  border: 1px solid var(--hue);
+  border-radius: 2px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background-color 0.4s var(--micro);
+}
+.er-svc__call:hover,
+.er-svc__call:focus-visible {
+  background: color-mix(in srgb, var(--hue) 18%, transparent);
+}
+.er-svc__wa {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* a finger, not a line-height */
+  color: var(--ink-dim);
+  text-decoration: none;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--hairline);
+  transition: color 0.35s var(--micro), border-color 0.35s var(--micro);
+}
+.er-svc__wa:hover,
+.er-svc__wa:focus-visible {
+  color: var(--ink);
+  border-bottom-color: var(--hue);
+}
+
+/* ------------------------------ next row ----------------------------- */
+
+.er-svcnext {
+  display: block;
+  border-top: 1px solid var(--hairline-hi);
+  padding: clamp(30px, 5vh, 48px) 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.er-svcnext__line {
+  display: inline-block;
+  /* the NEXT service's hue, so the loop is already signalling where it
+     goes before the visitor arrives */
+  border-bottom: 1px solid var(--next-hue, var(--hairline));
+  padding-bottom: 6px;
+  transition: opacity 0.35s var(--micro);
+}
+.er-svcnext:hover .er-svcnext__line,
+.er-svcnext:focus-visible .er-svcnext__line {
+  opacity: 0.72;
+}
+
+/* --------------------------- entrance states ------------------------- */
+/* Armed by CSS and released by ServiceMotion, so a JS failure leaves a
+   finished static document rather than an invisible one. */
+
+.er-js .er-svc [data-svc-fade] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.er-js .er-svc [data-svc-rule] {
+  transform: scaleX(0);
+}
+.er-js .er-svc [data-svc-mask] > img {
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .er-svcdisc__wrap,
+  .er-svcdisc__sign {
+    transition-duration: 0.01s;
+  }
+}
+
+/* ------------------------ cross-page transition ---------------------- */
+/* Declarative, so it is a no-op wherever the API is missing and there is
+   no script to fall back from. NEXT SERVICE should feel like turning a
+   page, not like loading one. */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 300ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* -------------------------------- phone ------------------------------ */
+
+@media (max-width: 640px) {
+  .er-svchero {
+    height: 62svh;
+  }
+  .er-svcfig--aside {
+    max-width: 100%;
+    margin-inline: auto;
+  }
+}

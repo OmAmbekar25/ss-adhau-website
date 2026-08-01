@@ -51,6 +51,34 @@ AI-generated imagery, no landmark cliches.
 | `user.jpg`, `dummyuser.jpg`, `valuelady.jpg` | Unused / template leftovers | Not used on `/studio` |
 | `public/logos/*` | Institution marks | Third-party marks reproduced as issued |
 
+## Service page images (/services/[slug])
+
+Client-supplied and already graded to each service's colour world, exactly
+as the slide set was. The build re-crops and re-grades nothing.
+
+Served from `public/images/pages/` as WebP at 800 and 1600 wide, with AVIF
+offered alongside — but only where AVIF is actually smaller. Grain is
+noise, and AVIF spends bits preserving noise that WebP discards: six of the
+twenty variants encoded LARGER than the supplied WebP, by up to 22%. Those
+were deleted rather than shipped, and `src/data/avifVariants.json` records
+which files have an AVIF worth offering. Every page image is lazy-loaded;
+only the hero is eager and preloaded.
+
+| Page | File | Source | Photographer | License | Treatment |
+|---|---|---|---|---|---|
+| 01 Real estate | page-01-interior.webp | Unsplash kqFy3wlm7cU | Bibhash (Polygon Cafe) Banerjee | Unsplash License | Interior with city view; amber tint |
+| 01 Real estate | page-01-pattern.webp | Unsplash 7VK3dHI5dUU | Yaroslav Zotov | Unsplash License | Balcony zigzag pattern; amber tint |
+| 02 Plant & machinery | page-02-workshop.webp | Unsplash utNqAnoLEaQ | Zoshua Colah | Unsplash License | Lathe workshop tight crop; steel tint. **Interim** — replace with a client plant photograph |
+| 03 Valuation under IBC | page-03-files.webp | Unsplash AxA3YVYdv80 | Leiada Krozjhen | Unsplash License | Case files on a shelf; oxblood tint |
+| 04 Business valuation | page-04-interior.webp | Unsplash sEdGIL-MpqU | Yaman Zaareer | Unsplash License | Concrete office interior; violet tint |
+| 05 Financial reporting | page-05-tables.webp | Unsplash BnL9ntjCVWM | Y M | Unsplash License | Calculator and figure tables crop; teal tint |
+| 06 M&A support | page-06-bridge.webp | Unsplash e9DM5Z1DdXs | Shivam Singh | Unsplash License | Vidyasagar Setu from below; copper tint |
+
+Two carry supplier notes that travel with them rather than being quietly
+dropped: `page-02-workshop` is marked interim pending a client plant
+photograph, and the slide it sits under (`slide-02-machinery`, a vintage
+aircraft engine) is already logged above as a flagged candidate.
+
 ## Code: the fluid cursor trail
 
 Not an image, but third-party work all the same and recorded on the same

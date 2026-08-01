@@ -33,9 +33,15 @@ if (typeof window !== "undefined") {
  * studio.css, which is where the lock is written down.
  */
 
+/* `slug` routes each slide's EXPLORE link to its own page. The order here
+   is the order in src/data/services.js — the two lists describe the same
+   six services from different angles (this one for the pinned track, that
+   one for the documents behind it) and their numbering is the contract
+   between them. */
 const SERVICES = [
   {
     n: "01",
+    slug: "real-estate-valuation",
     img: "/images/slides/slide-01-real-estate.webp",
     alt: "A residential and commercial facade in strong raking light",
     title: ["Real estate ", "valuation"],
@@ -47,6 +53,7 @@ const SERVICES = [
   },
   {
     n: "02",
+    slug: "plant-machinery-valuation",
     img: "/images/slides/slide-02-machinery.webp",
     alt: "A radial engine and propeller, close-up on the machined detail",
     title: ["Plant & machinery ", "valuation"],
@@ -58,6 +65,7 @@ const SERVICES = [
   },
   {
     n: "03",
+    slug: "valuation-under-ibc",
     img: "/images/slides/slide-03-ibc.webp",
     alt: "A colonnade of fluted columns on a courthouse portico",
     title: ["Valuation under ", "IBC"],
@@ -69,6 +77,7 @@ const SERVICES = [
   },
   {
     n: "04",
+    slug: "business-valuation",
     img: "/images/slides/slide-04-business.webp",
     alt: "A city skyline at dusk, towers reduced to silhouette",
     title: ["Business ", "valuation"],
@@ -80,6 +89,7 @@ const SERVICES = [
   },
   {
     n: "05",
+    slug: "financial-reporting-valuation",
     img: "/images/slides/slide-05-financial.webp",
     alt: "A close crop of a written ledger page",
     title: ["Financial reporting ", "valuation"],
@@ -91,6 +101,7 @@ const SERVICES = [
   },
   {
     n: "06",
+    slug: "ma-support",
     img: "/images/slides/slide-06-ma.webp",
     alt: "Two towers joined by a skybridge, seen from below",
     title: ["Merger & acquisition ", "support"],
@@ -161,7 +172,7 @@ function Body({ service }) {
         {service.desc}
       </p>
       <p className="er-label er-label--faint er-sc__tag">{service.tag}</p>
-      <Link className="er-sc__link" href="/services">
+      <Link className="er-sc__link" href={`/services/${service.slug}`}>
         Explore this service <span aria-hidden="true">→</span>
       </Link>
     </>

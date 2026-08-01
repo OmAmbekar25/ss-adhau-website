@@ -6,9 +6,13 @@ import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
 import StudioShowcase from "@/components/studio/StudioShowcase";
 import StudioQuiet from "@/components/studio/StudioQuiet";
-import StudioNav from "@/components/studio/StudioNav";
 import StudioRiver from "@/components/studio/StudioRiver";
 import StudioRecord from "@/components/studio/StudioRecord";
+import {
+  StudioHeader,
+  StudioFooter,
+  NAV,
+} from "@/components/studio/StudioChrome";
 
 /* Design candidate — see docs/entropy-resolved-brief.md. Kept out of the
    index while it is a candidate: it argues the same content as `/`, and two
@@ -29,12 +33,6 @@ export const metadata = {
    delivered". Both are omitted rather than guessed — send real numbers and
    they drop straight into the proof row.                              */
 
-const NAV = [
-  { label: "Services", href: "/services" },
-  { label: "Locations", href: "/locations" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
 
 /* TODO(copy): the firm may trim these descriptions; they ship as written.
    Each row also carries a hue — see --hue-01..06 in studio.css. The six sit
@@ -178,43 +176,9 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
           and both of them under the type. */}
       <StudioFluid />
       <StudioQuiet />
-      <StudioNav />
       <StudioRecord />
 
-      <header className="er-nav" data-hidden="false" data-scrolled="false">
-        <Link className="er-wordmark" href="/">
-          S S Adhau<sup>®</sup>
-        </Link>
-        <nav aria-label="Primary">
-          {/* P-1 — the links live behind a hamburger. Hover reveals them
-              on a fine pointer, but the button is the real control: it
-              toggles on click, opens on keyboard focus and closes on
-              Escape, so touch and keyboard are never left without a path. */}
-          <div className="er-navwrap" data-navwrap>
-            <ul className="er-navlinks" id="er-navlinks" data-navlinks>
-              {NAV.map((item) => (
-                <li key={item.href}>
-                  <Link className="er-navlink" href={item.href}>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <button
-              type="button"
-              className="er-burger"
-              data-burger
-              aria-expanded="false"
-              aria-controls="er-navlinks"
-              aria-label="Menu"
-            >
-              <span aria-hidden="true" />
-              <span aria-hidden="true" />
-              <span aria-hidden="true" />
-            </button>
-          </div>
-        </nav>
-      </header>
+      <StudioHeader />
 
       <main id="er-main">
         {/* ------------------------- 5.2 HERO ------------------------- */}
@@ -390,56 +354,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         </section>
       </main>
 
-      <footer className="er-footer">
-        <div className="er-wrap">
-          <div className="er-footcols">
-            <div className="er-footcol">
-              <h2>Index</h2>
-              <ul>
-                {NAV.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href}>{item.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="er-footcol">
-              <h2>Contact</h2>
-              <ul>
-                <li>
-                  <a href="tel:+918793000929">+91 8793 000 929</a>
-                </li>
-                <li>
-                  <a href="mailto:ssadhauvaluers@gmail.com">
-                    ssadhauvaluers@gmail.com
-                  </a>
-                </li>
-                <li>Mon – Sat · 10:00 – 19:00</li>
-              </ul>
-            </div>
-            <div className="er-footcol">
-              <h2>Offices</h2>
-              <ul>
-                <li>Manish Nagar, Nagpur — 440015</li>
-                <li>Parasia Road, Chhindwara — 480001</li>
-              </ul>
-            </div>
-          </div>
-
-          <p className="er-bigmark er-display er-fade" aria-hidden="true">
-            S S Adhau
-          </p>
-
-          <div className="er-colophon">
-            <p className="er-label er-label--faint">
-              © {new Date().getFullYear()} S S Adhau Valuers &amp; Engineers
-            </p>
-            <p className="er-label er-label--faint">
-              IBBI Registered · Income Tax Dept. Approved
-            </p>
-          </div>
-        </div>
-      </footer>
+      <StudioFooter />
     </div>
   );
 }

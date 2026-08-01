@@ -1477,6 +1477,20 @@
 /* on open the outer lines part by 2px — no X-morph */
 .er-navwrap[data-open="true"] .er-burger span:nth-child(1) { transform: translateY(-2px); }
 .er-navwrap[data-open="true"] .er-burger span:nth-child(3) { transform: translateY(2px); }
+/* The icon is 24x16 by design and that is locked, but 16px is half the
+   44px a finger needs. The hit area is extended with a pseudo-element
+   instead of padding: padding would grow the button in the flex row and
+   move the anchor the links slide out from, and the point is to change
+   nothing that is visible. */
+.er-burger::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+}
 .er-burger:focus-visible { outline: 1px solid var(--ink); outline-offset: 6px; }
 
 /* Four tracked-caps links will not fit beside the icon on a phone, so
