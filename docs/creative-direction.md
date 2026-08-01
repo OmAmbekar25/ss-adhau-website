@@ -71,7 +71,9 @@ claim, it does not get to be spectacle number two.
   *(Amended 2026-07-29 — was "only inside the Locations map journey"; see §15.)*
 
 ### 2.3 Performance budget
-**LOCKED.** As specified: LCP < 2.0s (4G, mid-tier Android), CLS < 0.05, INP < 200ms, first-load JS ≤ 250KB gz (excl. 3D chunk), 3D lazy + capability-gated, animate `transform`/`opacity` only, fonts self-hosted via `next/font` (max 3 weights per family), `next/image` everywhere.
+**LOCKED.** As specified: LCP < 2.0s (4G, mid-tier Android), CLS < 0.05, INP < 200ms, first-load JS ≤ 250KB gz (excl. 3D chunk), 3D lazy + capability-gated, **`transform`/`opacity` only for anything driven per-frame by scroll; bounded paint properties (stroke-dash on small SVGs, ≤ once per trigger) permitted for entrance and hover**, fonts self-hosted via `next/font` (max 3 weights per family), `next/image` everywhere.
+*(Amended 2026-08-01 — was "animate `transform`/`opacity` only"; the rule was
+written against per-frame cost and read as a ban on a property. See §15.)*
 Known debt against this budget (measured 2026-07-29, `next build`, gzipped
 first-load chunk set per prerendered document):
 
@@ -137,6 +139,13 @@ to the focal line only.
 
 Self-hosted via `next/font` (Google + local). No Inter, no Satoshi (removed).
 
+**The voice rule, amended 2026-08-01 (the block above is superseded by the
+2026-07-31 and 2026-08-01 §15 rows; this is the operative statement):**
+tracked uppercase is the LABEL voice — four words or fewer, naming a thing.
+**Any full sentence is reading text, whatever position it sits in — including a
+closing line, a strapline or a sign-off.** Position does not make a sentence a
+label. Reading text takes the reading face. See §15 for the ruling.
+
 ---
 
 ## 5. Color system — `LOCKED`
@@ -171,6 +180,14 @@ every value — morph, opacity, camera, the seal landing — from `p` alone. No
 tweens, no one-shot state, so scrubbing backwards un-signs the report exactly.
 Any future scroll scene follows this rule: if a moment can't be expressed as
 `f(p)`, it doesn't belong in a scrubbed section.
+
+**The property test is per-frame cost, not the property's name.** Anything a
+scroll drives every frame is `transform`/`opacity` — the scope ledger's rules
+scale, they do not redraw. Entrance and hover may use a bounded paint property
+where no transform expresses the idea: stroke-dash on a small SVG, running at
+most once per trigger. A drawing that draws itself cannot be a transform, and
+30 paths inside nine 24px boxes are not a frame budget.
+*(Codified 2026-08-01 with §2.3. See §15.)*
 
 **Interaction moves the light, never the object.** The hero established it; the
 valuation journey (pointer nudges the camera, not the geometry) and
@@ -410,5 +427,8 @@ As specified in the scaffold, plus (project-specific): no blue accents, no cryst
 | 2026-08-01 | **Four of the nine glyphs failed visual review on the first cut and were redrawn** — two of them read as the letter A | Rendered at 4x and judged side by side rather than in place, which is the only way to see a 24px drawing. The pylon's crossarms were flush with its legs, so it read as a capital A with a brace; they overhang now. The compasses had a bar between the legs — a second A, next to a triangle — and the hinge is a cap across the apex instead. The balance's pans were too shallow to be pans. The seal's inner bar read as a minus sign and is gone, which also matches the brief (it asked for an outline and ribbons, and specified no inner mark) | Shipping the first cut on the strength of the code being correct |
 | 2026-08-01 | **`stroke-dashoffset` is a deliberate exception to the transform/opacity-only rule in §2** — surfaced, not silently taken | The performance lock says animate `transform` and `opacity` only, and R-10 asks for drawing, which no transform can express. Taken because the cost is bounded and measurable: 30 paths inside nine 24×24 boxes, paint-only with no layout, running once per row on entry and once per hover — not a scrubbed property and not a per-frame attribute upload. The rules beside them, which DO run on scroll, are transform-only as the lock requires | Faking the draw with a clip or a mask (more machinery, same paint, worse drawing) |
 | 2026-08-01 | **R-12 — the closing line is a sentence, so it is set as one.** Newsreader italic at 22px, `--ink` | It was an `.er-label`: tracked caps, `--ink-dim`. The dead space under the button was two paddings meeting — this block's bottom and the proof block's top, **~162px of nothing at 1440**. One of them sets the clearance now: measured **96px from the button to the proof rule and 96px from the proof line to the footer**, at 1440, 390 and under reduced motion. Note this settles a conflict inside the brief: R-8 keeps the closing LINE in tracked caps and R-12 moves it to the reading face. R-12 is the more specific instruction and wins; the tracked caps that remain are the eyebrow and the button | Keeping the line in the label voice (R-8's letter, against R-12's reason for existing) |
-| open | **R-10's "the title lifts to full `--ink`" has nowhere to lift from, because R-8 sets the title at `--ink` already** | Two instructions in the same brief: R-8 fixes the resting title at `--ink`, R-10 describes hover as lifting it there. Resolved in R-8's favour — it is the explicit type spec — and the hover response moved to the glyph, which goes `--ink-dim` → `--ink` as it redraws. So the row still answers the pointer, and the answer is the drawing rather than the text. If the intent was a dimmer resting title, that is one value in `.er-ledger__t` and the hover rule is already written | Dimming the resting title to manufacture somewhere to lift from |
+| 2026-08-01 | **R-10's "the title lifts to full `--ink`" has nowhere to lift from, because R-8 sets the title at `--ink` already** — RULED, closed | Two instructions in the same brief: R-8 fixes the resting title at `--ink`, R-10 describes hover as lifting it there. Resolved in R-8's favour — it is the explicit type spec — and the hover response moved to the glyph, which goes `--ink-dim` → `--ink` as it redraws. So the row still answers the pointer, and the answer is the drawing rather than the text. **Ruled 2026-08-01: correct, and do NOT dim the resting titles** — this section's whole problem was dimness and noise, and full `--ink` at rest is the readability call. R-10's title-lift language is dead; the glyph redraw carries the hover feedback alone | Dimming the resting title to manufacture somewhere to lift from |
 | 2026-08-01 | **Two mobile defects the desktop build hid**, both found in the 390 screenshot | (1) The rule belongs to a PAIR, and stacked, a pair's two items are vertical neighbours — so the ledger was ruled after every second item and the first ran into the second unruled. There is now a between-items rule that is `display: none` above 820 and never gets a ScrollTrigger while it has no rects. Measured: **9 items, 0 unruled, at 1440 and at 390** (6 visible rules against 10). (2) The CTA broke as "SPEAK TO A / VALUER · +91 8793 000 / 929"; its two halves are unbreakable boxes now, so the line can only break between them — the same fix the row tags needed, and the same defect | — |
+| 2026-08-01 | **PRECEDENT — a sentence is reading text wherever it sits.** The tracked-caps rule is amended in §4 | Ruled on the register's closing line, which R-8 kept as a label and R-12 moved to Newsreader italic. R-12 wins, and the general rule moves with it: **tracked uppercase is the label voice — four words or fewer, naming a thing — and any full sentence is reading text even in a closing position.** Position does not make a sentence a label. This is the rule to apply next time the question comes up rather than a decision about one line: straplines, sign-offs and closing lines are all sentences, and all take the reading face | Reading the tracked-caps rule as being about placement rather than about what the words are |
+| 2026-08-01 | **RULED — resting titles stay at full `--ink`, and the hover response lives on the glyph** | The scope ledger's failure mode was dimness and noise; dimming the titles to give a hover somewhere to travel would have re-created the problem the section was rebuilt to fix. So the resting title is `--ink` and stays there, the glyph carries the whole hover response — `--ink-dim` → `--ink` as it redraws once at 0.4s — and R-10's title-lift language is retired. Shipped as built; nothing to change | Dimming nine titles to animate a colour |
+| 2026-08-01 | **CODIFIED — the motion lock's property test is per-frame cost, not the property's name** | §2.3 read "animate `transform`/`opacity` only", which is a rule about frame budget written as a ban on a property, and the scope ledger's drawing glyphs had to be taken as an exception to it. It now reads: **`transform`/`opacity` only for anything driven per-frame by scroll; bounded paint properties (stroke-dash on small SVGs, ≤ once per trigger) permitted for entrance and hover.** The split the ledger already ships is exactly the intent — the rules scale on scroll and never redraw, the glyphs redraw once on entry and once per hover and never scrub. Recorded in §2.3 and §7 | Leaving the lock as written and carrying a standing exception against it |
