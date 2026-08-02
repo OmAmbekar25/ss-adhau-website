@@ -2,14 +2,6 @@ import { SERVICES } from "@/data/services";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.ssadhauvaluers.com";
 
-const teamSlugs = [
-  "sudhakar-adhau",
-  "sunil-adhau",
-  "nishigandha-adhau",
-  "prateek-agrawal",
-  "renuka-trivedi",
-];
-
 export default function sitemap() {
   const staticRoutes = [
     "",
@@ -39,12 +31,6 @@ export default function sitemap() {
     priority: 0.7,
   }));
 
-  const teamRoutes = teamSlugs.map((slug) => ({
-    url: `${SITE_URL}/team/${slug}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: "yearly",
-    priority: 0.5,
-  }));
-
-  return [...staticRoutes, ...serviceRoutes, ...teamRoutes];
+  /* the /team/[slug] pages 301 to /about#slug and leave the map */
+  return [...staticRoutes, ...serviceRoutes];
 }

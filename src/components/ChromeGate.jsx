@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
  * prefix test below: every path on the site starts with "/", so a prefix
  * match on the root would strip the chrome from every page on it.
  */
-const BARE_EXACT = ["/", "/locations"];
+const BARE_EXACT = ["/", "/locations", "/about"];
 const BARE_TREE = ["/services"];
 
 export default function ChromeGate({ children }) {

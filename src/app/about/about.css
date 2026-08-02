@@ -1,0 +1,444 @@
+/* ==========================================================================
+   ABOUT — /about
+   Sits under `.er`; studio.css is the system. Everything on this page is
+   an existing pattern — the compact hero, the reading fill, the register
+   rows, the 0fr/1fr disclosure, the R-12 closing row — except the roster's
+   floating portrait, which is the page's one licensed novelty.
+
+   No canvas, no pins, no images until the portraits arrive.
+   ========================================================================== */
+
+.er-about {
+  --hue: var(--ink);
+  --hue-text: var(--ink);
+}
+
+.er-about__block {
+  padding-block: clamp(64px, 9vh, 96px);
+}
+.er-about__col {
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+/* -------------------------------- hero --------------------------------- */
+.er-abhero {
+  padding-top: clamp(112px, 16vh, 168px);
+  padding-bottom: clamp(28px, 4vh, 48px);
+}
+.er-abhero__eyebrow {
+  display: block;
+  margin-bottom: clamp(18px, 2.6vh, 30px);
+  color: var(--ink-dim);
+}
+/* the serif's one string on this page */
+.er-abhero__t {
+  margin: 0;
+  font-size: clamp(38px, 4.6vw, 72px);
+  line-height: 1.04;
+  color: var(--ink);
+}
+.er-abhero__rule {
+  display: block;
+  height: 1px;
+  background: var(--hairline-hi);
+  transform-origin: left center;
+}
+
+/* the story: two reading paragraphs, nothing else */
+.er-about__story {
+  display: grid;
+  gap: 1.75em;
+  max-width: 62ch;
+}
+
+/* --------------------------- section headers ---------------------------- */
+.er-about__eyebrow {
+  display: block;
+  margin: 0 0 18px;
+  color: var(--ink-dim);
+}
+/* mono 600, under the locked 52px ceiling for section headers */
+.er-about__h {
+  margin: 0 0 clamp(36px, 5vh, 56px);
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 600;
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* ------------------------------ the roster ------------------------------ */
+.er-tr__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hairline);
+}
+.er-tr__row {
+  border-bottom: 1px solid var(--hairline);
+  transition: border-color 0.45s var(--micro);
+}
+.er-tr__row[data-open="true"] {
+  border-bottom-color: var(--hairline-hi);
+}
+.er-tr__btn {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto 24px;
+  gap: 16px 32px;
+  align-items: center;
+  width: 100%;
+  padding: clamp(22px, 3.4vh, 34px) 16px;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.45s var(--micro);
+}
+.er-tr__btn:hover,
+.er-tr__btn:focus-visible {
+  background: rgba(255, 255, 255, 0.03);
+}
+.er-tr__btn:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: -1px;
+}
+.er-tr__i {
+  color: var(--ink-faint);
+}
+/* the register-row voice: mono 600, sentence case */
+.er-tr__name {
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 600;
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.er-tr__cred {
+  color: var(--ink-faint);
+  text-align: right;
+  line-height: 1.5;
+}
+.er-tr__sign {
+  color: var(--ink-faint);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.3s var(--micro), color 0.3s var(--micro);
+}
+.er-tr__row[data-open="true"] .er-tr__sign {
+  transform: rotate(45deg);
+  color: var(--ink);
+}
+@media (max-width: 767px) {
+  .er-tr__btn {
+    grid-template-columns: 40px minmax(0, 1fr) 24px;
+  }
+  /* four abbreviation tokens against a 34px name do not fit a phone row;
+     the same letters are two taps away inside the dossier */
+  .er-tr__cred {
+    display: none;
+  }
+}
+
+/* --------------------------- the dossier -------------------------------- */
+/* the register's disclosure: grid-rows 0fr -> 1fr, the only way to
+   transition to a height the content decides */
+.er-tr__wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--micro);
+}
+.er-tr__row[data-open="true"] .er-tr__wrap {
+  grid-template-rows: 1fr;
+}
+.er-tr__innerclip {
+  overflow: hidden;
+}
+.er-tr__dossier {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 4vw, 48px);
+  padding: 8px 16px clamp(36px, 5vh, 52px);
+}
+@media (min-width: 1024px) {
+  .er-tr__dossier {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+}
+/* the portrait frame — the document block, in 3:4. The monogram tile and
+   the future photograph share it exactly, so the swap is asset-only. */
+.er-tr__figure {
+  margin: 0;
+  width: min(260px, 60vw);
+  aspect-ratio: 3 / 4;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  overflow: hidden;
+  position: relative;
+}
+.er-tr__figure::after {
+  /* the site grain, so the tile reads as material rather than absence */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image:
+    repeating-linear-gradient(41deg, #fff 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(67deg, #fff 0 1px, transparent 1px 4px);
+}
+.er-tr__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.er-tr__mono {
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
+  font-weight: 420;
+  font-size: 44px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.er-tr__role {
+  margin: 0 0 22px;
+  color: var(--ink-dim);
+}
+/* the key-information register: hairline rows, term and detail */
+.er-tr__facts {
+  margin: 0;
+  border-top: 1px solid var(--hairline);
+}
+.er-tr__fact {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.er-tr__fact dt {
+  color: var(--ink-faint);
+  padding-top: 2px;
+}
+.er-tr__fact dd {
+  margin: 0;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+}
+@media (max-width: 480px) {
+  .er-tr__fact {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+.er-tr__bio {
+  margin-top: 26px;
+  max-width: 62ch;
+  display: grid;
+  gap: 1em;
+}
+.er-tr__bio p {
+  margin: 0;
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+
+/* ------------------------- the floating frame --------------------------- */
+/* The page's one novelty. Fixed at the viewport origin and moved entirely
+   by transform from the rAF loop; opacity is the only other thing that
+   ever changes. Below the nav (z 20), above content, and never a pointer
+   target. */
+.er-tr__float {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 260px;
+  height: 347px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s var(--micro);
+  will-change: transform;
+}
+.er-tr__float[data-on="true"] {
+  opacity: 1;
+  transition-duration: 0.2s;
+}
+/* all five cards stacked; the hovered one shows. 200ms crossfade between
+   members — both cards are in the same fixed frame, so the swap is a fade
+   in place, not a move. */
+.er-tr__floatcard {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--hairline-hi);
+  border-radius: 2px;
+  background: var(--surface);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s var(--micro);
+}
+.er-tr__floatcard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image:
+    repeating-linear-gradient(41deg, #fff 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(67deg, #fff 0 1px, transparent 1px 4px);
+}
+.er-tr__floatcard[data-show="true"] {
+  opacity: 1;
+}
+/* no floating frame for coarse pointers, whatever the JS concludes */
+@media (pointer: coarse) {
+  .er-tr__float {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-tr__float {
+    display: none;
+  }
+}
+
+/* ------------------------------ the questions --------------------------- */
+.er-faq {
+  border-top: 1px solid var(--hairline);
+}
+.er-faq__item {
+  border-bottom: 1px solid var(--hairline);
+}
+.er-faq__sum {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px;
+  gap: 24px;
+  align-items: center;
+  padding: 22px 16px;
+  cursor: pointer;
+  list-style: none;
+  /* the question voice: mono 500 19px sentence case */
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 19px;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+}
+.er-faq__sum::-webkit-details-marker {
+  display: none;
+}
+.er-faq__sum:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: -1px;
+}
+.er-faq__sign {
+  color: var(--ink-faint);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.35s var(--micro);
+  justify-self: end;
+}
+.er-faq__item[open] .er-faq__sign {
+  transform: rotate(45deg);
+}
+.er-faq__wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--micro);
+}
+.er-faq__item[open] .er-faq__wrap {
+  grid-template-rows: 1fr;
+}
+.er-faq__inner {
+  overflow: hidden;
+}
+.er-faq__a {
+  margin: 0;
+  padding: 0 16px 24px;
+  max-width: 62ch;
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+
+/* ------------------------------- closing -------------------------------- */
+/* R-12, verbatim in behaviour */
+.er-abclose {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: last baseline;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 44px);
+  border-top: 1px solid var(--hairline-hi);
+  padding-top: clamp(36px, 5vh, 48px);
+}
+.er-abclose__line {
+  margin: 0;
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--ink);
+  max-width: 34ch;
+}
+.er-abclose__cta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 17px 26px;
+  border: 1px solid var(--hairline-hi);
+  border-radius: 2px;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    background-color 0.4s var(--micro),
+    border-color 0.4s var(--micro);
+}
+.er-abclose__cta b {
+  font-weight: inherit;
+  white-space: nowrap;
+}
+.er-abclose__cta:hover,
+.er-abclose__cta:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--ink-faint);
+}
+/* the 96px clearances, pinned — the register's lesson holds */
+.er-about__block--close {
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+/* --------------------------- entrance states ---------------------------- */
+.er-js .er-about [data-svc-fade] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+/* the roster rows arrive staggered 60ms, released by ServiceMotion's
+   block trigger via the same fade — the stagger is set inline per row */

@@ -9,7 +9,13 @@ const nextConfig = {
      not move, it became the home page, and a 308 is how you say that to a
      crawler. Server-side, so nothing 404s while JavaScript loads. */
   async redirects() {
-    return [{ source: "/studio", destination: "/", permanent: true }];
+    return [
+      { source: "/studio", destination: "/", permanent: true },
+      /* The member subpages are gone; their content lives in /about's
+         inline dossiers. The hash rides the Location header, and /about
+         opens the named dossier on load. */
+      { source: "/team/:slug", destination: "/about#:slug", permanent: true },
+    ];
   },
 };
 
