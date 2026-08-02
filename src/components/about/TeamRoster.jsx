@@ -172,9 +172,31 @@ export default function TeamRoster() {
               onFocus={() => setHover(null)}
             >
               <span className="er-label er-tr__i">{m.n}</span>
-              <span className="er-tr__name">{m.name}</span>
-              <span className="er-label er-tr__cred">
-                {m.roster.join(" · ")}
+              <span className="er-tr__who">
+                {/* A-1 — the honorific hangs beside the signature in mono;
+                    the serif signs the name and nothing else */}
+                <span className="er-label er-tr__prefix">{m.prefix}</span>
+                <span className="er-tr__name">{m.name}</span>
+              </span>
+              {/* A-2 — the register's tag/description swap, verbatim in
+                  behaviour: the credentials give way to the role and the
+                  domain, in one reserved box, so the row cannot reflow. */}
+              <span className="er-tr__slot">
+                <span className="er-label er-tr__cred">
+                  {m.roster.join(" · ")}
+                </span>
+                <span className="er-label er-tr__now">
+                  {/* ONE inline run inside the flex item. Left as bare
+                      text nodes they become flex items in their own
+                      right, size themselves from their own content, and
+                      overlap when they meet a fixed slot — the exact
+                      defect the register's tags had. */}
+                  <span className="er-tr__nowline">
+                    {m.role}
+                    <span aria-hidden="true"> · </span>
+                    {m.short}
+                  </span>
+                </span>
               </span>
               <span className="er-tr__sign" aria-hidden="true">
                 +
@@ -190,12 +212,12 @@ export default function TeamRoster() {
             >
               <div className="er-tr__innerclip">
                 <div className="er-tr__dossier">
-                  <figure className="er-tr__figure">
+                  <figure className="er-tr__figure" data-part="0">
                     <Portrait m={m} sizes="(min-width: 1024px) 260px, 40vw" />
                   </figure>
                   <div className="er-tr__info">
                     <p className="er-label er-tr__role">{m.role}</p>
-                    <dl className="er-tr__facts">
+                    <dl className="er-tr__facts" data-part="1">
                       <div className="er-tr__fact">
                         <dt className="er-label">Role</dt>
                         <dd>{m.role}</dd>
@@ -204,19 +226,39 @@ export default function TeamRoster() {
                         <dt className="er-label">Qualifications</dt>
                         <dd>{m.qualifications}</dd>
                       </div>
-                      {m.registrations ? (
-                        <div className="er-tr__fact">
-                          <dt className="er-label">Registrations</dt>
-                          <dd>{m.registrations}</dd>
-                        </div>
-                      ) : null}
+                      {/* Registrations are NOT repeated here. The brief
+                          specced this register as ROLE / QUALIFICATIONS /
+                          REGISTRATIONS / DOMAIN and then added the seal
+                          block below it, which put the same three lines
+                          on screen twice, forty pixels apart. The seal is
+                          the better home — it is the one that looks like
+                          a credential — so the row is dropped rather than
+                          duplicated. Flagged in §15. */}
                       <div className="er-tr__fact">
                         <dt className="er-label">Domain</dt>
                         <dd>{m.domain}</dd>
                       </div>
                     </dl>
+                    {/* A-3c — THE REGISTRATIONS. A double hairline at a
+                        3px inset with a gold top rule: a seal, drawn in
+                        the site's own line. Omitted entirely when the
+                        member has none — an empty seal claims nothing and
+                        looks like something missing. */}
+                    {m.registrations ? (
+                      <div className="er-tr__seal" data-part="2">
+                        <p className="er-label er-tr__sealhead">
+                          Registrations
+                        </p>
+                        <ul className="er-tr__seallist">
+                          {m.registrations.map((r) => (
+                            <li key={r}>{r}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
                     {m.bio ? (
-                      <div className="er-tr__bio">
+                      <div className="er-tr__bio" data-part="3">
                         {m.bio.map((p) => (
                           <p key={p.slice(0, 24)}>{p}</p>
                         ))}
@@ -227,6 +269,13 @@ export default function TeamRoster() {
                          here that the firm has not said. */
                       null
                     )}
+
+                    {/* A-3d — the dossier ends with the signature it is
+                        about: the name again, in the serif's italic. */}
+                    <div className="er-tr__sig" data-part="4">
+                      <p className="er-tr__signame">{m.name}</p>
+                      <p className="er-label er-tr__sigrole">{m.role}</p>
+                    </div>
                   </div>
                 </div>
               </div>

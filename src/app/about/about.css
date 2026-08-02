@@ -27,6 +27,14 @@
   padding-top: clamp(112px, 16vh, 168px);
   padding-bottom: clamp(28px, 4vh, 48px);
 }
+/* the divider sits between the story and the lineage, so the lineage's own
+   axis is not the first rule the section shows */
+.er-about__block--lineage {
+  padding-top: clamp(40px, 6vh, 64px);
+}
+.er-about__block--lineage .er-lineage {
+  margin-top: clamp(56px, 8vh, 88px);
+}
 .er-abhero__eyebrow {
   display: block;
   margin-bottom: clamp(18px, 2.6vh, 30px);
@@ -51,6 +59,11 @@
   display: grid;
   gap: 1.75em;
   max-width: 62ch;
+}
+/* the title is in the left column now, so it sizes to that column */
+.er-abstory .er-abhero__t {
+  font-size: clamp(38px, 4.2vw, 64px);
+  max-width: 9ch;
 }
 
 /* --------------------------- section headers ---------------------------- */
@@ -86,11 +99,15 @@
 }
 .er-tr__btn {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto 24px;
+  /* the swap slot is a FIXED track, not `auto`: a track that sizes to its
+     content would resize when the credentials give way to the role, and
+     the name would move under the pointer */
+  grid-template-columns: 64px minmax(0, 1fr) 340px 24px;
   gap: 16px 32px;
   align-items: center;
   width: 100%;
-  padding: clamp(22px, 3.4vh, 34px) 16px;
+  /* A-1 — 52px, so the serif has room to be a signature */
+  padding: 52px 16px;
   background: none;
   border: 0;
   color: inherit;
@@ -109,19 +126,87 @@
 .er-tr__i {
   color: var(--ink-faint);
 }
-/* the register-row voice: mono 600, sentence case */
+/* A-1 — THE NAME IS A SIGNATURE, so the serif signs it. This is the
+   type-law amendment: the display serif's roles are hero, manifesto,
+   wordmark and person names, and nothing else. */
+.er-tr__who {
+  display: block;
+  position: relative;
+  padding-left: 44px;
+}
+/* the honorific hangs to the left of the signature's own line */
+.er-tr__prefix {
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  font-size: 13px;
+  color: var(--ink-dim);
+}
 .er-tr__name {
-  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
-  font-weight: 600;
-  font-size: clamp(24px, 2.2vw, 34px);
-  line-height: 1.15;
+  display: block;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
+  font-weight: 420;
+  font-style: normal;
+  font-size: clamp(38px, 4.2vw, 64px);
+  line-height: 1.02;
   letter-spacing: -0.01em;
   color: var(--ink);
 }
-.er-tr__cred {
-  color: var(--ink-faint);
+
+/* A-2 — one reserved box, two states. The register's tag/description swap:
+   the credentials leave, the role and the domain arrive from the right,
+   and the row's height never moves because both live in the same box. */
+.er-tr__slot {
+  position: relative;
+  display: block;
+  /* two lines of the 11px label at 1.5 — the tallest either state gets */
+  min-height: 34px;
+}
+.er-tr__slot > * {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   text-align: right;
   line-height: 1.5;
+  will-change: transform, opacity;
+}
+.er-tr__cred {
+  color: var(--ink-faint);
+  opacity: 1;
+  transition:
+    opacity 0.25s var(--micro),
+    transform 0.25s var(--micro);
+}
+.er-tr__nowline {
+  display: block;
+  max-width: 100%;
+}
+.er-tr__now {
+  color: var(--ink-dim);
+  opacity: 0;
+  transform: translateX(24px);
+  transition:
+    opacity 0.4s var(--enter) 0.06s,
+    transform 0.4s var(--enter) 0.06s;
+}
+.er-tr__btn:hover .er-tr__cred,
+.er-tr__btn:focus-visible .er-tr__cred,
+.er-tr__row[data-open="true"] .er-tr__cred {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+.er-tr__btn:hover .er-tr__now,
+.er-tr__btn:focus-visible .er-tr__now,
+.er-tr__row[data-open="true"] .er-tr__now {
+  opacity: 1;
+  transform: translateX(0);
+}
+/* the hairlines brighten one step under the pointer */
+.er-tr__row:has(.er-tr__btn:hover),
+.er-tr__row:has(.er-tr__btn:focus-visible) {
+  border-bottom-color: var(--hairline-hi);
 }
 .er-tr__sign {
   color: var(--ink-faint);
@@ -133,14 +218,30 @@
   transform: rotate(45deg);
   color: var(--ink);
 }
-@media (max-width: 767px) {
+@media (max-width: 900px) {
   .er-tr__btn {
     grid-template-columns: 40px minmax(0, 1fr) 24px;
+    padding-block: 36px;
   }
-  /* four abbreviation tokens against a 34px name do not fit a phone row;
-     the same letters are two taps away inside the dossier */
-  .er-tr__cred {
+  /* 38px is a signature on a 1440 row and a three-line paragraph on a
+     390 one — "Nishigandha Sunil Adhau" broke to three lines and the row
+     grew to 200px. The floor comes down with the viewport. */
+  .er-tr__name {
+    font-size: clamp(22px, 6vw, 34px);
+    line-height: 1.06;
+  }
+  /* the swap slot has nowhere to go beside a 38px signature on a phone;
+     the same letters are one tap away inside the dossier */
+  .er-tr__slot {
     display: none;
+  }
+  .er-tr__who {
+    padding-left: 0;
+  }
+  .er-tr__prefix {
+    position: static;
+    display: block;
+    margin-bottom: 8px;
   }
 }
 
@@ -442,3 +543,223 @@
 }
 /* the roster rows arrive staggered 60ms, released by ServiceMotion's
    block trigger via the same fade — the stagger is set inline per row */
+
+/* ---------------------------- A-3c: the seal ---------------------------- */
+/* A double hairline — 1px outer, 1px inner at a 3px inset — with a gold
+   rule across the top. It is a seal drawn in the site's own line rather
+   than a stamp borrowed from somewhere else, and it appears ONLY when the
+   member has registrations to put inside it. */
+.er-tr__seal {
+  position: relative;
+  margin-top: 28px;
+  border: 1px solid var(--hairline-hi);
+  border-radius: 2px;
+  padding: 22px 24px 18px;
+}
+.er-tr__seal::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--hairline);
+  border-radius: 1px;
+  pointer-events: none;
+}
+/* the gold rule sits ON the outer edge, the one warm line on the page */
+.er-tr__seal::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  top: -1px;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+.er-tr__sealhead {
+  margin: 0 0 14px;
+  color: var(--ink-dim);
+}
+.er-tr__seallist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.er-tr__seallist li {
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+  padding-left: 18px;
+  position: relative;
+}
+.er-tr__seallist li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--ink-faint);
+}
+
+/* -------------------------- A-3d: the signature ------------------------- */
+/* The dossier ends with the thing it is about. Italic, right-aligned, on a
+   short rule: a signature, not a heading. */
+.er-tr__sig {
+  margin-top: 34px;
+  text-align: right;
+}
+.er-tr__signame {
+  margin: 0 0 10px;
+  font-family: var(--font-fraunces), var(--font-cormorant), serif;
+  font-weight: 420;
+  font-style: italic;
+  font-size: 28px;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.er-tr__sig::after {
+  content: "";
+  display: block;
+  width: 180px;
+  max-width: 60%;
+  height: 1px;
+  margin: 0 0 10px auto;
+  background: var(--hairline-hi);
+}
+.er-tr__sigrole {
+  margin: 0;
+  color: var(--ink-faint);
+}
+
+/* ------------------- A-3e: the dossier's content stagger ---------------- */
+/* Portrait, register, seal, bio, signature — 60ms apart, released only
+   when the row is open, so nothing animates inside a closed disclosure. */
+.er-tr__row[data-open="true"] [data-part] {
+  animation: er-tr-part 0.4s var(--enter) both;
+  animation-delay: calc(0.2s + var(--d, 0) * 60ms);
+}
+.er-tr__row[data-open="true"] [data-part="0"] { --d: 0; }
+.er-tr__row[data-open="true"] [data-part="1"] { --d: 1; }
+.er-tr__row[data-open="true"] [data-part="2"] { --d: 2; }
+.er-tr__row[data-open="true"] [data-part="3"] { --d: 3; }
+.er-tr__row[data-open="true"] [data-part="4"] { --d: 4; }
+@keyframes er-tr-part {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-tr__row[data-open="true"] [data-part] {
+    animation: none;
+  }
+}
+
+/* -------------------------- A-4: the story columns ---------------------- */
+.er-abstory {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(32px, 5vh, 56px);
+}
+@media (min-width: 1024px) {
+  .er-abstory {
+    grid-template-columns: 5fr 7fr;
+    gap: clamp(40px, 5vw, 88px);
+    align-items: start;
+  }
+}
+/* the mono satellite under the title */
+.er-abstory__sat {
+  display: block;
+  margin: clamp(22px, 3vh, 32px) 0 0;
+  color: var(--ink-dim);
+  line-height: 1.9;
+}
+
+/* --------------------------- A-4: the lineage --------------------------- */
+/* The register's scrubbed-rule technique: the hairline is drawn by the
+   scroll, not faded in. One `<i>` growing from its left edge, on the same
+   `[data-ledger-rule]` trigger ServiceMotion already owns. */
+.er-lineage {
+  margin-top: clamp(56px, 8vh, 88px);
+}
+.er-lineage__rule {
+  display: flex;
+  height: 1px;
+  margin-bottom: 28px;
+}
+.er-lineage__rule i {
+  flex: 1 1 0;
+  height: 1px;
+  background: var(--hairline-hi);
+  transform-origin: left center;
+}
+.er-lineage__nodes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+@media (min-width: 768px) {
+  .er-lineage__nodes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 44px);
+  }
+}
+.er-lineage__node {
+  position: relative;
+  padding-top: 22px;
+}
+/* the dot sits ON the rule above it */
+.er-lineage__node::before {
+  content: "";
+  position: absolute;
+  top: -33px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+}
+.er-lineage__year {
+  display: block;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.er-lineage__cap {
+  margin: 0;
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 30ch;
+  text-wrap: pretty;
+}
+
+/* --------------------------- A-5: the questions ------------------------- */
+/* A question is a full sentence, so it reads in the reading face — the
+   same rule that moved the closing line and the card bodies. This is what
+   takes the terminal edge off the section. */
+.er-faq__sum {
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+/* ---------------------------- A-6: the surface -------------------------- */
+/* The page's own grain, at 3%: the same drawn tooth the locations sheet
+   uses, over the whole route rather than one panel. Fixed, so it does not
+   travel with the scroll and read as texture ON the type. */
+.er-about::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image:
+    repeating-linear-gradient(41deg, #fff 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(67deg, #fff 0 1px, transparent 1px 4px);
+}

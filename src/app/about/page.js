@@ -29,6 +29,21 @@ const STORY_1 =
 const STORY_2 =
   "The discipline has not changed since the first report: a physical inspection, a stated method, assumptions in writing, and a signature that answers for the number. What has grown is the range of assets asked of us, and the list of institutions that accept the answer.";
 
+/* A-4 — the satellite under the title. The EST. clause is omitted until
+   the founding year is confirmed; what is left is true today. */
+const SATELLITE = "Nagpur & Chhindwara · Second generation";
+
+/* A-4 — THE LINEAGE. Four nodes, every one a placeholder: the years and
+   the captions are TODO(client), labelled as such on the page itself so
+   nobody mistakes scaffolding for a claim. Nothing here is invented — a
+   milestone the firm has not stated is not a milestone. */
+const LINEAGE = [
+  { year: "[YEAR]", caption: "[MILESTONE] — the first registration." },
+  { year: "[YEAR]", caption: "[MILESTONE] — the second office opens." },
+  { year: "[YEAR]", caption: "[MILESTONE] — the practice's first IBC work." },
+  { year: "[YEAR]", caption: "[MILESTONE] — the second generation joins." },
+];
+
 /* The six Q&As, migrated from the legacy page. Answers are edited only to
    remove adjective padding; every factual claim is the original's. */
 const FAQS = [
@@ -101,34 +116,71 @@ export default function AboutPage() {
 
       <main id="er-main">
         {/* ---------------------------- our story -------------------- */}
-        <div className="er-wrap">
-          <section className="er-abhero" data-svc-block>
-            <p className="er-label er-abhero__eyebrow" data-svc-track>
-              About
-            </p>
-            {/* the serif's one string on this page */}
-            <h1 className="er-display er-abhero__t" data-svc-title>
-              <span className="er-line">
-                <span>
-                  Our <em>story</em>.
-                </span>
-              </span>
-            </h1>
-          </section>
-        </div>
-        <div className="er-wrap">
-          <span
-            className="er-abhero__rule"
-            data-svc-herorule
-            aria-hidden="true"
-          />
-        </div>
-
-        <section className="er-about__block" data-svc-block>
+        {/* A-4 — one block, two columns: the eyebrow, the serif title and
+            the satellite hold the left; the two reading paragraphs the
+            right. It was a title stacked on a single column of prose,
+            which is what made the section read flat. */}
+        <section className="er-abhero" data-svc-block>
           <div className="er-wrap">
-            <div className="er-about__story">
-              <ReadingText text={STORY_1} />
-              <ReadingText text={STORY_2} />
+            <div className="er-abstory">
+              <div>
+                <p className="er-label er-abhero__eyebrow" data-svc-track>
+                  About
+                </p>
+                {/* the serif's one string on this page */}
+                <h1 className="er-display er-abhero__t" data-svc-title>
+                  <span className="er-line">
+                    <span>
+                      Our <em>story</em>.
+                    </span>
+                  </span>
+                </h1>
+                <p className="er-label er-abstory__sat" data-svc-fade>
+                  {/* TODO(client): the EST. clause joins this line when the
+                      founding year is confirmed — "EST. [YEAR] · " in
+                      front. Omitted rather than guessed. */}
+                  {SATELLITE}
+                </p>
+              </div>
+              <div className="er-about__story">
+                <ReadingText text={STORY_1} />
+                <ReadingText text={STORY_2} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="er-about__block er-about__block--lineage" data-svc-block>
+          <div className="er-wrap">
+            <span
+              className="er-abhero__rule"
+              data-svc-herorule
+              aria-hidden="true"
+            />
+
+            {/* -------------------------- the lineage ---------------- */}
+            {/* The register's scrubbed rule: it is drawn by the scroll.
+                Four milestones, every one of them a placeholder — the
+                structure ships so the copy can drop straight in. */}
+            <div className="er-lineage" aria-labelledby="er-lineage-h">
+              <h3 id="er-lineage-h" className="er-sr-only">
+                The lineage
+              </h3>
+              <span
+                className="er-lineage__rule"
+                data-ledger-rule
+                aria-hidden="true"
+              >
+                <i />
+              </span>
+              <ol className="er-lineage__nodes">
+                {LINEAGE.map((node) => (
+                  <li className="er-lineage__node" key={node.year} data-svc-fade>
+                    <p className="er-label er-lineage__year">{node.year}</p>
+                    <p className="er-lineage__cap">{node.caption}</p>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </section>
