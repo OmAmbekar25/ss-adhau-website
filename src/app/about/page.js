@@ -37,11 +37,23 @@ const SATELLITE = "Nagpur & Chhindwara · Second generation";
    the captions are TODO(client), labelled as such on the page itself so
    nobody mistakes scaffolding for a claim. Nothing here is invented — a
    milestone the firm has not stated is not a milestone. */
+/* `id` exists because `year` cannot be the key: every year is the same
+   placeholder string until the client supplies the real ones, and four
+   identical keys is a React collision. It stays after the years arrive —
+   a key should be an identity, not a value that happens to be unique. */
 const LINEAGE = [
-  { year: "[YEAR]", caption: "[MILESTONE] — the first registration." },
-  { year: "[YEAR]", caption: "[MILESTONE] — the second office opens." },
-  { year: "[YEAR]", caption: "[MILESTONE] — the practice's first IBC work." },
-  { year: "[YEAR]", caption: "[MILESTONE] — the second generation joins." },
+  { id: "l1", year: "[YEAR]", caption: "[MILESTONE] — the first registration." },
+  { id: "l2", year: "[YEAR]", caption: "[MILESTONE] — the second office opens." },
+  {
+    id: "l3",
+    year: "[YEAR]",
+    caption: "[MILESTONE] — the practice's first IBC work.",
+  },
+  {
+    id: "l4",
+    year: "[YEAR]",
+    caption: "[MILESTONE] — the second generation joins.",
+  },
 ];
 
 /* The six Q&As, migrated from the legacy page. Answers are edited only to
@@ -175,7 +187,7 @@ export default function AboutPage() {
               </span>
               <ol className="er-lineage__nodes">
                 {LINEAGE.map((node) => (
-                  <li className="er-lineage__node" key={node.year} data-svc-fade>
+                  <li className="er-lineage__node" key={node.id} data-svc-fade>
                     <p className="er-label er-lineage__year">{node.year}</p>
                     <p className="er-lineage__cap">{node.caption}</p>
                   </li>

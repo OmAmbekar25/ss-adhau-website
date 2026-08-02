@@ -259,8 +259,11 @@ export default function TeamRoster() {
 
                     {m.bio ? (
                       <div className="er-tr__bio" data-part="3">
-                        {m.bio.map((p) => (
-                          <p key={p.slice(0, 24)}>{p}</p>
+                        {/* index, not a text slice: two paragraphs that
+                            happen to open with the same words would
+                            collide, and these never reorder */}
+                        {m.bio.map((para, bi) => (
+                          <p key={bi}>{para}</p>
                         ))}
                       </div>
                     ) : (

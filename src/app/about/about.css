@@ -106,8 +106,9 @@
   gap: 16px 32px;
   align-items: center;
   width: 100%;
-  /* A-1 — 52px, so the serif has room to be a signature */
-  padding: 52px 16px;
+  /* A-1 asked for 52px against a 64px signature; at 44px the row keeps
+     the same proportion at 40px and stops five names occupying a screen */
+  padding: 40px 16px;
   background: none;
   border: 0;
   color: inherit;
@@ -132,7 +133,7 @@
 .er-tr__who {
   display: block;
   position: relative;
-  padding-left: 44px;
+  padding-left: 38px;
 }
 /* the honorific hangs to the left of the signature's own line */
 .er-tr__prefix {
@@ -147,8 +148,13 @@
   font-family: var(--font-fraunces), var(--font-cormorant), serif;
   font-weight: 420;
   font-style: normal;
-  font-size: clamp(38px, 4.2vw, 64px);
-  line-height: 1.02;
+  /* Down from clamp(38px, 4.2vw, 64px). At 64px the signature stopped
+     reading as a row in a register and started reading as a headline per
+     person — and on a wide screen five of them in a column is five
+     headlines. This sits just above the mono row titles it is a sibling
+     to (40px on the services register) rather than well above them. */
+  font-size: clamp(28px, 2.9vw, 44px);
+  line-height: 1.05;
   letter-spacing: -0.01em;
   color: var(--ink);
 }
@@ -227,8 +233,8 @@
      390 one — "Nishigandha Sunil Adhau" broke to three lines and the row
      grew to 200px. The floor comes down with the viewport. */
   .er-tr__name {
-    font-size: clamp(22px, 6vw, 34px);
-    line-height: 1.06;
+    font-size: clamp(22px, 5.4vw, 30px);
+    line-height: 1.08;
   }
   /* the swap slot has nowhere to go beside a 38px signature on a phone;
      the same letters are one tap away inside the dossier */
