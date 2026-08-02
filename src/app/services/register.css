@@ -125,9 +125,11 @@
 }
 @media (min-width: 900px) {
   .er-row {
-    /* reserved, not expanded — the two-line description is the tallest
-       thing that can occupy the slot */
-    min-height: 132px;
+    /* reserved, not expanded — the tallest thing the slot can hold is a
+       four-line summary (84px) plus the row's own 44px padding either
+       side, and the row is sized for it whether the pointer is on the row
+       or not */
+    min-height: 172px;
   }
   .er-row__a {
     grid-template-columns: 64px minmax(0, 1fr) 280px;
@@ -163,8 +165,14 @@
 @media (min-width: 900px) {
   .er-row__slot {
     grid-column: auto;
+    /* the fixed column the contract is written against */
     width: 280px;
-    min-height: 3.2em;
+    /* FOUR lines of the 13px description at 1.6 = 83.2px. Measured, not
+       assumed: the column holds 35 characters a line at a 7.8px advance,
+       and the six summaries need three lines or four. At 68px (three) the
+       last line of four of them was simply not painted — the row looked
+       right and the sentence stopped mid-clause. */
+    min-height: 84px;
   }
 }
 .er-row__slot > * {
@@ -205,20 +213,56 @@
   font-weight: inherit;
   white-space: nowrap;
 }
+/* R-15 — THE CONTAINMENT CONTRACT.
+   The slot is a fixed 280px column and the description is a paragraph, so
+   three things are stated rather than hoped for:
+
+   the text is LEFT-aligned, because a right-aligned ragged-left paragraph
+   is not readable — the tags stay right-aligned, they are a measure, not
+   prose;
+
+   the box cannot be wider than its column (`width: 100%`, no `max-width`
+   in `ch`, which is a font-relative unit that has nothing to do with the
+   280px it has to fit in);
+
+   and four lines is a hard clamp — a BACKSTOP, not a policy. The build
+   assert in services.js means it should never engage; if it ever does,
+   something bound the wrong field again and the row will be readable
+   while somebody fixes it. */
 .er-row__desc {
   margin: 0;
   font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 1.6;
   letter-spacing: 0;
   text-transform: none;
   color: var(--ink-dim);
-  max-width: 34ch;
+  width: 100%;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
   opacity: 0;
   transform: translateX(24px);
   transition:
     opacity 0.4s var(--enter) 0.06s,
     transform 0.4s var(--enter) 0.06s;
+}
+/* R-16 — the description starts at the title's cap height rather than
+   floating in the middle of a taller box, and it is the one thing in the
+   slot that is top-aligned: a paragraph reads from its first line. */
+.er-row__slot > .er-row__desc {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 2px;
+}
+/* R-15 — nothing in a row may paint outside the row's own panel. The
+   highlight is drawn on `.er-row__a`; this is what makes that a boundary
+   rather than a suggestion. */
+.er-row__a {
+  overflow: hidden;
 }
 
 /* --- active: the full colour world, at strength --- */
@@ -399,65 +443,9 @@
   }
 }
 
-/* R-6 / R-12 — one hairline-topped row: the line on the left, the button
-   on the right, sharing a baseline rather than a centre line, so the
-   sentence sits ON the button's text rather than floating beside its box.
-   Nothing below the button — the dead space under it was this block's
-   own bottom padding stacking on the next block's top padding, ~162px of
-   nothing at 1440. The clearance below is set once, by the next block. */
-.er-regclose {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: last baseline;
-  justify-content: space-between;
-  gap: clamp(20px, 4vw, 44px);
-  border-top: 1px solid var(--hairline-hi);
-  margin-top: clamp(44px, 6vh, 64px);
-  padding-top: clamp(36px, 5vh, 48px);
-}
-/* R-12 — a sentence in the reading face, italic, at the size of
-   something meant to be read rather than scanned */
-.er-regclose__line {
-  margin: 0;
-  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
-  font-weight: 400;
-  font-style: italic;
-  font-size: 22px;
-  line-height: 1.5;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ink);
-  max-width: 34ch;
-}
-.er-regclose__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 17px 26px;
-  border: 1px solid var(--hairline-hi);
-  border-radius: 2px;
-  color: var(--ink);
-  text-decoration: none;
-  transition:
-    background-color 0.4s var(--micro),
-    border-color 0.4s var(--micro);
-}
-/* the label and the number are each unbreakable; at 390 the pair no
-   longer wraps as "SPEAK TO A / VALUER · +91 8793 000 / 929" */
-.er-regclose__cta {
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.er-regclose__cta b {
-  font-weight: inherit;
-  white-space: nowrap;
-}
-.er-regclose__cta:hover,
-.er-regclose__cta:focus-visible {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--ink-faint);
-}
+/* The closing row (.er-regclose) moved to studio.css when /contact grew
+   the same row: it is a system component now, not the register's. Same
+   class names, same rules, one definition. */
 
 /* ----------------------------- proof line ----------------------------- */
 /* R-3 — one sentence, sentence case. The `02 OFFICES · 09 CITIES · 15

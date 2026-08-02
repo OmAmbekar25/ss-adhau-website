@@ -36,5 +36,13 @@ CSS-only — the field sits behind it, not in it.
 - Delete orphaned files when replacing components.
 - Scroll-driven 3D must be a pure function of scroll progress (no tweens, no
   one-shot state) so scrubbing backwards is exact — see `lib/reportScene.js`.
-- Known unresolved: production domain placeholder (`NEXT_PUBLIC_SITE_URL`),
-  Formspree endpoint marked `🔴 REPLACE` in `src/app/contact/page.js`.
+- Known unresolved: production domain placeholder (`NEXT_PUBLIC_SITE_URL`);
+  🔴 **contact delivery is a stub** — `/api/contact` validates, logs and
+  returns success but sends nothing. It replaced a live Formspree endpoint
+  marked `🔴 REPLACE` (someone else's demo form). Pick a mail service and
+  replace the marked block before launch; the phone number under the form
+  is the only working path until then.
+- Waiting on client copy, not code: the real review list
+  (`src/data/reviews.js` — ≥5 and ≥9 change the layout by themselves), the
+  founding year and lineage milestones on `/about`, and confirmation of the
+  Google listing behind `MORE ON GOOGLE`.

@@ -167,12 +167,19 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
           stylesheet, so the browser does not learn about it until the CSS
           has parsed. Profiling the production build put 26% of LCP in that
           discovery gap. Preloading closes it; nothing about the loader
-          itself changes. */}
+          itself changes.
+
+          `crossOrigin="anonymous"` because the mask is fetched by CSS and
+          a CSS image request is anonymous: without a matching credentials
+          mode the preload is a SECOND request rather than a head start.
+          The browser says so in dev ("credentials mode does not match")
+          and the mask paid for the round trip twice. */}
       <link
         rel="preload"
         as="image"
         href="/images/SSAdhauBG.png"
         fetchPriority="high"
+        crossOrigin="anonymous"
       />
 
       <a className="er-skip" href="#er-main">

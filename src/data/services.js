@@ -26,9 +26,11 @@ export const SERVICES = [
     title: ["Real estate ", "valuation"],
     em: 1, // the word set in italic
     plain: "Real estate valuation",
-    paragraph:
+    summary:
+      "Residential, commercial and industrial property — inspected, measured and benchmarked against local market evidence.",
+    pageBody1:
       "Residential, commercial and industrial property: flats, plots, shops, offices, warehouses and factory premises. Every valuation begins with a physical inspection by a registered valuer. Boundaries, built-up area, construction quality and occupancy are measured on site and set against local market evidence. The report states its approach and assumptions in full, carries the valuer's name and IBBI registration, and is formatted to your bank's standard. Fifteen banks, tribunals and departments accept our reports.",
-    paragraph2:
+    pageBody2:
       "Flats and plots are measured against the sanctioned plan, shops and offices against carpet and built-up records, and factory premises against their layout and utilities. Where the purpose demands it, rental evidence and comparable sales from the same locality are placed in the report, so the reader can follow the road from evidence to number.",
     chips: [
       "Bank mortgage",
@@ -61,9 +63,11 @@ export const SERVICES = [
     title: ["Plant & machinery ", "valuation"],
     em: 1,
     plain: "Plant & machinery valuation",
-    paragraph:
+    summary:
+      "Age, condition and market comparables for plant, machinery and equipment — from single assets to full facilities.",
+    pageBody1:
       "Machinery, equipment and complete plant setups, from a single lathe to a full production line. A valuer inspects each asset in person and records make, capacity, age, condition and remaining useful life, then sets the findings against current market and replacement costs. Nothing is valued from a photograph. The signed report holds up in loan sanction, insurance and dispute, because every figure in it traces back to an inspection entry.",
-    paragraph2:
+    pageBody2:
       "Where records are incomplete, the machine itself becomes the record: nameplates, serial numbers and condition are photographed and entered against each line item. Depreciation is worked from observed condition and remaining life, not from a standard table alone.",
     chips: ["Loan collateral", "Insurance", "Disputes", "Asset purchase"],
     /* TODO(client): confirm */
@@ -91,9 +95,11 @@ export const SERVICES = [
     title: ["Valuation under ", "IBC"],
     em: 1,
     plain: "Valuation under IBC",
-    paragraph:
+    summary:
+      "CIRP and liquidation valuations under the Insolvency and Bankruptcy Code, built to survive committee and court review.",
+    pageBody1:
       "Valuations for CIRP and liquidation under the Insolvency and Bankruptcy Code, prepared by IBBI-registered valuers as the Code requires. Fair value and liquidation value are determined separately, with method and assumptions recorded for the committee of creditors and the tribunal. Our reports have been accepted by the Debts Recovery Tribunal and resolution professionals across Madhya Pradesh and Maharashtra, and we stand behind them when questioned.",
-    paragraph2:
+    pageBody2:
       "Timelines under the Code are short, and we sequence inspection, working papers and the signed report to meet the committee's calendar. Every assumption is written down, because a valuation that cannot be questioned cannot be relied on.",
     chips: ["CIRP", "Liquidation", "Resolution professionals"],
     /* TODO(client): confirm */
@@ -120,9 +126,11 @@ export const SERVICES = [
     title: ["Business ", "valuation"],
     em: 1,
     plain: "Business valuation",
-    paragraph:
+    summary:
+      "Income, market and asset approaches to whole-business value — for transactions, disputes and planning.",
+    pageBody1:
       "Whole-business value for transactions, disputes and planning, using income, market and asset approaches as the situation requires. We state which approach carried the conclusion and why, so the number can be examined rather than taken on faith. Financials are read alongside the assets we physically verify, which is what separates a valuation from an estimate.",
-    paragraph2:
+    pageBody2:
       "Where the business holds land, buildings or machinery, the same registered valuers verify them in person. The business number is then built on asset values that have already been defended once.",
     chips: ["Transactions", "Disputes", "Succession planning"],
     /* TODO(client): confirm */
@@ -149,9 +157,11 @@ export const SERVICES = [
     title: ["Financial reporting ", "valuation"],
     em: 1,
     plain: "Financial reporting valuation",
-    paragraph:
+    summary:
+      "Ind-AS and IFRS fair-value measurements with the working papers auditors ask for.",
+    pageBody1:
       "Fair value measurements under Ind-AS and IFRS, with working papers prepared for the audit that follows. Auditors receive the basis of valuation, the inputs used and their sources, documented to be checked line by line. Reports are accepted by the Income Tax Department and statutory auditors.",
-    paragraph2:
+    pageBody2:
       "Working papers follow the same discipline as the report: each input carries its source, each adjustment its reason. When the auditor asks how a figure was reached, the answer is already on file.",
     chips: ["Ind-AS", "IFRS", "Audit support"],
     /* TODO(client): confirm */
@@ -178,9 +188,11 @@ export const SERVICES = [
     title: ["M&A ", "support"],
     em: 1,
     plain: "M&A support",
-    paragraph:
+    summary:
+      "Valuation support through restructuring and M&A — diligence, swap ratios and fairness opinions.",
+    pageBody1:
       "Valuation support through mergers, acquisitions and restructuring: diligence on asset values, swap ratio workings and fairness opinions. Both sides of a transaction get the same rigour, a physically verified asset base and a stated method, signed by a registered valuer who answers for the number.",
-    paragraph2:
+    pageBody2:
       "Sensitive information moves under written confidentiality, and both sides receive identical documentation. Scope is agreed before work begins, so the opinion arrives when the deal needs it, not after.",
     chips: ["Diligence", "Swap ratios", "Fairness opinions"],
     /* TODO(client): confirm */
@@ -200,6 +212,44 @@ export const SERVICES = [
     meta: "Valuation support for mergers, acquisitions and restructuring. Diligence, swap ratios and fairness opinions by registered valuers.",
   },
 ];
+
+/* ------------------------------------------------------------------ R-15
+ * THE GUARDRAIL.
+ *
+ * `summary` is the register row's hover line and NOTHING else. It has a
+ * fixed 280px column to live in, so its length is a layout constraint,
+ * not a preference — and this assert is what stops that being learned
+ * again by looking at a screenshot.
+ *
+ * The bug it exists to kill: the row was bound to the service page's
+ * SECOND paragraph (193–344 characters) instead of the summary, and
+ * nothing constrained the slot, so the text painted straight out of the
+ * row's highlight panel. The page-only fields are named `pageBody1` and
+ * `pageBody2` now precisely so that writing `summary` when you mean a
+ * page paragraph is a thing you have to do on purpose.
+ *
+ * This runs at module scope, so it runs at build: a summary over the
+ * limit fails `next build` rather than reaching a screenshot.
+ */
+/* 128, not the brief's 160 — and the difference is measured, not
+   preferred. The slot is 280px of 13px mono at a 7.8px advance: 35
+   characters a raw line, ~32 once words break, and the clamp is 4 lines.
+   160 characters needs five to six lines in a four-line box, so a 160
+   assert would have passed a summary the row then silently cut off,
+   which is the exact failure this assert exists to prevent. The number
+   the geometry allows is the number the assert enforces; if the column
+   or the type ever changes, this changes with it. Longest today: 118. */
+const SUMMARY_MAX = 128;
+for (const s of SERVICES) {
+  if (typeof s.summary !== "string" || !s.summary) {
+    throw new Error(`services.js: "${s.slug}" has no summary (the register row's hover line).`);
+  }
+  if (s.summary.length > SUMMARY_MAX) {
+    throw new Error(
+      `services.js: "${s.slug}" summary is ${s.summary.length} characters; the register row's slot holds ${SUMMARY_MAX} at 280px over four lines. Put the long copy in pageBody1/pageBody2.`
+    );
+  }
+}
 
 export const bySlug = (slug) => SERVICES.find((s) => s.slug === slug);
 

@@ -201,7 +201,12 @@ export default function ServicesRegister() {
                           ))}
                         </span>
                       </span>
-                      <span className="er-row__desc">{s.paragraph2}</span>
+                      {/* R-14 — the SUMMARY, never a page paragraph.
+                          This slot is 280px wide and two-ish lines tall;
+                          it was bound to `paragraph2` (193–344 chars) and
+                          painted straight out of the row. `summary` is
+                          asserted at build to stay under 160. */}
+                      <span className="er-row__desc">{s.summary}</span>
                     </span>
                     <span
                       className="er-label er-row__explore"

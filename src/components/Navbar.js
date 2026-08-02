@@ -30,6 +30,9 @@ const Navbar = () => {
               width={160}
               height={40}
               className="w-16 lg:w-32 brightness-0 invert"
+              // the class sets width only; without `height: auto` the
+              // intrinsic height is kept and the mark distorts
+              style={{ height: "auto" }}
               alt="SSAdhau Logo"
             />
           </Link>

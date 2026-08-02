@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
+import { REVIEWS, GOOGLE_REVIEWS_URL, DRIFT_MIN } from "@/data/reviews";
+
 /* WI-7 / P-5 — the clients river.
  *
  * The reviews drift on their own rather than on scroll: they are content to
@@ -18,23 +20,10 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
  * announced exactly once.
  */
 
-/* TODO(content): only four reviews exist in the repo. Three columns are
-   built for the firm's full list — with nine or more the columns fill and
-   the drift reads continuously; with four, a column carrying one quote
-   shows a long empty stretch between passes (which is honest, if sparse).
-   Drop more entries in and they redistribute automatically. */
-const REVIEWS = [
-  { name: "Subhash Kamti", text: "Best valuer of Chhindwara." },
-  {
-    name: "Prateek Agrawal",
-    text: "Good knowledge. Satisfactory work. Thank you for your service sir.",
-  },
-  {
-    name: "Priyanka Singh",
-    text: "The office staff is knowledgeable and responsive.",
-  },
-  { name: "Anukul Singh", text: "Best." },
-];
+/* The list itself lives in src/data/reviews.js — H-2's unlock is a copy
+   drop, and a file the client is expected to edit should not be buried in
+   a component's mechanics. The counts below are the only thing this file
+   knows about it. */
 
 /* One loop per column, in seconds. Close enough to read as one river,
    different enough that the three never line up again. */
@@ -68,12 +57,12 @@ const subCols = (cb) => {
   ms.forEach((m) => m.addEventListener("change", cb));
   return () => ms.forEach((m) => m.removeEventListener("change", cb));
 };
-const byVolume = (n) => (n >= 9 ? 3 : n >= 5 ? 2 : 1);
+const byVolume = (n) => (n >= 9 ? 3 : n >= DRIFT_MIN ? 2 : 1);
 const byWidth = () =>
   window.matchMedia(WIDE[0]).matches ? 3 : window.matchMedia(WIDE[1]).matches ? 2 : 1;
 const getCols = () => Math.min(byWidth(), byVolume(REVIEWS.length));
 /* below this the river does not drift at all */
-const DRIFTS = REVIEWS.length >= 5;
+const DRIFTS = REVIEWS.length >= DRIFT_MIN;
 
 function Card({ review }) {
   return (
@@ -94,37 +83,70 @@ function columns(list, n) {
   return out;
 }
 
+/* The still spread: two columns dealt round-robin, the second dropped by
+   48px so the tops do not rule a line across the page. Below 700 it is one
+   column and the offset is not applied — a stagger needs something to
+   stagger against. */
+function Spread({ list }) {
+  const cols = columns(list, Math.min(2, list.length));
+  return (
+    <div className="er-rvspread">
+      {cols.map((col, i) => (
+        <ul className="er-rvspread__col" key={i} data-col={i}>
+          {col.map((r) => (
+            <li key={r.name}>
+              <Card review={r} />
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  );
+}
+
 export default function StudioRiver() {
   const reduced = useSyncExternalStore(subRM, getRM, () => false);
 
   if (reduced || !DRIFTS) {
     /* No drift at all — either the visitor asked for none, or there is not
        enough copy for a loop to mean anything. The first eight are laid
-       out and read, with the rest behind a plain disclosure. */
+       out and read, with the rest behind a plain disclosure.
+
+       H-1 — TWO COLUMNS ACROSS THE CONTAINER, not one 620px column.
+       Held to a reading measure, the quotes occupied the left half and the
+       particle field showed through the right, which read as a section
+       that had lost its other half. The field belongs BEHIND the words —
+       it is full-bleed and fixed, and always was; what made it look
+       "beside" them was the words refusing to cross the middle.
+
+       The columns are real boxes, not grid cells: cells share a row, and
+       a shared row lines the quotes up in a table. Dealt round-robin and
+       offset at the top, they read as a spread. */
     const first = REVIEWS.slice(0, 8);
     const rest = REVIEWS.slice(8);
     return (
       <div className="er-rvstatic">
-        <ul className={DRIFTS ? "er-rvgrid" : "er-rvgrid er-rvgrid--one"}>
-          {first.map((r) => (
-            <li key={r.name}>
-              <Card review={r} />
-            </li>
-          ))}
-        </ul>
+        <Spread list={first} />
         {rest.length > 0 && (
           <details className="er-rvmore">
             <summary className="er-label">
               {rest.length} more {rest.length === 1 ? "review" : "reviews"}
             </summary>
-            <ul className={DRIFTS ? "er-rvgrid" : "er-rvgrid er-rvgrid--one"}>
-              {rest.map((r) => (
-                <li key={r.name}>
-                  <Card review={r} />
-                </li>
-              ))}
-            </ul>
+            <Spread list={rest} />
           </details>
+        )}
+        {/* H-3 — the quiet line, only while the list is short. Once the
+            real reviews land the section speaks for itself and this comes
+            out on its own. */}
+        {!DRIFTS && (
+          <a
+            className="er-label er-rvgoogle"
+            href={GOOGLE_REVIEWS_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            More on Google <span aria-hidden="true">→</span>
+          </a>
         )}
       </div>
     );

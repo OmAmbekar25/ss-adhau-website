@@ -1,0 +1,351 @@
+/* ==========================================================================
+   CONTACT — /contact
+   Sits under `.er`; studio.css is the system. This page is the register's
+   hero, the service page's figure, the about page's hairline rows and the
+   shared closing row, arranged in two columns. Its one new thing is the
+   form, which had no system styling because the site had no form.
+
+   No canvas on this route.
+   ========================================================================== */
+
+.er-contact {
+  --hue: var(--ink);
+  --hue-text: var(--ink);
+}
+
+/* ------------------------------- the grid ------------------------------- */
+/* One grid, two columns above 1024: the writing on the left, the picture
+   and the office block on the right. Below it they stack in source order,
+   which puts the form above the addresses — a phone number is easy to
+   scroll to, a form is not. */
+.er-ct {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(48px, 7vh, 72px) clamp(48px, 6vw, 96px);
+  padding-top: clamp(112px, 16vh, 168px);
+  padding-bottom: clamp(56px, 8vh, 88px);
+}
+@media (min-width: 1024px) {
+  .er-ct {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+    align-items: start;
+  }
+}
+
+.er-ct__eyebrow {
+  display: block;
+  margin-bottom: clamp(18px, 2.6vh, 30px);
+  color: var(--ink-dim);
+}
+/* the serif's one string on this page */
+.er-ct__t {
+  margin: 0 0 clamp(20px, 3vh, 32px);
+  font-size: clamp(38px, 4.6vw, 72px);
+  line-height: 1.04;
+  color: var(--ink);
+}
+/* The lede: one sentence, so it is set in the reading face. Compounded
+   with the block class deliberately — reading.css sets `margin: 0` and a
+   62ch measure at the same specificity, and it is imported by the
+   component, which lands AFTER this file in the graph. */
+.er-ct .er-ct__lede {
+  max-width: 44ch;
+  margin-bottom: clamp(40px, 5.5vh, 60px);
+}
+
+/* -------------------------------- the form ------------------------------ */
+.er-form {
+  display: grid;
+  gap: clamp(24px, 3.4vh, 34px);
+  max-width: 760px;
+}
+/* Above 760 the three identity fields share one row and the message takes
+   the width. Stacked, the form was a 560px column inside a 940px one, and
+   the 400px of nothing between its rules and the office block's read as a
+   layout that had not finished — the same emptiness R-1 closed on the
+   register. Three fields across is also the truer shape: name, address and
+   number are one line of a form, and the message is the form. */
+/* Two bands, not one: between 760 and 1023 the form has the whole page
+   width, and from 1200 up the left column is wide enough again. In the
+   1024–1199 band the two-column page has just taken 420px for the offices
+   and the form is down to ~560 — three across there is 165px a field,
+   which is narrower than the email addresses that go in them. */
+@media (min-width: 760px) and (max-width: 1023px), (min-width: 1200px) {
+  .er-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: clamp(20px, 2.4vw, 32px);
+    /* Without this the three fields stretch to the tallest in the row, and
+       one error message under Name dropped Phone's underline 55px below
+       its neighbours' — an error in one field must not move another. */
+    align-items: start;
+  }
+  .er-field--wide,
+  .er-form__foot,
+  .er-form__trap {
+    grid-column: 1 / -1;
+  }
+}
+.er-field {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.er-field__label {
+  color: var(--ink-dim);
+  transition: color 0.3s var(--micro);
+}
+.er-field__opt {
+  letter-spacing: 0.22em;
+  color: var(--ink-faint);
+}
+/* Hairline underline, drawn as a shadow rather than a border: the focus
+   state doubles it to 2px, and a border that changes width moves the
+   field's own baseline by a pixel every time it is focused. */
+.er-field__input {
+  width: 100%;
+  padding: 10px 2px 12px;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 -1px 0 0 var(--hairline-hi);
+  transition: box-shadow 0.3s var(--micro);
+  -webkit-appearance: none;
+  appearance: none;
+}
+/* Tall enough to invite the paragraph the lede asks for. A four-line box
+   under "describe the asset and the purpose" asks for a sentence. */
+.er-field__area {
+  resize: vertical;
+  min-height: 190px;
+}
+/* The underline IS the focus indicator: 2px of accent against a hairline
+   is the visible change, and the system outline on top of it read as two
+   competing rings around one field. The label brightens with it. */
+.er-field__input:focus,
+.er-field__input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+.er-field:focus-within .er-field__label {
+  color: var(--ink);
+}
+.er-field__input[aria-invalid="true"] {
+  box-shadow: inset 0 -1px 0 0 var(--hue-03-text);
+}
+.er-field__input[aria-invalid="true"]:focus {
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+/* Errors are the muted hue-03 TEXT variant, not a saturated red: on this
+   graphite a red at full chroma measures under 4.5:1, and the colour is
+   not the message anyway — the sentence is, and it is wired to the field
+   with aria-describedby. #b69c9e on #151515 measures 7.3:1. */
+.er-field__err {
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--hue-03-text);
+}
+
+/* the honeypot: off the canvas, not `display: none`. A bot that reads the
+   stylesheet skips a hidden field; one that does not, fills this. */
+.er-form__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.er-form__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 24px;
+  margin-top: clamp(4px, 1vh, 10px);
+}
+/* the standard hairline button, same box as the closing row's CTA */
+.er-form__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 16px 26px;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--hairline-hi);
+  border-radius: 2px;
+  cursor: pointer;
+  transition:
+    background-color 0.4s var(--micro),
+    border-color 0.4s var(--micro),
+    opacity 0.3s var(--micro);
+}
+.er-form__submit:hover,
+.er-form__submit:focus-visible {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--ink-faint);
+}
+.er-form__submit[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+.er-form__live {
+  margin: 0;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--hue-03-text);
+  max-width: 32ch;
+}
+
+/* the sent state replaces the form in place — nothing is left to submit */
+.er-form__done {
+  border-top: 1px solid var(--hairline-hi);
+  padding-top: clamp(28px, 4vh, 36px);
+  max-width: 46ch;
+}
+.er-form__donehead {
+  margin: 0 0 12px;
+  font-family: var(--font-newsreader), var(--font-fraunces), Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.er-form__donebody {
+  margin: 0;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+
+/* ------------------------------ the picture ----------------------------- */
+/* The service page's figure, unchanged: 4:5, hairline, two-layer shadow,
+   one drawn grain over it. The asset is the supplied graded interior —
+   nothing new was sourced for this page. */
+.er-ctfig {
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--hairline);
+  background: var(--bg-deep);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 28px 60px rgba(0, 0, 0, 0.42);
+}
+.er-ctfig img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.er-ctfig::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.13;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.55'/></svg>");
+  background-size: 140px 140px;
+}
+
+/* --------------------------- the office block --------------------------- */
+/* The about page's fact register: a hairline per row, the term in tracked
+   caps, the detail in mono. Every value here is the footer's, read from
+   the same two sources — StudioChrome for the phone, the email and the
+   hours, territory.js for the addresses and their map pins. */
+.er-ctinfo {
+  margin: clamp(28px, 4vh, 40px) 0 0;
+  border-top: 1px solid var(--hairline);
+}
+.er-ctinfo__row {
+  display: grid;
+  gap: 8px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.er-ctinfo dd {
+  margin: 0;
+}
+.er-ctinfo__k {
+  color: var(--ink-faint);
+}
+.er-ctinfo__v {
+  margin: 0;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+a.er-ctinfo__v {
+  text-decoration: none;
+  width: fit-content;
+  transition: color 0.3s var(--micro);
+}
+a.er-ctinfo__v:hover,
+a.er-ctinfo__v:focus-visible {
+  color: var(--accent);
+}
+.er-ctinfo__map {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.3s var(--micro);
+}
+.er-ctinfo__map:hover,
+.er-ctinfo__map:focus-visible {
+  color: var(--accent);
+}
+
+/* ------------------------------- the close ------------------------------ */
+.er-ct__rule {
+  display: block;
+  height: 1px;
+  background: var(--hairline-hi);
+  transform-origin: left center;
+}
+.er-ct__close {
+  padding-block: clamp(48px, 7vh, 72px) clamp(72px, 10vh, 104px);
+}
+/* the shared closing row already owns its own top rule */
+.er-ct__close .er-regclose {
+  margin-top: 0;
+}
+
+/* -------------------------------- surface ------------------------------- */
+/* the page grain, at 3%, same as /about and /locations */
+.er-contact::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image:
+    repeating-linear-gradient(41deg, #fff 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(67deg, #fff 0 1px, transparent 1px 4px);
+}
+
+@media (max-width: 640px) {
+  .er-ct__t {
+    font-size: clamp(34px, 9vw, 44px);
+  }
+  .er-form__submit {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -288,16 +288,9 @@
   background-color: var(--accent) !important;
 }
 
-/* ------------------------------- the nav -------------------------------- */
-/* The chrome's nav is transparent by design: on every other route it sits
-   over the graphite page. Here it sits over the light sheet, and a white
-   wordmark on paper is not a wordmark. The scrim appears with the nav's
-   own `data-scrolled` state, which is already set the moment the hero
-   leaves — so the hero keeps its clean transparent nav and the map never
-   gets one. */
-.er-loc .er-nav[data-scrolled="true"] {
-  background: var(--bg);
-}
+/* The nav scrim that was here is now in studio.css, applied to every
+   document route: the same defect (copy travelling under a transparent
+   nav) turned out to be site-wide, not this page's. See R-17. */
 
 /* the card's placeholder mark takes the frame's radius, not its own */
 .er-loc .mj-card .rounded-2xl {

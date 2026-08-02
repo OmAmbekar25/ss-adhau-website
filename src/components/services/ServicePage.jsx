@@ -113,8 +113,8 @@ export default function ServicePage({ service }) {
         <section className="er-svc__block" data-svc-block>
           <div className="er-wrap">
             <div className="er-svc__col">
-              <ReadingText text={service.paragraph} />
-              <ReadingText text={service.paragraph2} />
+              <ReadingText text={service.pageBody1} />
+              <ReadingText text={service.pageBody2} />
             </div>
           </div>
         </section>
