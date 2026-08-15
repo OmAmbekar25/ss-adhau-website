@@ -16,27 +16,44 @@ page's particle field (`lib/studioScene.js`), plus the WebGL2 fluid trail
 (`lib/fluidTrail.js`) over the same page's hero. The hero's TYPE stays
 CSS-only — the field sits behind it, not in it.
 
-**The home hero is WHITE and the particle field is BLACK, and the field
-belongs to the hero alone** (2026-08-15). It fades out as the next section
-slides up over the hero, its loop stops at full coverage, and the renderer
-is disposed 500ms later; coming back up re-creates it from cached formation
-buffers. Consequences worth knowing before touching that page:
-- The hero is `position: sticky`, NOT pinned. The pin budget is still two
-  (§7) and both are spent on the method journey and the service showcase.
-- **Nothing under `.er` may use a negative z-index** — it does not paint,
-  fixed or absolute. Layer with z-index 0 and DOM order instead: the white
-  ground, then the field, then the fluid wake, then content.
-- Four sections below the hero lost their field couplings in that change
-  and are currently inert: the method journey's formations, the showcase's
-  colour worlds, the trusted band, and the closing disperse. Accepted
-  deliberately — they are to be rebuilt with the colour-rhythm brief.
+**THE SITE IS A LIGHT WORLD** (2026-08-15). Every page, every section:
+`--bg` is `#FFFFFF`, `--ink` is `#0B0B0C`, and the particle field is black
+on white with `NormalBlending`. §5's noir/linen palette is history — the
+legacy `--noir` / `--linen` tokens survive by NAME only (`/career`, the
+legacy Navbar/Footer and the locations map still wear `bg-noir`) and their
+values are inverted, so the names lie and the roles do not.
 
-The firm's brand colours are back and live in `--brand-*` tokens, measured
-from the real logo (`public/images/SSAdhauBG.png`), not approximated.
-Orange is the accent; navy/blue are declared for the mark only, because §5
-and §14 still LOCK "no blue anywhere" in UI. **The mark is always full
-colour** — never recoloured, inverted, tinted or masked — and one file
-(`public/brand/logo-mark.png`) serves the nav, the footer and the loader.
+Things that will bite you on this page:
+- **Ink follows the surface a string actually sits on, not the site
+  default.** The only strings on any route that sit on a dark surface are
+  `/services/[slug]`'s hero band and the nav above it, because the
+  photographs are not regraded. They keep light ink on purpose.
+- The hero is `position: sticky` inside `.er-herostage`, NOT pinned. The
+  stage wrapper is load-bearing: sticky is contained by its containing
+  block, and without it the hero's was `<main>` and it stayed stuck at the
+  top for the whole document, reading through every section below. The pin
+  budget is still two (§7), both spent on the method journey and showcase.
+- **Nothing under `.er` may use a negative z-index** — it does not paint,
+  fixed or absolute. Layer with z-index 0 and DOM order instead.
+- The particle field belongs to the hero alone: it fades by 60% panel
+  coverage, its loop stops at 100%, the renderer disposes 500ms later, and
+  coming back up re-creates it from cached formation buffers. Four
+  sections below lost their field couplings and are currently inert — the
+  method journey's formations, the showcase's colour worlds, the trusted
+  band and the closing disperse. Accepted; to be rebuilt with the
+  colour-rhythm brief.
+- Colour-world hue text is `--hue-NN-text`, a 45/55 mix of the hue into
+  `--ink`. The literals are mirrored in THREE places — `studio.css`,
+  `StudioShowcase.jsx` and `src/data/services.js`. Change one, change all
+  three; the third is the one that gets missed.
+
+The firm's brand colours live in `--brand-*` tokens, measured from the real
+logo (`public/images/SSAdhauBG.png`), not approximated. `--accent` is the
+orange (`--brand-orange`); navy/blue are declared for the mark only,
+because §5 and §14 still LOCK "no blue anywhere" in UI. **The mark is
+always full colour** — never recoloured, inverted, tinted or masked — and
+one file (`public/brand/logo-mark.png`) serves the nav, footer, loader and
+favicon.
 
 `/` is the page formerly at `/studio`. The legacy home page and its
 `ValuationJourney` / `lib/reportScene.js` were deleted in that move, and
@@ -64,6 +81,10 @@ colour** — never recoloured, inverted, tinted or masked — and one file
   marked `🔴 REPLACE` (someone else's demo form). Pick a mail service and
   replace the marked block before launch; the phone number under the form
   is the only working path until then.
+- **Verify the whole page, not the part you changed.** The hero-inversion
+  pass was checked by scrolling one viewport and back, and reported as
+  sound; every one of its three defects lived below that. Walk the full
+  scroll height and every route before calling a visual change done.
 - An assertion has to be able to fail for the reason you are actually
   worried about. A page-wide `requestAnimationFrame` counter cannot tell
   you whether one scene's loop stopped (Lenis and GSAP tick regardless);

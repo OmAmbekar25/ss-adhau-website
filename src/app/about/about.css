@@ -396,8 +396,11 @@
   border-radius: 2px;
   background: var(--surface);
   box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.55),
-    0 2px 8px rgba(0, 0, 0, 0.4);
+    /* Softened for the light world: 0.55/0.4 black was depth against a
+       near-black ground and reads as a bruise on white. Same two-layer
+       cast-plus-contact shape, an order of magnitude lighter. */
+    0 18px 48px rgba(11, 11, 12, 0.10),
+    0 2px 8px rgba(11, 11, 12, 0.06);
   overflow: hidden;
   opacity: 0;
   transition: opacity 0.2s var(--micro);

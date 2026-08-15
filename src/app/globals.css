@@ -77,13 +77,20 @@ h1, h2, h3, .font-display {
   --brand-steel: #394361;
   --brand-ink: #12182B;
   --brand-line: #E3E1D9;
-  /* v3 hero language, now site-wide */
-  --noir: #070606;
-  --noir-2: #100E0C;
-  --linen: #F2EFE9;
-  --fog: #9C9A93;
-  --brass: #C9A063;
-  --hairline: rgba(242, 239, 233, 0.12);
+  /* v3 hero language, INVERTED 2026-08-15 — the site is a light world.
+     These names are the legacy set (`bg-noir`, `text-linen`, `text-fog`)
+     and they are still worn by /career, the legacy Navbar and Footer, and
+     the locations map's Tailwind markup. Renaming them would mean
+     rewriting that markup, which this pass is explicitly not allowed to
+     do — so the names keep their jobs and only their values invert:
+     `--noir` is the page ground, `--linen` is the primary ink. The words
+     lie now; the roles do not. Flagged in §15. */
+  --noir: #FFFFFF;
+  --noir-2: #F7F6F4;
+  --linen: #0B0B0C;
+  --fog: #5A5A5E;
+  --brass: #F15524;
+  --hairline: rgba(11, 11, 12, 0.14);
   --radius: 0.625rem;
 
   /* Motion system — no animation may use a value outside this set */

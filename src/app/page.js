@@ -202,11 +202,6 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         <span className="er-loader__bar" data-mark aria-hidden="true" />
       </div>
 
-      {/* §1.1 — the hero's white ground. It must come BEFORE the canvas:
-          the ground, the field and the fluid wake all sit at z-index 0,
-          so the DOM order here is the layering. See `.er-heroground`. */}
-      <div className="er-heroground" aria-hidden="true" />
-
       <StudioClient />
       {/* Right after the field and before any content: both canvases sit
           at z-index 0, so tree order is what puts the wake above the dots
@@ -218,7 +213,15 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
       <StudioHeader />
 
       <main id="er-main">
-        {/* ------------------------- 5.2 HERO ------------------------- */}
+        {/* ------------------------- 5.2 HERO -------------------------
+            The hero and the panel that rises over it share one wrapper,
+            and that wrapper is load-bearing: `position: sticky` is
+            contained by its nearest scrolling ancestor's box, so without
+            this the hero's containing block was <main> and it stayed
+            stuck at the top for the WHOLE document — reading through
+            every transparent section below it. The stage ends where the
+            panel ends, which is exactly when the hero should let go. */}
+        <div className="er-herostage">
         <section className="er-hero">
           {/* data-quiet marks a block the field must stay calm behind —
               see StudioQuiet.jsx. Not a scrim: the points inside are dimmed
@@ -276,6 +279,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </h2>
           </blockquote>
         </section>
+        </div>
 
         {/* ------- 5.4 METHOD — the valuation journey, in this palette ---- */}
         <section

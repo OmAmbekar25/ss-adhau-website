@@ -55,8 +55,16 @@
   object-position: center;
   will-change: transform;
 }
-/* the bottom third fades to the page, so the type below sits on graphite
-   and not on photograph */
+/* The bottom third fades to the page so the type below sits on the page
+   and not on photograph.
+
+   THE STOPS STAY DARK, and that is deliberate. Everything else on this
+   site inverted; the photographs did not, because the brief holds their
+   grade for a separate pass. So this hero's surface is still a dark
+   image, and a scrim that lifted it toward white would fight the picture
+   rather than seat it. It darkens the photograph as before and then
+   resolves to `--bg`, which is now white — the last stop is what changed,
+   and it is the one that had to. */
 .er-svchero::after {
   content: "";
   position: absolute;
@@ -64,9 +72,9 @@
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(21, 21, 21, 0.35) 0%,
-    rgba(21, 21, 21, 0.15) 32%,
-    rgba(21, 21, 21, 0.82) 78%,
+    rgba(11, 11, 12, 0.35) 0%,
+    rgba(11, 11, 12, 0.15) 32%,
+    rgba(11, 11, 12, 0.82) 78%,
     var(--bg) 100%
   );
 }
@@ -89,9 +97,19 @@
   right: 0;
   bottom: clamp(28px, 5vh, 56px);
 }
+/* THE HERO BAND KEEPS LIGHT INK. Its surface is the photograph, not the
+   page, and the photographs are not regraded in this pass — so inverting
+   this type with everything else put near-black on a dark picture and
+   made the page title unreadable. The rule is the general one: ink
+   follows the surface a string actually sits on, not the site's default.
+   These four are the only strings on any route that sit on an image. */
 .er-svchero__n {
   display: block;
-  color: var(--hue-text);
+  /* the hue text token is dark now, and dark on a photograph is the same
+     defect one step quieter — the numeral takes the hue itself, which was
+     authored at L 38-45 and reads on a darkened picture */
+  color: var(--hue);
+  filter: brightness(1.9);
   margin-bottom: clamp(12px, 2vh, 20px);
 }
 /* The one serif on the page — the locked exception, above the 52px cap. */
@@ -99,14 +117,14 @@
   margin: 0;
   font-size: clamp(48px, 6vw, 88px);
   line-height: 1.04;
-  color: var(--ink);
+  color: #f4f4f5;
 }
 
 /* the hairline under the band */
 .er-svchero__rule {
   display: block;
   height: 1px;
-  background: var(--hairline-hi);
+  background: rgba(244, 244, 245, 0.34);
   transform-origin: left center;
 }
 

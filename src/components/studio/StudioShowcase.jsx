@@ -27,7 +27,8 @@ if (typeof window !== "undefined") {
  *
  * Each world carries TWO values. `hue` is the world itself — particle
  * tint, wash, hairlines, button border — and sits at L 38-45 by design,
- * which is too dark to set small text on. `hueText` is a 45/55 mix of the
+ * which is too LIGHT to set small text on now that the site is white.
+ * `hueText` is a 45/55 mix of the
  * same hue into `--ink`, and is the only one that may colour type. Both
  * are locked; the pair is mirrored as `--hue-NN` / `--hue-NN-text` in
  * studio.css, which is where the lock is written down.
@@ -47,7 +48,7 @@ const SERVICES = [
     title: ["Real estate ", "valuation"],
     em: 1,
     hue: "#8A6D3F",
-    hueText: "#BEB19B",
+    hueText: "#514128",
     tag: "Residential · Commercial · Industrial",
     desc: "Residential, commercial and industrial property — inspected, measured and benchmarked against local market evidence.",
   },
@@ -59,7 +60,7 @@ const SERVICES = [
     title: ["Plant & machinery ", "valuation"],
     em: 1,
     hue: "#3F5C7A",
-    hueText: "#9CA9B5",
+    hueText: "#283849",
     tag: "Age · Condition · Market",
     desc: "Age, condition and market comparables for plant, machinery and equipment — from single assets to full facilities.",
   },
@@ -71,7 +72,7 @@ const SERVICES = [
     title: ["Valuation under ", "IBC"],
     em: 1,
     hue: "#7A3F46",
-    hueText: "#B69C9E",
+    hueText: "#48282C",
     tag: "CIRP · Liquidation",
     desc: "CIRP and liquidation valuations under the Insolvency and Bankruptcy Code, built to survive committee and court review.",
   },
@@ -83,7 +84,7 @@ const SERVICES = [
     title: ["Business ", "valuation"],
     em: 1,
     hue: "#5C4A7A",
-    hueText: "#A9A1B5",
+    hueText: "#382E49",
     tag: "Income · Market · Asset",
     desc: "Income, market and asset approaches to whole-business value — for transactions, disputes and planning.",
   },
@@ -95,7 +96,7 @@ const SERVICES = [
     title: ["Financial reporting ", "valuation"],
     em: 1,
     hue: "#3F6E66",
-    hueText: "#9CB1AC",
+    hueText: "#28413E",
     tag: "Ind-AS · IFRS",
     desc: "Ind-AS and IFRS fair-value measurements with the working papers auditors ask for.",
   },
@@ -107,7 +108,7 @@ const SERVICES = [
     title: ["Merger & acquisition ", "support"],
     em: 1,
     hue: "#7A5A3F",
-    hueText: "#B6A89B",
+    hueText: "#483628",
     tag: "Restructuring",
     desc: "Valuation support through restructuring and M&A — diligence, swap ratios and fairness opinions.",
   },

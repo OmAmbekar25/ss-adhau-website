@@ -646,7 +646,7 @@ void main() {
      The cap and the text masks are applied INSIDE the curve so they still
      scale the result down proportionally instead of being flattened. */
   float w = pow(clamp(vGlow * uGain, 0.0, 1.0), uCurve);
-  float a = disc * w * mix(0.65, 0.85, vTone);
+  float a = disc * w * mix(0.55, 0.85, vTone);
   a *= mix(1.0, 0.62, vWarm * uWarmAmt);
   gl_FragColor = vec4(tint, clamp(a * uBright * uFade, 0.0, 1.0));
 }

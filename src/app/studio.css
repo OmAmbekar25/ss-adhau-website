@@ -6,25 +6,45 @@
    ========================================================================== */
 
 .er {
-  /* --- palette: monochrome, one accent (§1) ---
-     WI-6 — warm graphite, not black. Near-black is the harshest choice on
-     an emissive screen: it maximises the halo an astigmatic reader sees
-     around light type. Flat fills only; sections change level at a
-     hairline, never through a gradient. */
-  --bg: #151515;
-  --bg-deep: #0f0f10;
-  --surface: #1c1c1e;
-  --bg-lift: #1c1c1e;
-  --bg-raise: #1c1c1e;
-  --ink: #eceef0;
-  --ink-dim: #939aa3;
-  /* WI-6 re-verify: --ink-faint measured 2.96:1 on the new graphite and
-     fails the 4.5 floor the retheme sets for every text role. Lifted one
-     step; --ink and --ink-dim measured 15.7 and 6.43 and are unchanged. */
-  --ink-faint: #8b8b90;
-  --hairline: rgba(255, 255, 255, 0.1);
-  --hairline-hi: rgba(255, 255, 255, 0.22);
-  --accent: #c9a25e;
+  /* --- palette: THE SITE IS A LIGHT WORLD (2026-08-15) ---
+     Inverted wholesale. The previous pass flipped the hero's ink without
+     flipping the surfaces underneath it, which put near-black type on
+     near-black ground everywhere below the first viewport — the primary
+     defect this correction exists to fix. Surfaces first, then ink.
+
+     WI-6's reasoning for warm graphite over pure black was about an
+     emissive dark screen and does not carry over: on a light world the
+     ground is true white and the ink is the near-black WI-6 argued for.
+     Flat fills only; sections still change level at a hairline, never
+     through a gradient. */
+  --bg: #ffffff;
+  /* The footer and the old "deep" level are the same white now — there is
+     no deeper level to go to. Kept as a token so nothing has to be
+     re-pointed to lose it. */
+  --bg-deep: #ffffff;
+  --surface: #f7f6f4;
+  --bg-lift: #f7f6f4;
+  --bg-raise: #f7f6f4;
+  --ink: #0b0b0c;
+  --ink-dim: #5a5a5e;
+  /* The brief's #8E8E93 measures 3.29:1 on white and fails the 4.5 floor
+     §2.4 locks for every text role — and this token dresses 11px labels,
+     which is exactly where the floor bites. Darkened to the lightest
+     value that clears it: #767679 at 4.63:1. Flagged in §15. */
+  --ink-faint: #767679;
+  --hairline: rgba(11, 11, 12, 0.14);
+  --hairline-hi: rgba(11, 11, 12, 0.26);
+  /* The brief's own names for the two rules above, so either reads. */
+  --bg-elevated: var(--surface);
+  --line: var(--hairline);
+  --line-strong: var(--hairline-hi);
+  /* THE ACCENT IS NOW THE FIRM'S ORANGE, not the brass it has been since
+     2026-07-28. The brief writes `#E4572E` beside the words "the orange
+     already in the build" and "stays exactly as it is" — those cannot
+     both be true, because the orange in the build is the value measured
+     off the real logo. The instruction not to adjust it wins over the
+     stale hex from the superseded approximation table. See §15. */
+  --accent: var(--brand-orange);
 
   /* --- BRAND (§0) — the firm's own mark, not surface tokens ---
      MEASURED, not approximated. The brief supplied four hexes read off a
@@ -182,7 +202,12 @@
 .er-hero__body,
 [data-quiet] .er-body,
 .er-jbeat__b {
-  color: #b5afa5;
+  /* Was #B5AFA5 — WI-5.5's "one step up in tone where body copy sits over
+     the canvas", authored for a dark stage. It measures 2.1:1 on white
+     and the idea behind it does not survive the inversion at all: over a
+     light ground the field DARKENS what is behind the type, so the answer
+     is the standard muted ink, not a lifted one. */
+  color: var(--ink-dim);
 }
 
 .er-label {
@@ -414,6 +439,27 @@
 .er-home .er-nav[data-scrolled="false"] .er-lockup__line--2 {
   color: #5a5a5e;
 }
+/* THE SERVICE PAGE IS THE EXCEPTION, AND THE ONLY ONE. Its hero is a
+   full-bleed photograph that this pass does not regrade, so an unscrolled
+   nav there sits on a dark picture while every other route puts it on
+   white. Light ink until it scrolls, then the shared scrim takes over and
+   the default applies again. Same principle as the hero band below it:
+   ink follows the surface, not the site default. */
+.er-svc .er-nav[data-scrolled="false"] .er-lockup__line--1 {
+  color: #f4f4f5;
+}
+.er-svc .er-nav[data-scrolled="false"] .er-lockup__line--2,
+.er-svc .er-nav[data-scrolled="false"] .er-navlink {
+  color: rgba(244, 244, 245, 0.72);
+}
+.er-svc .er-nav[data-scrolled="false"] .er-navlink:hover,
+.er-svc .er-nav[data-scrolled="false"] .er-navlink:focus-visible {
+  color: #f4f4f5;
+}
+.er-svc .er-nav[data-scrolled="false"] .er-burger span {
+  background: #f4f4f5;
+}
+
 /* the links and the burger travel with it, or they vanish on the white */
 .er-home .er-nav[data-scrolled="false"] .er-navlink {
   color: #5a5a5e;
@@ -467,110 +513,37 @@
   pointer-events: none;
 }
 
-/* ---- §1 THE HERO INVERTS TO WHITE ----
-   True white, flat and total. No grid, no texture wash, no gradient — the
-   old site's graph-paper grid is not coming back. The particles are the
-   only thing in the field.
+/* ---- §1 THE HERO ON THE LIGHT WORLD ----
+   The hero no longer needs a ground of its own. The whole site is white
+   now, so `.er`'s own background paints the white and the particle canvas
+   composites straight onto it — which is why `.er-heroground`, the fixed
+   layer the previous pass introduced, is DELETED along with the
+   `data-hero-covered` switch that turned it off. That whole apparatus
+   existed only because the hero was an island of white on a dark page.
 
-   The ground stays on ::before at z-index -1, which is what keeps the
-   field BETWEEN the white and the type: `.er` is a stacking context, the
-   canvas is at 0, so -1 paints above the page fill and below the dots
-   while the hero's own copy (auto, later in tree) paints above both. */
-.er-hero {
-  --hero-bg: #ffffff;
-  --hero-ink: var(--brand-ink);
-  --hero-ink-dim: #5a5a5e;
-  --hero-line: rgba(11, 11, 12, 0.14);
-  /* the focus ring is drawn from --hairline-hi, which is a white alpha
-     everywhere else on this page and would be invisible here */
-  --hairline: var(--hero-line);
-  --hairline-hi: rgba(11, 11, 12, 0.28);
-  color: var(--hero-ink);
+   Its ink tokens are gone too: --hero-ink and --hero-ink-dim were the
+   same values --ink and --ink-dim now hold site-wide. One palette. */
+
+/* §2.1 — THE HERO DOES NOT MOVE, AND IT STOPS AFTER ONE VIEWPORT.
+   That second clause is the correction. `position: sticky` sticks within
+   its CONTAINING BLOCK, and the hero's was `<main>` — the whole document
+   — so it stayed pinned at the top behind every later section for the
+   entire page. The manifesto covered it, then scrolled off, and the
+   still-stuck hero read straight through the transparent Method section
+   underneath its copy: two headlines legible at once, which is the
+   defect reported as BUG 2 and the reason the field looked disposed and
+   the type looked black-on-black.
+
+   `.er-herostage` is the fix: a wrapper around the hero AND the panel
+   that rises over it. Sticky is contained by that wrapper, so the hero is
+   released exactly when the panel has finished passing — one viewport of
+   travel, then it is gone. Still not a ScrollTrigger pin, so §7's budget
+   of two is untouched and both remain spent on the method journey and the
+   showcase. */
+.er-herostage {
+  position: relative;
 }
 
-/* THE WHITE GROUND IS ITS OWN ELEMENT, and the two reasons why are both
-   worth writing down — each cost a build to find.
- *
- * 1. It cannot live on the hero. `position: sticky` ALWAYS creates a
- *    stacking context, whatever its z-index, so the moment §2.1 made the
- *    hero sticky a `.er-hero::before` at z-index -1 stopped meaning
- *    "behind the page's canvas" and started meaning "behind the hero's
- *    own content" — trapped in the hero's box and painting ON TOP of the
- *    particle canvas. The field rendered perfectly and was covered by a
- *    sheet of white paper, which looks exactly like a shader that failed.
- *
- * 2. It cannot use a negative z-index either. `.er` carries
- *    `overflow-x: clip`, and under it a POSITION-FIXED child at z-index
- *    -1 never paints at all — verified by probe: an identical fixed div
- *    is invisible at z-index -1 and visible at 0. (`.er-footer::before`
- *    gets away with -1 because it is absolute, not fixed.)
- *
- * So the ground is a real element at z-index 0, ordered by the DOM: it is
- * rendered immediately BEFORE the particle canvas, and among z-index-0
- * siblings tree order decides. Ground, then field, then the fluid wake,
- * then every word on the page. Fixed rather than absolute because the
- * hero is sticky and stays in the viewport while the panel travels.
- *
- * It is switched off the instant the panel has covered the hero: every
- * section below the manifesto is transparent over graphite and would
- * otherwise have white showing through it. At that moment the panel is
- * opaque across the whole viewport, so the switch cannot be seen. */
-.er-heroground {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background: #ffffff;
-  pointer-events: none;
-}
-.er-home[data-hero-covered="true"] .er-heroground {
-  display: none;
-}
-/* Under reduced motion the hero is static and no scroll is listening, so
-   the ground ends with the hero geometrically instead of being switched
-   off. */
-/* Reduced motion keeps the same z-index-0 + DOM-order mechanism and only
-   changes the ground's geometry: absolute and one viewport tall, so it
-   ends with the hero instead of being switched off by a scroll handler
-   that is not running.
- *
-   NEGATIVE Z-INDEX IS NOT AN OPTION ANYWHERE UNDER `.er`, and it is worth
-   recording because the file used to claim otherwise. A child of `.er` at
-   z-index -1 does not paint — verified by probe, fixed and absolute
-   alike, and independent of `overflow-x: clip`. The comment on
-   `.er-footer::before` asserting that -1 puts its fill behind the canvas
-   was never true; it simply reads as `--bg` instead of `--bg-deep`, a
-   six-value difference nobody could see. Left alone here — it is the
-   footer's, it is harmless, and this pass does not touch that section.
- *
-   The hero must also stay POSITIONED, or its own eyebrow, body and CTA
-   paint below the z-0 ground: in-flow content of a static box loses to a
-   positioned sibling at the same level. `relative` is enough — it takes
-   the hero out of sticky without making it static, and unlike sticky it
-   creates no stacking context. */
-@media (prefers-reduced-motion: reduce) {
-  .er-hero {
-    position: relative;
-    height: auto;
-  }
-  .er-heroground {
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 100svh;
-  }
-}
-
-/* §2.1 — the hero does not move. It sticks at the top for exactly one
-   viewport while the panel below is drawn up over it.
-
-   `position: sticky`, NOT a ScrollTrigger pin. §7 LOCKS the homepage at
-   two pinned sections (the method journey and the service showcase) and
-   says nothing else on the page may pin; the brief offered sticky first
-   and it is the option that holds the lock. It also costs no pin spacer,
-   no refresh, and reverses exactly for free — the panel's own scroll
-   position IS translateY(100%) → 0 over one viewport, with no JS at all.
-
-   Height is exactly 100svh: a sticky box taller than the viewport hangs
-   its bottom below the fold with no way to reach it. */
 .er-hero {
   position: sticky;
   top: 0;
@@ -583,17 +556,17 @@
   text-align: center;
   padding: 140px var(--gutter) 96px;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .er-hero {
+    position: relative;
+    height: auto;
+  }
+}
+
 .er-hero__eyebrow,
 .er-hero .er-label--faint {
-  color: var(--hero-ink-dim);
-}
-/* `[data-quiet] .er-body` (WI-5.5's over-canvas tone, #B5AFA5) is an
-   attribute-plus-class selector and outranks a bare `.er-hero__body`, so
-   the subcopy was still resolving to a warm grey authored for a dark
-   canvas — 2.1:1 on white. Scoped through the hero to outrank it. */
-.er-hero .er-body,
-.er-hero .er-hero__body {
-  color: var(--hero-ink-dim);
+  color: var(--ink-faint);
 }
 /* The italic phrase is the ONLY chromatic moment in the type. Measured
    3.46:1 on white — under the 4.5 body floor and over the 3.0 large-text
@@ -690,41 +663,27 @@
   left: var(--gutter);
 }
 
-/* manifesto — §2.3 THE INCOMING PANEL.
-   The section that follows the hero is the panel drawn up over it. It
-   needs three things and nothing else: its own opaque background, the
-   orange top rule so the boundary reads as a deliberate line arriving,
-   and a shadow thrown UPWARD so it visibly sits above the hero plane
-   rather than beside it.
+/* manifesto — §2.3/§3 THE INCOMING PANEL.
+   The section that follows the hero is the sheet drawn up over it.
 
-   z-index 1 puts it over the particle canvas (z 0) as well as over the
-   sticky hero, which is what makes the occlusion total — nothing of the
-   field is visible past the top rule.
+   OPAQUE, EXPLICITLY. This was the second half of BUG 2: the panel took
+   its fill from a token and, once the surfaces inverted, resolved to the
+   same nothing the sections around it use — so the hero read straight
+   through it. The fill is stated here and does not depend on inheritance.
 
-   PROVISIONAL SURFACE. `#F7F5F1` is a placeholder so the slide-over is
-   visible and the boundary testable. The colour rhythm for the rest of
-   the page is the NEXT brief's job and is deliberately not invented here.
+   Both hero and panel are white now, so the boundary has to be drawn or
+   the transition is invisible: a 1px accent rule across the full top edge
+   and a shadow thrown UPWARD onto the hero. Together they read as a
+   physical sheet sliding over a surface rather than a colour change.
 
-   INTERIOR: the brief says the panel's interior is unchanged. It could
-   not be — this section's copy is `--ink` (#eceef0), which measures
-   ~1.05:1 on the provisional off-white and is simply invisible. §2.4's
-   contrast floor is LOCKED and the panel colour is explicitly
-   provisional, so the ink tokens are re-pointed for the panel only. No
-   layout, type or motion inside it changes. Logged in §15. */
+   z-index 1 puts it strictly above the sticky hero AND above the particle
+   canvas at 0, which is what makes the occlusion total. */
 .er-manifesto {
-  --panel-bg: #f7f5f1;
-  --ink: var(--brand-ink);
-  --ink-dim: #5a5a5e;
-  --ink-faint: #6b6b70;
-  --hairline: rgba(11, 11, 12, 0.14);
-  --hairline-hi: rgba(11, 11, 12, 0.26);
-
   position: relative;
   z-index: 1;
-  background: var(--panel-bg);
-  color: var(--ink);
-  border-top: 1px solid var(--brand-orange);
-  box-shadow: 0 -24px 48px rgba(11, 11, 12, 0.1);
+  background: var(--bg);
+  border-top: 1px solid var(--accent);
+  box-shadow: 0 -20px 40px rgba(11, 11, 12, 0.08);
 
   min-height: 100svh;
   display: flex;
@@ -732,43 +691,21 @@
   justify-content: center;
   text-align: center;
 }
-/* Mobile softens the shadow (§2.4). The brief also asks for the slide's
-   scroll distance to shorten to 0.6vh on mobile — that parameter belongs
-   to a ScrollTrigger pin. With native sticky the travel IS one viewport
-   by construction (the panel starts at the fold and finishes at the top),
-   so there is no distance to shorten. Noted in §15 rather than faked. */
+/* Mobile softens the shadow. The brief also asks the slide's scroll
+   distance to shorten to 0.6vh below 768px — that is a parameter of a
+   ScrollTrigger pin. With native sticky the travel IS one viewport by
+   construction, so there is no distance term to shorten. §15. */
 @media (max-width: 767px) {
   .er-manifesto {
-    box-shadow: 0 -16px 32px rgba(11, 11, 12, 0.07);
+    box-shadow: 0 -14px 28px rgba(11, 11, 12, 0.06);
   }
 }
-
-/* §2.4 REDUCED MOTION — no slide. The hero is an ordinary static white
-   section and the panel follows it normally: no sticky, no travel, no
-   shadow implying a plane that is no longer moving. The surface and the
-   orange rule stay, so the page still reads as designed rather than as
-   the same page with its motion removed. The field renders one static
-   scatter of black dots — see StudioClient. */
+/* Without motion there is no slide, so nothing is casting a shadow. The
+   accent rule stays — it is the seam between two sections either way. */
 @media (prefers-reduced-motion: reduce) {
   .er-manifesto {
     box-shadow: none;
   }
-}
-/* The measure has to be set on the element that actually carries the
-   display font. On the blockquote, `ch` resolves against the inherited
-   16px body font — about 350px — which is narrower than a single word of
-   94px Cormorant, so long words overflowed and the line masks shaved them
-   off ("measur…", "numbe…"). Constrain the heading, in its own em. */
-.er-manifesto__quote {
-  margin: 0;
-  max-width: min(94vw, 1180px);
-}
-.er-manifesto__quote h2 {
-  max-width: 11.5em;
-  margin-inline: auto;
-}
-.er-manifesto__quote .er-dim {
-  color: var(--ink-dim);
 }
 
 /* split / process */
@@ -895,11 +832,16 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* see .vj-scrim — a wash under the copy, not a curtain over half the
-     frame, so the particle field still reads as centred */
+  /* A wash under the copy, not a curtain over half the frame, so the
+     field still reads as centred. INVERTED with the site: it was two
+     near-black gradients darkening the ground so light type could sit on
+     it, and on a white page that is a grey smudge across the bottom-left
+     — the largest surviving dark block after the token flip. White at the
+     same stops does the same job in the same shape, lifting the ground so
+     DARK type sits on it. */
   background:
-    radial-gradient(82% 62% at 4% 82%, rgba(8, 11, 15, 0.95) 0%, rgba(8, 11, 15, 0.66) 40%, transparent 72%),
-    linear-gradient(to top, rgba(8, 11, 15, 0.86) 0%, transparent 24%);
+    radial-gradient(82% 62% at 4% 82%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.66) 40%, transparent 72%),
+    linear-gradient(to top, rgba(255, 255, 255, 0.86) 0%, transparent 24%);
 }
 .er-jcopy {
   position: absolute;
@@ -1255,7 +1197,7 @@
      does not flash from black to white the moment the overlay lifts. WI-3
      normalised this to flat #050505 when the site opened on black; the
      site opens on white now and the load screen follows it. */
-  background: var(--hero-bg, #ffffff);
+  background: var(--bg);
   clip-path: inset(0 0 0 0);
 }
 .er-loading .er-loader {
@@ -1711,13 +1653,21 @@
    `StudioShowcase.jsx` mirrors both values per service as `hue` and
    `hueText`; the GL tint needs a literal, so it cannot read these. Change
    one and change the other. */
+/* THE RECIPE IS UNCHANGED BY THE INVERSION, and that is the nice part:
+   Ruling 1 defines `--hue-NN-text` as "a 45/55 mix of the same hue into
+   `--ink`". `--ink` flipped from #ECEEF0 to #0B0B0C, so the same sentence
+   now yields dark tints instead of light ones and the lock needs no
+   amendment — only its outputs recomputed. The six worlds themselves are
+   untouched; they were authored at L 38-45 and read correctly on white.
+   Measured on the new `--bg`: the old light tints were 2.11-2.55:1 and
+   would have failed outright; these are 9.83-13.00:1. */
 .er {
-  --hue-01: #8a6d3f; --hue-01-text: #beb19b;
-  --hue-02: #3f5c7a; --hue-02-text: #9ca9b5;
-  --hue-03: #7a3f46; --hue-03-text: #b69c9e;
-  --hue-04: #5c4a7a; --hue-04-text: #a9a1b5;
-  --hue-05: #3f6e66; --hue-05-text: #9cb1ac;
-  --hue-06: #7a5a3f; --hue-06-text: #b6a89b;
+  --hue-01: #8a6d3f; --hue-01-text: #514128;
+  --hue-02: #3f5c7a; --hue-02-text: #283849;
+  --hue-03: #7a3f46; --hue-03-text: #48282c;
+  --hue-04: #5c4a7a; --hue-04-text: #382e49;
+  --hue-05: #3f6e66; --hue-05-text: #28413e;
+  --hue-06: #7a5a3f; --hue-06-text: #483628;
 }
 .er-scsec {
   padding-bottom: 0;
@@ -1786,7 +1736,8 @@
 .er-sc__d {
   margin: 22px 0 0;
   max-width: 34ch;
-  color: #b5afa5;
+  /* was #B5AFA5, the over-canvas tone — 2.18:1 on white */
+  color: var(--ink-dim);
   will-change: transform;
 }
 .er-sc__tag { margin: 24px 0 0; }
@@ -1834,8 +1785,11 @@
   overflow: hidden;
   background: var(--bg-deep);
   box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.55),
-    0 2px 8px rgba(0, 0, 0, 0.4);
+    /* Softened for the light world: 0.55/0.4 black was depth against a
+       near-black ground and reads as a bruise on white. Same two-layer
+       cast-plus-contact shape, an order of magnitude lighter. */
+    0 18px 48px rgba(11, 11, 12, 0.10),
+    0 2px 8px rgba(11, 11, 12, 0.06);
 }
 /* Inner parallax lives on this element only: the mask stays put, the
    picture inside eases from 1.08 to 1.0 as the slide arrives. */

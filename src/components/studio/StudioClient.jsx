@@ -306,11 +306,6 @@ export default function StudioClient() {
           end: "top top",
           onUpdate: (self) => {
             coverage = self.progress;
-            /* The white ground is a fixed layer behind the canvas, so it
-               has to stop the moment the panel owns the viewport — every
-               section below is transparent over graphite. See the note on
-               `.er-home::before`. */
-            root.dataset.heroCovered = String(coverage >= 1);
 
             if (coverage >= 1) {
               /* Fully covered. Stop the loop first — the renderer is not

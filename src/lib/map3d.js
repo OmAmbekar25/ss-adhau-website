@@ -57,7 +57,12 @@ export function createMap3D(container, { polyMP, polyMH, cityPts, labelEls }) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 1, 6000);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setClearColor(0x070606, 1);
+  /* The site is a light world now, and this canvas is opaque: cleared to
+     the old near-black it painted a black rectangle across half of
+     /locations. Cleared to the page white instead — the extruded paper
+     map and its gold route are unchanged, they simply sit on the page
+     they are actually on. */
+  renderer.setClearColor(0xffffff, 1);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   container.appendChild(renderer.domElement);
 
