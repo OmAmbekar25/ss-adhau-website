@@ -35,13 +35,13 @@ Things that will bite you on this page:
   budget is still two (§7), both spent on the method journey and showcase.
 - **Nothing under `.er` may use a negative z-index** — it does not paint,
   fixed or absolute. Layer with z-index 0 and DOM order instead.
-- The particle field belongs to the hero alone: it fades by 60% panel
-  coverage, its loop stops at 100%, the renderer disposes 500ms later, and
-  coming back up re-creates it from cached formation buffers. Four
-  sections below lost their field couplings and are currently inert — the
-  method journey's formations, the showcase's colour worlds, the trusted
-  band and the closing disperse. Accepted; to be rebuilt with the
-  colour-rhythm brief.
+- The particle field serves the WHOLE page: the method journey's five
+  formations, the showcase's colour worlds, the trusted band and the
+  closing disperse all drive it through `fieldBus`. It is created once and
+  released only on unmount. The only thing scroll changes is a dip — it
+  fades to nothing by 60% of the panel's coverage of the hero, holds
+  there while the panel owns the viewport (loop paused), and returns as
+  the panel clears. Nothing is ever visible beside the incoming panel.
 - Colour-world hue text is `--hue-NN-text`, a 45/55 mix of the hue into
   `--ink`. The literals are mirrored in THREE places — `studio.css`,
   `StudioShowcase.jsx` and `src/data/services.js`. Change one, change all

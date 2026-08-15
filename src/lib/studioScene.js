@@ -612,6 +612,8 @@ const FRAG = /* glsl */ `
 precision mediump float;
 uniform vec3 uColorCore;
 uniform vec3 uAccent;
+uniform vec3 uHue;
+uniform float uTint;
 /* uFade is the hero→panel handover (§2.2): the field's own opacity,
    driven by how far the panel has covered it. Kept separate from uBright
    because the focus/whirl logic rewrites uBright every frame and would
@@ -627,6 +629,17 @@ void main() {
   /* The density core carries the brand orange at LOW opacity, so the
      field reads black with a warm heart rather than reading orange. */
   vec3 tint = mix(uColorCore, uAccent, vWarm * uWarmAmt);
+
+  /* THE SHOWCASE'S COLOUR WORLDS, restored for the light field.
+     The old version was luminance-preserving — it rescaled the hue to
+     the grey it replaced, so tinting moved chroma and never brightness
+     and the SILVER RAMP survived underneath. That reasoning belonged to
+     an additive field on black, where brightness was the whole signal.
+     Here the ink is near-black and the hues sit at L 38-45, so mixing
+     straight toward the hue is both simpler and correct: the dot stays
+     dark enough to read on white and visibly takes the section's colour.
+     uTint rests at 0 everywhere but the showcase, via the lapse. */
+  tint = mix(tint, uHue, uTint);
 
   /* vGlow still carries the per-section cap and the text-block masks
      (WI-5), which matter more on white than they did on graphite. But it
@@ -866,11 +879,11 @@ export function createStudioScene(container, opts = {}) {
     /* Monochrome silver. No warm stop anywhere in the field: gold is a
        typographic accent on this page, not a light source. */
     /* §1.2 — one ink for the whole field; depth is alpha, not colour.
-       uColorBase/uColorFaint and the hue pair are kept declared because
-       setTint() and the scene's options still write to them, but the
-       inverted fragment shader reads neither: the showcase's colour
-       worlds are one of the couplings that went with the field when it
-       became hero-only. See §15. */
+       uColorBase/uColorFaint stay declared because `opts` still accepts
+       them and callers pass all three, but the inverted shader reads only
+       the core: with alpha carrying depth there is no ramp left for three
+       stops to describe. The hue pair IS read again — the showcase's
+       colour worlds are back (2026-08-15). */
     uColorCore: { value: new THREE.Color(opts.core ?? 0x0b0b0c) },
     uColorBase: { value: new THREE.Color(opts.base ?? 0x0b0b0c) },
     uColorFaint: { value: new THREE.Color(opts.faint ?? 0x0b0b0c) },

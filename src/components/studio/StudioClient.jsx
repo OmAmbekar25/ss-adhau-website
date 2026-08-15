@@ -18,14 +18,12 @@ const ENTER = "power4.out"; // the expo-like entrance curve
    brand orange. */
 const INK = 0x0b0b0c;
 const ACCENT = 0xf15524; // --brand-orange, measured off the firm's logo
-/* §2.2 — the panel handover. The field is gone by the time the panel has
-   covered 60% of the hero, so no particle is ever seen beside or through
-   the incoming content. */
-const FADE_BY = 0.6;
-/* …and the renderer is released 500ms after full coverage, not instantly:
-   a reader who overshoots the boundary and comes straight back should
-   find the field still up rather than pay for a rebuild. */
-const DISPOSE_GRACE = 500;
+/* The panel dip, expressed against the panel's whole two-viewport pass.
+   Coverage completes at progress 0.5, so fading out by 60% of coverage is
+   progress 0.3; the field returns as the panel clears the frame. */
+const FADE_OUT_END = 0.3;
+const FADE_IN_START = 0.72;
+const FADE_IN_SPAN = 0.2;
 
 /* Where each section sits on the field's spine (see lib/studioScene.js):
    0 tornado · 1 ribbon · 2 site · 3 lattice · 4 page. Everything outside
@@ -53,23 +51,13 @@ export default function StudioClient() {
     let dead = false;
     let introPlayed = false;
 
-    /* §2.2 — THE FIELD BELONGS TO THE HERO AND DIES WITH IT.
-     *
-     * `coverage` is how far the incoming panel has drawn itself over the
-     * hero: 0 when its top edge is at the fold, 1 when it reaches the top
-     * of the viewport. Everything the field does on scroll is a pure
-     * function of that one number, so scrubbing backwards is exact.
-     *
-     * NOTE, and it is the significant one on this page: the field is now
-     * hero-only. The method journey's five formations, the showcase's
-     * colour worlds, the trusted-by band coupling and the closing
-     * disperse all spoke to this scene and are inert from here on —
-     * `attachField(null)` makes every one of them a guarded no-op rather
-     * than an error. Accepted deliberately; logged in §15 with the call
-     * sites named, to be rebuilt with the colour-rhythm brief. */
+    /* THE FIELD SERVES THE WHOLE PAGE. It is created once, lives for the
+     * document, and is released only on unmount. `coverage` is how far
+     * the incoming panel has drawn itself over the hero — 0 clear, 1
+     * fully covered — and the only thing it decides is whether the loop
+     * is worth running. Every scroll-driven value is a pure function of
+     * progress, so scrubbing backwards is exact. */
     let coverage = 0;
-    let disposeTimer = 0;
-    const fadeFor = (p) => 1 - Math.min(1, Math.max(0, p / FADE_BY));
 
     const releaseField = () => {
       if (!ribbon) return;
@@ -100,11 +88,9 @@ export default function StudioClient() {
        The field. Mounted after first paint so the headline is readable
        before the scene exists, and skipped entirely without WebGL.
 
-       This function is now callable more than once: §2.2 disposes the
-       renderer when the panel has covered the hero and re-initialises it
-       on the way back up. The formation buffers are cached inside
-       studioScene, so the second build uploads geometry rather than
-       computing it.
+       It stays idempotent — guarded on `ribbon` — because a re-mount
+       after a disposal was a real path once and the formation cache in
+       studioScene makes it cheap if it is ever needed again.
        --------------------------------------------------------------- */
     const mountRibbon = () => {
       if (dead || ribbon || !canvasRef.current) return;
@@ -131,11 +117,6 @@ export default function StudioClient() {
             ribbon.setStory(STORY_REST); // no funnel — the settled ribbon
             ribbon.renderOnce();
           } else {
-            /* On a re-init the field is arriving underneath a panel that
-               is already partly drawn back down, so it must come up at
-               the coverage the scroll is actually at — not at full
-               strength, which would flash. */
-            ribbon.setFade(fadeFor(coverage));
             ribbon.resume();
             if (introPlayed) ribbon.setStory(STORY_REST);
             else playIntro();
@@ -292,45 +273,51 @@ export default function StudioClient() {
         });
       }
 
-      /* ------------------ §2.2 the hero→panel handover -------------- */
-      /* The panel is the section that follows the hero. Its own travel
-         from the fold to the top of the viewport IS the transition, so
-         the trigger measures exactly that and nothing computes a rect in
-         the scroll path — ScrollTrigger caches the geometry and hands
-         back a progress. */
+      /* --------------- the panel dip, and nothing more ---------------
+         THE FIELD BELONGS TO THE WHOLE PAGE AGAIN (2026-08-15, at client
+         direction). §2.2's "never renders on any other section" was taken
+         strictly in the previous pass and it cost four sections their
+         choreography — the method journey's five formations, the
+         showcase's colour worlds, the trusted band and the closing
+         disperse. They are all restored, and this trigger no longer
+         disposes anything mid-page.
+
+         What survives from §2.2 is the part that was always right: no
+         particle is ever seen beside or through the incoming panel. The
+         field fades to nothing by 60% of the panel's coverage, holds at
+         nothing while the panel owns the viewport, and fades back as the
+         panel leaves and the journey arrives behind it.
+
+         The trigger spans the panel's ENTIRE pass — top-at-fold to
+         bottom-at-top, two viewports — so one progress value drives both
+         halves. Coverage completes at the midpoint, which is why the
+         fade-out lands at 0.3 (60% of the first half) and the fade-in
+         sits in the last quarter. Still a pure function of progress: no
+         tween, no one-shot state, exact when scrubbed backwards. */
       const panel = document.querySelector(".er-manifesto");
       if (panel) {
         ScrollTrigger.create({
           trigger: panel,
           start: "top bottom",
-          end: "top top",
+          end: "bottom top",
           onUpdate: (self) => {
-            coverage = self.progress;
-
-            if (coverage >= 1) {
-              /* Fully covered. Stop the loop first — the renderer is not
-                 released until the grace period expires, so overshooting
-                 the boundary and coming straight back costs nothing. */
-              if (ribbon) ribbon.pause();
-              if (!disposeTimer) {
-                disposeTimer = window.setTimeout(() => {
-                  disposeTimer = 0;
-                  if (coverage >= 1) releaseField();
-                }, DISPOSE_GRACE);
-              }
-              return;
-            }
-
-            if (disposeTimer) {
-              window.clearTimeout(disposeTimer);
-              disposeTimer = 0;
-            }
-            if (!ribbon) {
-              mountRibbon(); // came back up after a disposal
-              return;
-            }
-            ribbon.setFade(fadeFor(coverage));
-            ribbon.resume();
+            const p = self.progress;
+            const f =
+              p <= FADE_OUT_END
+                ? 1 - p / FADE_OUT_END
+                : p < FADE_IN_START
+                  ? 0
+                  : Math.min(1, (p - FADE_IN_START) / FADE_IN_SPAN);
+            coverage = 1 - f;
+            if (!ribbon) return;
+            ribbon.setFade(f);
+            /* Occluded means genuinely invisible, so the loop stops —
+               that is a real saving and it costs nothing to reverse. The
+               renderer itself stays: it is needed again one section
+               later, and disposing on every pass would cost more than the
+               pause saves. */
+            if (f <= 0.001) ribbon.pause();
+            else ribbon.resume();
           },
         });
       }
@@ -422,7 +409,6 @@ export default function StudioClient() {
       dead = true;
       if ("cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
       else clearTimeout(idleId);
-      if (disposeTimer) window.clearTimeout(disposeTimer);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onOut);
       document.removeEventListener("visibilitychange", onVis);
