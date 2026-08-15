@@ -78,12 +78,17 @@ export default function StudioFluid() {
     let idleId = 0;
     let running = false;
 
-    /* The zone: page top through the end of the manifesto. Measured off
-       the DOM once and on resize — never in the loop. */
+    /* The zone: the hero, and only the hero. It used to run to the end of
+       the manifesto, from when that section was the next stretch of the
+       same dark page. The manifesto is the opaque panel now — it is drawn
+       OVER this canvas, so anything still being solved under it is work
+       nobody can see. The wake belongs to the hero and ends with it, on
+       the same reasoning as the particle field (§2.2).
+       Measured off the DOM once and on resize — never in the loop. */
     let zoneEnd = 0;
     let fadeFrom = 0;
     const measure = () => {
-      const man = document.querySelector(".er-manifesto");
+      const man = document.querySelector(".er-hero");
       if (!man) {
         zoneEnd = 0;
         return;
@@ -147,7 +152,11 @@ export default function StudioFluid() {
       import("@/lib/fluidTrail")
         .then(({ createFluidTrail }) => {
           if (dead) return;
-          sim = createFluidTrail(host, { color: "#E4E4E0" });
+          /* Ink, not silver: the trail composites with `multiply` now
+             that the hero is white — see the note on `.er-fluid`. Kept
+             well off pure black so the wake reads as a breath on the
+             paper rather than a smear of paint. */
+          sim = createFluidTrail(host, { color: "#2A2A2E" });
           if (!sim) {
             /* the probe passed and the build still failed — take the
                canvas back out rather than leave a dead layer */

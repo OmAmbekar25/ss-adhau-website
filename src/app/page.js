@@ -135,7 +135,12 @@ function Line({ children }) {
 
 export default function StudioPage() {
   return (
-    <div className="er">
+    /* `er-home` is what lets the stylesheet address THIS page's nav
+       specifically. The lockup and the links take ink while the nav sits
+       over the white hero and warm white once it is over graphite, and
+       every other document route is already addressable by its own class
+       (`er-svc`, `er-reg`, …) while the home page was not. */
+    <div className="er er-home">
       {/* Runs during parse, before first paint: arms the reveal states and
           decides whether this visit gets the loader. Doing it here rather
           than on hydration is what stops the page flashing fully-revealed
@@ -177,7 +182,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
       <link
         rel="preload"
         as="image"
-        href="/images/SSAdhauBG.png"
+        href="/brand/logo-mark.png"
         fetchPriority="high"
         crossOrigin="anonymous"
       />
@@ -186,12 +191,21 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
         Skip to content
       </a>
 
-      {/* The mark fills as the page loads. The logo is used as a mask, so
-          only its silhouette survives — the page stays monochrome and the
-          fill can be a single moving edge rather than a bar beside it. */}
+      {/* §3.4 — the loader carries the SAME full-colour mark the navbar
+          does, from the same file, on the same white the hero opens on.
+          It used to be a silhouette filling with ink, which the mark rule
+          no longer permits: the mark is never recoloured or masked. So
+          the progress moves off the logo and onto a rule beneath it, in
+          the brand orange. */}
       <div className="er-loader" data-loader>
-        <span className="er-loader__mark" data-mark aria-hidden="true" />
+        <span className="er-loader__mark" aria-hidden="true" />
+        <span className="er-loader__bar" data-mark aria-hidden="true" />
       </div>
+
+      {/* §1.1 — the hero's white ground. It must come BEFORE the canvas:
+          the ground, the field and the fluid wake all sit at z-index 0,
+          so the DOM order here is the layering. See `.er-heroground`. */}
+      <div className="er-heroground" aria-hidden="true" />
 
       <StudioClient />
       {/* Right after the field and before any content: both canvases sit

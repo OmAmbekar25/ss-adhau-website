@@ -427,7 +427,12 @@ uniform float uTextFeather;
 varying float vQuiet;
 attribute float aRand, aEdge, aDrag, aStiff;
 attribute vec3 aNormalDir, aDrift;
-varying float vGlow, vTone;
+/* §1.2 — the density core. aWarm is 1 on the ~8% of points sitting
+   closest to the tornado's axis and 0 everywhere else, baked at init.
+   It carries the brand orange, so the field reads black with a warm
+   heart rather than orange. */
+attribute float aWarm;
+varying float vGlow, vTone, vWarm;
 
 /* The morph runs here, not on the CPU.
  *
@@ -580,45 +585,180 @@ void main() {
   vGlow *= mix(1.0, aTick, uDatum);
   vGlow *= uCap * mix(1.0, 0.35, vQuiet);
   vTone = clamp(aRand * 1.5 + n * 0.25, 0.0, 1.0);
+  vWarm = aWarm;
 }
 `;
 
+/* §1.2 — THE FIELD INVERTS. Black on white, not silver on graphite.
+ *
+ * Three things had to change together and none of them works alone:
+ *
+ *   BLENDING. The material was `AdditiveBlending`, which is the correct
+ *   choice for light on a dark stage and produces literally invisible
+ *   particles on white — adding a dark colour to white returns white.
+ *   Normal alpha compositing instead (see the material below).
+ *
+ *   COLOUR AND WEIGHT. With additive blending, brightness WAS opacity, so
+ *   the three-stop silver ramp did both jobs at once. Under normal
+ *   compositing they separate: every dot is the same ink, and depth is
+ *   carried by alpha alone — 0.65 in the far gauze to 0.85 in the near
+ *   body, which is what gives the field volume on a flat white ground.
+ *
+ *   THE HALO. The sprite was a wide bloom (`smoothstep(0.5, 0.06)`,
+ *   squared) with a hot core inside it. That is a glow, and a glow on
+ *   white is a smudge. It is a dot with a short antialiased edge now.
+ */
 const FRAG = /* glsl */ `
 precision mediump float;
-uniform vec3 uColorCore, uColorBase, uColorFaint;
-uniform vec3 uHue;
-uniform float uTint, uBright;
-varying float vGlow, vTone, vQuiet;
+uniform vec3 uColorCore;
+uniform vec3 uAccent;
+/* uFade is the hero→panel handover (§2.2): the field's own opacity,
+   driven by how far the panel has covered it. Kept separate from uBright
+   because the focus/whirl logic rewrites uBright every frame and would
+   stamp on anything the scroll wrote there. */
+uniform float uBright, uWarmAmt, uFade, uGain, uCurve;
+varying float vGlow, vTone, vQuiet, vWarm;
 void main() {
   float d = length(gl_PointCoord - 0.5);
-  float halo = smoothstep(0.5, 0.06, d);
-  halo *= halo;
-  float core = smoothstep(0.17, 0.0, d);
+  /* no bloom: a disc, feathered just enough not to alias */
+  float disc = smoothstep(0.5, 0.33, d);
+  if (disc <= 0.001) discard;
 
-  /* Silver, three stops, keyed on vTone — which already tracks a dot's own
-     luminance (it is built from aRand and the same noise that drives vGlow).
-     So the gauze reads faint, the body reads mid, and only the brightest
-     filaments reach the near-white core. Branchless: two clamped mixes. */
-  vec3 tint = mix(uColorFaint, uColorBase, clamp(vTone * 2.0, 0.0, 1.0));
-  tint = mix(tint, uColorCore, clamp(vTone * 2.0 - 1.0, 0.0, 1.0));
+  /* The density core carries the brand orange at LOW opacity, so the
+     field reads black with a warm heart rather than reading orange. */
+  vec3 tint = mix(uColorCore, uAccent, vWarm * uWarmAmt);
 
-  /* The index section's hue.
-     Luminance-preserving: the hue is rescaled to the grey it replaces, so
-     tinting shifts chroma and never brightness — the silver ramp survives
-     underneath. Weighted DOWN as vTone rises, so the gauze and body carry
-     most of the colour and the brightest filaments stay near-white. The
-     field has to read as grey dust catching coloured light, not as dyed
-     confetti. uTint rests at 0 everywhere but that one section. */
-  if (uTint > 0.001) {
-    const vec3 W = vec3(0.299, 0.587, 0.114);
-    float lum = dot(tint, W);
-    vec3 hued = uHue * (lum / max(0.0001, dot(uHue, W)));
-    tint = mix(tint, hued, uTint * (1.0 - 0.72 * clamp(vTone, 0.0, 1.0)));
-  }
+  /* vGlow still carries the per-section cap and the text-block masks
+     (WI-5), which matter more on white than they did on graphite. But it
+     was authored as a LIGHT value for ADDITIVE blending, and light and
+     alpha do not translate: additively, a hundred dots at 0.08 sum into
+     something you can see, while the same hundred composited normally
+     stack as transmittance and go black long before they reach the same
+     apparent density.
 
-  gl_FragColor = vec4(tint, (halo + core * 0.55) * vGlow * uBright);
+     So the ramp is re-shaped rather than re-scaled. uCurve pushes the
+     gauze down hard while leaving the brightest filaments near the top of
+     the 0.65–0.85 band, which is what separates near from far on a flat
+     white ground — under additive blending that separation came free from
+     the summing. Both constants are tuned against measured coverage and
+     mean luminance over the hero, not by eye; see §15.
+
+     The cap and the text masks are applied INSIDE the curve so they still
+     scale the result down proportionally instead of being flattened. */
+  float w = pow(clamp(vGlow * uGain, 0.0, 1.0), uCurve);
+  float a = disc * w * mix(0.65, 0.85, vTone);
+  a *= mix(1.0, 0.62, vWarm * uWarmAmt);
+  gl_FragColor = vec4(tint, clamp(a * uBright * uFade, 0.0, 1.0));
 }
 `;
+
+/* -------------------------------------------------- the formation cache
+ *
+ * §2.2 asks that scrolling back up to the hero re-initialise the field
+ * "cheaply — do not rebuild buffers from scratch". This is what makes
+ * that true. Every formation is a pure function of `count`, deterministic
+ * (the noise and the RNG are both seeded), and read-only once built:
+ * `position` and `aTo` are rebound to point AT these arrays and are never
+ * written into. So one build per particle count serves every scene the
+ * page ever creates, and a re-init after disposal costs an upload rather
+ * than ~400k trigonometric evaluations on the main thread.
+ *
+ * Keyed by count because the count is per-breakpoint; a resize across a
+ * breakpoint builds a second set once and then reuses that too.
+ *
+ * The one buffer deliberately NOT cached is the trusted-by band, which is
+ * rewritten in place from live measurements — see the call site.
+ */
+const FORMATION_CACHE = new Map();
+
+function formations(count) {
+  const hit = FORMATION_CACHE.get(count);
+  if (hit) return hit;
+
+  const threads = Math.max(48, Math.round(Math.sqrt(count) * 1.35));
+  const per = Math.max(2, Math.floor(count / threads));
+
+  const RIBBON = new Float32Array(count * 3);
+  const TORNADO = new Float32Array(count * 3);
+  const SITE = new Float32Array(count * 3);
+  const DATUM = new Float32Array(count * 3);
+  const COLUMNS = new Float32Array(count * 3);
+  const PAGE = new Float32Array(count * 3);
+  const nrm = new Float32Array(count * 3);
+  const drift = new Float32Array(count * 3);
+  const rand = new Float32Array(count);
+  const edge = new Float32Array(count);
+  const dragA = new Float32Array(count);
+  const stiffA = new Float32Array(count);
+  const tickA = new Float32Array(count).fill(1);
+
+  buildRibbon(count, RIBBON, nrm, edge, rand, threads, per);
+  buildTornado(count, TORNADO, threads, per);
+  buildSite(count, SITE);
+  buildDatum(count, DATUM, tickA);
+  buildColumns(count, COLUMNS);
+  buildPage(count, PAGE);
+
+  /* Every form is centred on its own mass. The survey geometry was
+     authored on a ground plane and the report as a standing sheet, so a
+     single shared offset put one of them right and the other low — the
+     page ended up below the camera and read as sheared. Centring each
+     form individually means the camera keyframes describe the view, not a
+     correction for where the geometry happened to be built. */
+  const recentre = (buf) => {
+    let x = 0, y = 0, z = 0;
+    for (let i = 0; i < count; i++) {
+      x += buf[i * 3]; y += buf[i * 3 + 1]; z += buf[i * 3 + 2];
+    }
+    x /= count; y /= count; z /= count;
+    for (let i = 0; i < count; i++) {
+      buf[i * 3] -= x; buf[i * 3 + 1] -= y; buf[i * 3 + 2] -= z;
+    }
+  };
+  [RIBBON, TORNADO, SITE, DATUM, COLUMNS, PAGE].forEach(recentre);
+
+  /* §1.2 — the density core. The brief asks for ~8% of the field to carry
+     the brand orange, "concentrated in the dense center of the tornado" —
+     so membership is chosen by radial distance from the tornado's axis
+     rather than at random, and the marked points stay marked through
+     every formation. Selected by an exact 8th-percentile threshold rather
+     than a guessed radius, so the proportion holds at 12,000 points and
+     at 64,000. One pass at init; nothing per frame. */
+  const warm = new Float32Array(count);
+  {
+    const radii = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      const x = TORNADO[i * 3];
+      const z = TORNADO[i * 3 + 2];
+      radii[i] = Math.sqrt(x * x + z * z);
+    }
+    const cut = Float32Array.from(radii).sort()[Math.floor(count * 0.08)];
+    for (let i = 0; i < count; i++) warm[i] = radii[i] <= cut ? 1 : 0;
+  }
+
+  const r = rng(31337);
+  const wPhase = new Float32Array(count);
+  const wRate = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    const dl = r() * Math.PI * 2;
+    const dz = r() * 2 - 1;
+    const dr = Math.sqrt(Math.max(0, 1 - dz * dz));
+    drift[i * 3] = Math.cos(dl) * dr;
+    drift[i * 3 + 1] = Math.sin(dl) * dr * 0.7 + 0.25;
+    drift[i * 3 + 2] = dz;
+    wPhase[i] = r() * Math.PI * 2;
+    wRate[i] = 0.075 + r() * 0.14;
+    dragA[i] = 0.4 + r() * 1.2;   // how far this dot trails the motion
+    stiffA[i] = r();              // how slowly it settles back
+  }
+
+  const built = {
+    RIBBON, TORNADO, SITE, DATUM, COLUMNS, PAGE,
+    nrm, drift, rand, edge, dragA, stiffA, tickA, warm, wPhase, wRate,
+  };
+  FORMATION_CACHE.set(count, built);
+  return built;
+}
 
 /* ------------------------------------------------------------- the scene */
 
@@ -642,65 +782,16 @@ export function createStudioScene(container, opts = {}) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
   container.appendChild(renderer.domElement);
 
-  const threads = Math.max(48, Math.round(Math.sqrt(count) * 1.35));
-  const per = Math.max(2, Math.floor(count / threads));
+  const {
+    RIBBON, TORNADO, SITE, DATUM, COLUMNS, PAGE,
+    nrm, drift, rand, edge, dragA, stiffA, tickA, warm, wPhase, wRate,
+  } = formations(count);
 
-  const RIBBON = new Float32Array(count * 3);
-  const TORNADO = new Float32Array(count * 3);
-  const SITE = new Float32Array(count * 3);
-  const DATUM = new Float32Array(count * 3);
-  const COLUMNS = new Float32Array(count * 3);
-  const PAGE = new Float32Array(count * 3);
-  const nrm = new Float32Array(count * 3);
-  const drift = new Float32Array(count * 3);
-  const rand = new Float32Array(count);
-  const edge = new Float32Array(count);
-  const dragA = new Float32Array(count);
-  const stiffA = new Float32Array(count);
-  const tickA = new Float32Array(count).fill(1);
+  /* The band is the ONLY buffer not shared from the cache: setBandAnchors
+     rewrites it in place whenever the trusted strip re-measures, and a
+     cached copy would be mutated under the next scene that borrowed it. */
   const BAND = new Float32Array(count * 3);
-
-  buildRibbon(count, RIBBON, nrm, edge, rand, threads, per);
-  buildTornado(count, TORNADO, threads, per);
-  buildSite(count, SITE);
-  buildDatum(count, DATUM, tickA);
-  buildColumns(count, COLUMNS);
-  buildPage(count, PAGE);
   buildBand(count, BAND, [], 0.9, 0); // placeholder until the cards are measured
-
-  /* Every form is centred on its own mass. The survey geometry was
-     authored on a ground plane and the report as a standing sheet, so a
-     single shared offset put one of them right and the other low — the
-     page ended up below the camera and read as sheared. Centring each
-     form individually means the camera keyframes describe the view, not a
-     correction for where the geometry happened to be built. */
-  const recentre = (buf) => {
-    let x = 0, y = 0, z = 0;
-    for (let i = 0; i < count; i++) {
-      x += buf[i * 3]; y += buf[i * 3 + 1]; z += buf[i * 3 + 2];
-    }
-    x /= count; y /= count; z /= count;
-    for (let i = 0; i < count; i++) {
-      buf[i * 3] -= x; buf[i * 3 + 1] -= y; buf[i * 3 + 2] -= z;
-    }
-  };
-  [RIBBON, TORNADO, SITE, DATUM, COLUMNS, PAGE].forEach(recentre);
-
-  const r = rng(31337);
-  const wPhase = new Float32Array(count);
-  const wRate = new Float32Array(count);
-  for (let i = 0; i < count; i++) {
-    const dl = r() * Math.PI * 2;
-    const dz = r() * 2 - 1;
-    const dr = Math.sqrt(Math.max(0, 1 - dz * dz));
-    drift[i * 3] = Math.cos(dl) * dr;
-    drift[i * 3 + 1] = Math.sin(dl) * dr * 0.7 + 0.25;
-    drift[i * 3 + 2] = dz;
-    wPhase[i] = r() * Math.PI * 2;
-    wRate[i] = 0.075 + r() * 0.14;
-    dragA[i] = 0.4 + r() * 1.2;   // how far this dot trails the motion
-    stiffA[i] = r();              // how slowly it settles back
-  }
 
   /* the ordered spine the whole page travels along */
   /* Six keyframes, so the journey's five beats each land ON one instead of
@@ -727,6 +818,7 @@ export function createStudioScene(container, opts = {}) {
   geo.setAttribute("aDrag", new THREE.BufferAttribute(dragA, 1));
   geo.setAttribute("aStiff", new THREE.BufferAttribute(stiffA, 1));
   geo.setAttribute("aTick", new THREE.BufferAttribute(tickA, 1));
+  geo.setAttribute("aWarm", new THREE.BufferAttribute(warm, 1));
   geo.setAttribute("aWPhase", new THREE.BufferAttribute(wPhase, 1));
   geo.setAttribute("aWRate", new THREE.BufferAttribute(wRate, 1));
 
@@ -763,11 +855,29 @@ export function createStudioScene(container, opts = {}) {
     uPlateFeather: { value: 0.5 },
     uPlatePush: { value: 0 },
     uBright: { value: 1 },
+    uFade: { value: 1 },
+    /* Tuned by measuring the rendered field, not by eye. Swept at 1440
+       and read off the composited pixels: this pair puts 17.3% coverage
+       through the funnel column with the paper behind the headline still
+       measuring 255 at p75, so the field is unmistakably present and the
+       type has lost nothing. See §15. */
+    uGain: { value: opts.gain ?? 1.6 },
+    uCurve: { value: opts.curve ?? 4 },
     /* Monochrome silver. No warm stop anywhere in the field: gold is a
        typographic accent on this page, not a light source. */
-    uColorCore: { value: new THREE.Color(opts.core ?? 0xe4e4e0) },
-    uColorBase: { value: new THREE.Color(opts.base ?? 0xb9b9b4) },
-    uColorFaint: { value: new THREE.Color(opts.faint ?? 0x6e6e68) },
+    /* §1.2 — one ink for the whole field; depth is alpha, not colour.
+       uColorBase/uColorFaint and the hue pair are kept declared because
+       setTint() and the scene's options still write to them, but the
+       inverted fragment shader reads neither: the showcase's colour
+       worlds are one of the couplings that went with the field when it
+       became hero-only. See §15. */
+    uColorCore: { value: new THREE.Color(opts.core ?? 0x0b0b0c) },
+    uColorBase: { value: new THREE.Color(opts.base ?? 0x0b0b0c) },
+    uColorFaint: { value: new THREE.Color(opts.faint ?? 0x0b0b0c) },
+    uAccent: { value: new THREE.Color(opts.accent ?? 0xf15524) },
+    /* how much of the orange the density core actually takes. Restrained
+       on purpose — this is a warm heart, not an orange field. */
+    uWarmAmt: { value: opts.warmAmt ?? 0.85 },
     uHue: { value: new THREE.Color(0x6e6e68) },
     uTint: { value: 0 },
   };
@@ -778,7 +888,9 @@ export function createStudioScene(container, opts = {}) {
     uniforms,
     transparent: true,
     depthWrite: false,
-    blending: THREE.AdditiveBlending,
+    /* NOT additive. Additive blending on white returns white — the field
+       would be perfectly invisible. §1.2. */
+    blending: THREE.NormalBlending,
   });
 
   const tilt = new THREE.Group();
@@ -1231,6 +1343,14 @@ export function createStudioScene(container, opts = {}) {
     setFocus,
     setTint,
     getTint: () => uniforms.uTint.value,
+    /* §2.2 — the panel handover. A pure function of coverage: no tween,
+       no one-shot state, so scrubbing back up restores the field exactly.
+       Reading it back is what lets the caller assert "zero particles" at
+       full coverage rather than assuming it. */
+    setFade: (v) => {
+      uniforms.uFade.value = Math.max(0, Math.min(1, v));
+    },
+    getFade: () => uniforms.uFade.value,
     setPlate,
     setPlateStrength,
     setCap,
@@ -1244,6 +1364,14 @@ export function createStudioScene(container, opts = {}) {
       geo.dispose();
       material.dispose();
       renderer.dispose();
+      /* §2.2 asks for the textures actually released, checked against the
+         JS heap. `dispose()` alone frees three's own objects but leaves
+         the browser holding a live WebGL context — and a page that
+         re-initialises the field on every return would accumulate them
+         until the driver evicts the oldest. This drops the context. The
+         formation buffers survive in the module cache, which is what
+         makes the next build cheap. */
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     },
   };

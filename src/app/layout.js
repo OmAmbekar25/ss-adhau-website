@@ -117,7 +117,11 @@ const organizationSchema = {
   url: SITE_URL,
   email: "ssadhauvaluers@gmail.com",
   telephone: "+91-8793000929",
-  logo: `${SITE_URL}/images/mark-white.png`,
+  /* §0 — one mark everywhere, and always in its own colours. This was
+     `mark-white.png`, the silhouette R-4 painted from the logo's alpha
+     channel; that file is deleted and a search engine showing this
+     organisation should show the real thing. */
+  logo: `${SITE_URL}/brand/logo-mark.png`,
 };
 
 const localBusinessSchema = {

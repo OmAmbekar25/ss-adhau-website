@@ -26,6 +26,36 @@
   --hairline-hi: rgba(255, 255, 255, 0.22);
   --accent: #c9a25e;
 
+  /* --- BRAND (§0) — the firm's own mark, not surface tokens ---
+     MEASURED, not approximated. The brief supplied four hexes read off a
+     screenshot and marked them UNVERIFIED pending a logo file; the logo
+     was already in this repo at public/images/SSAdhauBG.png, so these are
+     sampled from it directly (modal opaque colour per region, alpha ≥ 250).
+     The brief's approximations are kept beside each for the record.
+
+       orange   #F15524  outer arc, upper left      (brief said #E4572E)
+       navy     #1D2D5E  lower arc                  (brief said #1B3A6B)
+       blue     #2070B9  lighter arc sweep, right   (brief said #3B6FB5)
+       roof     #3967B2  the house form — a FIFTH colour the brief folded
+                         into --brand-blue; they are not the same value
+       ink      #000000  measured; the token below is #0B0B0C, see note
+
+     --brand-ink is the brief's #0B0B0C rather than the mark's true black.
+     The mark is never recoloured so its own black is untouched either way;
+     this token is for UI, and WI-6 established that near-black beats pure
+     black on an emissive screen. Same reasoning, one step down from --bg.
+
+     These exist so the logo is never recoloured and so accents descend
+     from the mark. Orange is the primary accent. NAVY, BLUE and ROOF ARE
+     DECLARED BUT UNUSED IN UI — §5 and §14 LOCK "no blue anywhere", and
+     naming the mark's own colours is inside §5's untouchable-asset
+     carve-out, but promoting them to accents is not. Flagged in §15. */
+  --brand-orange: #f15524;
+  --brand-navy: #1d2d5e;
+  --brand-blue: #2070b9;
+  --brand-roof: #3967b2;
+  --brand-ink: #0b0b0c;
+
   /* --- motion: exactly two curves (§4) --- */
   --enter: cubic-bezier(0.16, 1, 0.3, 1);
   --micro: cubic-bezier(0.4, 0, 0.2, 1);
@@ -56,8 +86,13 @@
    has to survive — and it never takes a pointer event, so the field's own
    repulsion keeps receiving them unchanged.
 
-   Screen, not normal alpha: over graphite the silver has to lighten what
-   is under it the way mist does, rather than sit on top of it as paint.
+   MULTIPLY, not screen. Over graphite the silver dye lightened what was
+   under it the way mist does — and on the inverted white hero that is
+   exactly nothing: screening a light colour onto white returns white, so
+   the wake would have been silently dead the moment §1 landed. Multiply
+   with a dark dye is the same gesture in the same material, read the
+   other way up. Not in the brief, which does not mention the trail;
+   flagged in §15 rather than left invisible.
 
    z-index 0, the same as the particle canvas, NOT 1. The sections are all
    `position: relative` at auto, so they paint in the same layer as a
@@ -72,7 +107,7 @@
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  mix-blend-mode: screen;
+  mix-blend-mode: multiply;
   opacity: 0;
   transition: opacity 0.45s var(--micro);
 }
@@ -245,10 +280,14 @@
 .er-nav[data-hidden="true"] {
   transform: translateY(-101%);
 }
-/* R-4 — the brand mark returns to the chrome.
-   Cropped from the supplied lockup's roundel and painted white from its
-   own alpha channel; see the generator note in §15. It is decorative in
-   this pairing because the wordmark beside it carries the name. */
+/* §3.1 — THE MARK. Full colour, always. R-4's white-from-alpha roundel
+   is retired: the firm has a real mark with real colours and the site had
+   abandoned them. It is never recoloured, never inverted, never tinted to
+   match a section, and never opacity-reduced. One mark everywhere — nav,
+   loader, footer.
+
+   It carries no filter, no blend mode and no `color` dependency, so
+   nothing in the cascade can reach it. */
 .er-mark {
   display: block;
   flex: 0 0 auto;
@@ -258,18 +297,133 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font-family: var(--font-fraunces), var(--font-cormorant), serif;
-  font-weight: 300;
-  font-size: 20px;
-  letter-spacing: 0.02em;
   color: var(--ink);
   text-decoration: none;
 }
-.er-wordmark sup {
-  font-size: 0.42em;
-  vertical-align: super;
-  margin-left: 0.15em;
-  color: var(--ink-faint);
+.er-wordmark .er-mark {
+  height: 36px;
+  width: 36px;
+}
+@media (max-width: 767px) {
+  .er-wordmark .er-mark {
+    height: 30px;
+    width: 30px;
+  }
+  /* the slot narrows with the type it holds, and stays fixed at its own
+     width — it must never be the thing that reflows */
+  .er-lockup {
+    --er-slot: 158px;
+  }
+  .er-lockup__line--1 {
+    font-size: 12px;
+  }
+  .er-lockup__line--2 {
+    font-size: 10px;
+  }
+}
+
+/* §3.2 — THE WORDMARK SLIDESHOW.
+   A fixed slot beside the mark cycling the firm's two name lines. The
+   geometry is the whole discipline here: fixed width and fixed height, so
+   the nav can never shift horizontally as the lines change and a font
+   swap cannot move it either. `--er-slot` is measured against the longer
+   line (VALUERS & ENGINEERS at 11px/0.18em) plus the brief's 8px. */
+.er-lockup {
+  --er-slot: 176px;
+  position: relative;
+  display: block;
+  width: var(--er-slot);
+  min-width: var(--er-slot);
+  height: 1.25em;
+  font-size: 13px;
+  line-height: 1.25;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.er-lockup__line {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-geist-mono), var(--font-plex-mono), ui-monospace, monospace;
+  white-space: nowrap;
+  transform: translateY(100%);
+  opacity: 0;
+  transition:
+    transform 0.5s var(--enter),
+    opacity 0.5s var(--enter);
+}
+.er-lockup__line--1 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+.er-lockup__line--2 {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--er-lockup-dim, var(--ink-dim));
+}
+/* the roll: out goes up and away, in arrives from below */
+.er-lockup__line[data-state="in"] {
+  transform: translateY(0);
+  opacity: 1;
+}
+.er-lockup__line[data-state="out"] {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* §3.3 — reduced motion does not cycle. Both lines show, STACKED, in the
+   same fixed-width slot: the lockup simply becomes a normal two-line
+   wordmark. This is the better design anyway, so it is built to look
+   deliberate rather than like something switched off. */
+@media (prefers-reduced-motion: reduce) {
+  .er-lockup {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+  }
+  .er-lockup__line {
+    position: static;
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* §3.2 colour — the lockup follows the nav's own scroll state rather than
+   transitioning on its own clock. Warm white is the default because every
+   route but the home hero puts this nav over graphite; the home page's
+   unscrolled nav sits over the white hero and takes ink instead. */
+.er-nav .er-lockup__line {
+  color: var(--ink);
+  transition:
+    transform 0.5s var(--enter),
+    opacity 0.5s var(--enter),
+    color 0.5s var(--micro);
+}
+.er-home .er-nav[data-scrolled="false"] {
+  --er-lockup-dim: var(--brand-ink);
+}
+.er-home .er-nav[data-scrolled="false"] .er-lockup__line--1 {
+  color: var(--brand-ink);
+}
+.er-home .er-nav[data-scrolled="false"] .er-lockup__line--2 {
+  color: #5a5a5e;
+}
+/* the links and the burger travel with it, or they vanish on the white */
+.er-home .er-nav[data-scrolled="false"] .er-navlink {
+  color: #5a5a5e;
+}
+.er-home .er-nav[data-scrolled="false"] .er-navlink:hover,
+.er-home .er-nav[data-scrolled="false"] .er-navlink:focus-visible {
+  color: var(--brand-ink);
+}
+.er-home .er-nav[data-scrolled="false"] .er-burger span {
+  background: var(--brand-ink);
 }
 .er-navlinks {
   display: flex;
@@ -304,7 +458,6 @@
    stacking context (position + z-index 1), so a child at z-index -1 sits
    under the canvas at 0 while still being above `.er`'s own background.
    Putting the fill straight on the section would have hidden the field. */
-.er-hero::before,
 .er-footer::before {
   content: "";
   position: absolute;
@@ -313,8 +466,115 @@
   background: var(--bg-deep);
   pointer-events: none;
 }
+
+/* ---- §1 THE HERO INVERTS TO WHITE ----
+   True white, flat and total. No grid, no texture wash, no gradient — the
+   old site's graph-paper grid is not coming back. The particles are the
+   only thing in the field.
+
+   The ground stays on ::before at z-index -1, which is what keeps the
+   field BETWEEN the white and the type: `.er` is a stacking context, the
+   canvas is at 0, so -1 paints above the page fill and below the dots
+   while the hero's own copy (auto, later in tree) paints above both. */
 .er-hero {
-  position: relative;
+  --hero-bg: #ffffff;
+  --hero-ink: var(--brand-ink);
+  --hero-ink-dim: #5a5a5e;
+  --hero-line: rgba(11, 11, 12, 0.14);
+  /* the focus ring is drawn from --hairline-hi, which is a white alpha
+     everywhere else on this page and would be invisible here */
+  --hairline: var(--hero-line);
+  --hairline-hi: rgba(11, 11, 12, 0.28);
+  color: var(--hero-ink);
+}
+
+/* THE WHITE GROUND IS ITS OWN ELEMENT, and the two reasons why are both
+   worth writing down — each cost a build to find.
+ *
+ * 1. It cannot live on the hero. `position: sticky` ALWAYS creates a
+ *    stacking context, whatever its z-index, so the moment §2.1 made the
+ *    hero sticky a `.er-hero::before` at z-index -1 stopped meaning
+ *    "behind the page's canvas" and started meaning "behind the hero's
+ *    own content" — trapped in the hero's box and painting ON TOP of the
+ *    particle canvas. The field rendered perfectly and was covered by a
+ *    sheet of white paper, which looks exactly like a shader that failed.
+ *
+ * 2. It cannot use a negative z-index either. `.er` carries
+ *    `overflow-x: clip`, and under it a POSITION-FIXED child at z-index
+ *    -1 never paints at all — verified by probe: an identical fixed div
+ *    is invisible at z-index -1 and visible at 0. (`.er-footer::before`
+ *    gets away with -1 because it is absolute, not fixed.)
+ *
+ * So the ground is a real element at z-index 0, ordered by the DOM: it is
+ * rendered immediately BEFORE the particle canvas, and among z-index-0
+ * siblings tree order decides. Ground, then field, then the fluid wake,
+ * then every word on the page. Fixed rather than absolute because the
+ * hero is sticky and stays in the viewport while the panel travels.
+ *
+ * It is switched off the instant the panel has covered the hero: every
+ * section below the manifesto is transparent over graphite and would
+ * otherwise have white showing through it. At that moment the panel is
+ * opaque across the whole viewport, so the switch cannot be seen. */
+.er-heroground {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: #ffffff;
+  pointer-events: none;
+}
+.er-home[data-hero-covered="true"] .er-heroground {
+  display: none;
+}
+/* Under reduced motion the hero is static and no scroll is listening, so
+   the ground ends with the hero geometrically instead of being switched
+   off. */
+/* Reduced motion keeps the same z-index-0 + DOM-order mechanism and only
+   changes the ground's geometry: absolute and one viewport tall, so it
+   ends with the hero instead of being switched off by a scroll handler
+   that is not running.
+ *
+   NEGATIVE Z-INDEX IS NOT AN OPTION ANYWHERE UNDER `.er`, and it is worth
+   recording because the file used to claim otherwise. A child of `.er` at
+   z-index -1 does not paint — verified by probe, fixed and absolute
+   alike, and independent of `overflow-x: clip`. The comment on
+   `.er-footer::before` asserting that -1 puts its fill behind the canvas
+   was never true; it simply reads as `--bg` instead of `--bg-deep`, a
+   six-value difference nobody could see. Left alone here — it is the
+   footer's, it is harmless, and this pass does not touch that section.
+ *
+   The hero must also stay POSITIONED, or its own eyebrow, body and CTA
+   paint below the z-0 ground: in-flow content of a static box loses to a
+   positioned sibling at the same level. `relative` is enough — it takes
+   the hero out of sticky without making it static, and unlike sticky it
+   creates no stacking context. */
+@media (prefers-reduced-motion: reduce) {
+  .er-hero {
+    position: relative;
+    height: auto;
+  }
+  .er-heroground {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 100svh;
+  }
+}
+
+/* §2.1 — the hero does not move. It sticks at the top for exactly one
+   viewport while the panel below is drawn up over it.
+
+   `position: sticky`, NOT a ScrollTrigger pin. §7 LOCKS the homepage at
+   two pinned sections (the method journey and the service showcase) and
+   says nothing else on the page may pin; the brief offered sticky first
+   and it is the option that holds the lock. It also costs no pin spacer,
+   no refresh, and reverses exactly for free — the panel's own scroll
+   position IS translateY(100%) → 0 over one viewport, with no JS at all.
+
+   Height is exactly 100svh: a sticky box taller than the viewport hangs
+   its bottom below the fold with no way to reach it. */
+.er-hero {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -322,6 +582,49 @@
   align-items: center;
   text-align: center;
   padding: 140px var(--gutter) 96px;
+}
+.er-hero__eyebrow,
+.er-hero .er-label--faint {
+  color: var(--hero-ink-dim);
+}
+/* `[data-quiet] .er-body` (WI-5.5's over-canvas tone, #B5AFA5) is an
+   attribute-plus-class selector and outranks a bare `.er-hero__body`, so
+   the subcopy was still resolving to a warm grey authored for a dark
+   canvas — 2.1:1 on white. Scoped through the hero to outrank it. */
+.er-hero .er-body,
+.er-hero .er-hero__body {
+  color: var(--hero-ink-dim);
+}
+/* The italic phrase is the ONLY chromatic moment in the type. Measured
+   3.46:1 on white — under the 4.5 body floor and over the 3.0 large-text
+   floor, which is the rule that applies: it is set at clamp(46px, …). */
+.er-hero .er-display em {
+  color: var(--brand-orange);
+}
+
+/* The CTA is a filled object in an otherwise empty white field, so the
+   hairline goes. On hover the fill shifts to orange — and the LABEL GOES
+   TO INK rather than staying white: white on #F15524 measures 3.46:1 and
+   the CTA label is 13px mono, which is body text under §2.4's 4.5 floor.
+   Ink on the same orange is 5.68:1. Deviation from the brief's letter,
+   taken for a LOCKED floor and logged in §15. */
+/* Specificity note: `.er-btn` and its `:hover` are declared LATER in this
+   file, so a bare `.er-hero__cta:hover` would lose the tie on source
+   order and the hover fill would stay `--bg-raise`. Scoped through the
+   hero to outrank it rather than reordering the file. */
+.er-hero .er-btn {
+  background: var(--brand-ink);
+  border-color: transparent;
+  color: #ffffff;
+  transition:
+    background-color 0.2s var(--micro),
+    color 0.2s var(--micro);
+}
+.er-hero .er-btn:hover,
+.er-hero .er-btn:focus-visible {
+  background: var(--brand-orange);
+  border-color: transparent;
+  color: var(--brand-ink);
 }
 .er-hero__eyebrow {
   margin-bottom: clamp(24px, 4vh, 44px);
@@ -387,13 +690,69 @@
   left: var(--gutter);
 }
 
-/* manifesto */
+/* manifesto — §2.3 THE INCOMING PANEL.
+   The section that follows the hero is the panel drawn up over it. It
+   needs three things and nothing else: its own opaque background, the
+   orange top rule so the boundary reads as a deliberate line arriving,
+   and a shadow thrown UPWARD so it visibly sits above the hero plane
+   rather than beside it.
+
+   z-index 1 puts it over the particle canvas (z 0) as well as over the
+   sticky hero, which is what makes the occlusion total — nothing of the
+   field is visible past the top rule.
+
+   PROVISIONAL SURFACE. `#F7F5F1` is a placeholder so the slide-over is
+   visible and the boundary testable. The colour rhythm for the rest of
+   the page is the NEXT brief's job and is deliberately not invented here.
+
+   INTERIOR: the brief says the panel's interior is unchanged. It could
+   not be — this section's copy is `--ink` (#eceef0), which measures
+   ~1.05:1 on the provisional off-white and is simply invisible. §2.4's
+   contrast floor is LOCKED and the panel colour is explicitly
+   provisional, so the ink tokens are re-pointed for the panel only. No
+   layout, type or motion inside it changes. Logged in §15. */
 .er-manifesto {
+  --panel-bg: #f7f5f1;
+  --ink: var(--brand-ink);
+  --ink-dim: #5a5a5e;
+  --ink-faint: #6b6b70;
+  --hairline: rgba(11, 11, 12, 0.14);
+  --hairline-hi: rgba(11, 11, 12, 0.26);
+
+  position: relative;
+  z-index: 1;
+  background: var(--panel-bg);
+  color: var(--ink);
+  border-top: 1px solid var(--brand-orange);
+  box-shadow: 0 -24px 48px rgba(11, 11, 12, 0.1);
+
   min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+/* Mobile softens the shadow (§2.4). The brief also asks for the slide's
+   scroll distance to shorten to 0.6vh on mobile — that parameter belongs
+   to a ScrollTrigger pin. With native sticky the travel IS one viewport
+   by construction (the panel starts at the fold and finishes at the top),
+   so there is no distance to shorten. Noted in §15 rather than faked. */
+@media (max-width: 767px) {
+  .er-manifesto {
+    box-shadow: 0 -16px 32px rgba(11, 11, 12, 0.07);
+  }
+}
+
+/* §2.4 REDUCED MOTION — no slide. The hero is an ordinary static white
+   section and the panel follows it normally: no sticky, no travel, no
+   shadow implying a plane that is no longer moving. The surface and the
+   orange rule stay, so the page still reads as designed rather than as
+   the same page with its motion removed. The field renders one static
+   scatter of black dots — see StudioClient. */
+@media (prefers-reduced-motion: reduce) {
+  .er-manifesto {
+    box-shadow: none;
+  }
 }
 /* The measure has to be set on the element that actually carries the
    display font. On the blockquote, `ch` resolves against the inherited
@@ -892,31 +1251,40 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  /* flat, not a gradient: the lift token is a blue-grey and the load
-     screen measured at hue 210. The site opens on black. */
-  background: var(--bg);
+  /* §3.4 — the loader opens on the same white the hero does, so the page
+     does not flash from black to white the moment the overlay lifts. WI-3
+     normalised this to flat #050505 when the site opened on black; the
+     site opens on white now and the load screen follows it. */
+  background: var(--hero-bg, #ffffff);
   clip-path: inset(0 0 0 0);
 }
 .er-loading .er-loader {
   display: flex;
 }
-/* The logo, filling. `--p` is the waterline: below it the mark is solid
-   ink, above it a faint ghost of itself. The PNG is a mask, so none of the
-   logo's colour reaches the page. */
+/* §3.4 — the SAME mark as the navbar's, from the same file, in its own
+   colours. It was a monochrome mask filling with ink; a masked logo is a
+   silhouette, and the rule now is that the mark is always full colour.
+   So the progress comes off the mark and onto a rule beneath it. */
 .er-loader__mark {
+  display: block;
+  width: min(150px, 38vw);
+  aspect-ratio: 1;
+  background: url("/brand/logo-mark.png") center / contain no-repeat;
+}
+/* the progress rule — `--p` is the fill, in the brand orange */
+.er-loader__bar {
   --p: 0%;
   display: block;
-  width: min(190px, 44vw);
-  aspect-ratio: 511 / 488;
-  background: linear-gradient(
-    to top,
-    var(--ink) 0%,
-    var(--ink) var(--p),
-    rgba(232, 232, 230, 0.19) var(--p),
-    rgba(232, 232, 230, 0.19) 100%
-  );
-  -webkit-mask: url("/images/SSAdhauBG.png") center / contain no-repeat;
-  mask: url("/images/SSAdhauBG.png") center / contain no-repeat;
+  width: min(150px, 38vw);
+  height: 1px;
+  background: rgba(11, 11, 12, 0.12);
+}
+.er-loader__bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--p);
+  background: var(--brand-orange);
 }
 
 /* --------------------------- a11y floor ------------------------------ */

@@ -10,12 +10,22 @@ if (typeof window !== "undefined") {
 }
 
 const ENTER = "power4.out"; // the expo-like entrance curve
-/* The field is silver end to end: near-white in the brightest filaments,
-   mid grey through the body, dim grey in the gauze. Nothing warm — the
-   gold accent lives in the typography, never in the light. */
-const GLOW_CORE = 0xe4e4e0;
-const GLOW_BASE = 0xb9b9b4;
-const GLOW_FAINT = 0x6e6e68;
+/* §1.2 — the field inverts with the hero. It was silver on graphite:
+   near-white filaments, mid-grey body, dim gauze, and brightness doing
+   the work of opacity under additive blending. On white it is one ink,
+   composited normally, with depth carried by alpha alone (0.65–0.85 in
+   the shader) and ~8% of the points at the tornado's core carrying the
+   brand orange. */
+const INK = 0x0b0b0c;
+const ACCENT = 0xf15524; // --brand-orange, measured off the firm's logo
+/* §2.2 — the panel handover. The field is gone by the time the panel has
+   covered 60% of the hero, so no particle is ever seen beside or through
+   the incoming content. */
+const FADE_BY = 0.6;
+/* …and the renderer is released 500ms after full coverage, not instantly:
+   a reader who overshoots the boundary and comes straight back should
+   find the field still up rather than pay for a rebuild. */
+const DISPOSE_GRACE = 500;
 
 /* Where each section sits on the field's spine (see lib/studioScene.js):
    0 tornado · 1 ribbon · 2 site · 3 lattice · 4 page. Everything outside
@@ -43,6 +53,32 @@ export default function StudioClient() {
     let dead = false;
     let introPlayed = false;
 
+    /* §2.2 — THE FIELD BELONGS TO THE HERO AND DIES WITH IT.
+     *
+     * `coverage` is how far the incoming panel has drawn itself over the
+     * hero: 0 when its top edge is at the fold, 1 when it reaches the top
+     * of the viewport. Everything the field does on scroll is a pure
+     * function of that one number, so scrubbing backwards is exact.
+     *
+     * NOTE, and it is the significant one on this page: the field is now
+     * hero-only. The method journey's five formations, the showcase's
+     * colour worlds, the trusted-by band coupling and the closing
+     * disperse all spoke to this scene and are inert from here on —
+     * `attachField(null)` makes every one of them a guarded no-op rather
+     * than an error. Accepted deliberately; logged in §15 with the call
+     * sites named, to be rebuilt with the colour-rhythm brief. */
+    let coverage = 0;
+    let disposeTimer = 0;
+    const fadeFor = (p) => 1 - Math.min(1, Math.max(0, p / FADE_BY));
+
+    const releaseField = () => {
+      if (!ribbon) return;
+      attachField(null);
+      ribbon.dispose();
+      ribbon = null;
+      if (canvasRef.current) delete canvasRef.current.dataset.ready;
+    };
+
     /* The arrival: a spinning funnel that settles into the ribbon. The
        spin-down is handled inside the scene; this only drives the shape.
        Long and heavily eased — it should look like something coming to
@@ -61,19 +97,31 @@ export default function StudioClient() {
     };
 
     /* ---------------------------------------------------------------
-       The ribbon. Mounted after first paint so the headline is readable
+       The field. Mounted after first paint so the headline is readable
        before the scene exists, and skipped entirely without WebGL.
+
+       This function is now callable more than once: §2.2 disposes the
+       renderer when the panel has covered the hero and re-initialises it
+       on the way back up. The formation buffers are cached inside
+       studioScene, so the second build uploads geometry rather than
+       computing it.
        --------------------------------------------------------------- */
     const mountRibbon = () => {
+      if (dead || ribbon || !canvasRef.current) return;
       import("@/lib/studioScene")
         .then(({ createStudioScene }) => {
-          if (dead || !canvasRef.current) return;
+          if (dead || ribbon || !canvasRef.current) return;
           ribbon = createStudioScene(canvasRef.current, {
-            count: particleCount(),
-            core: GLOW_CORE,
-            base: GLOW_BASE,
-            faint: GLOW_FAINT,
-            bg: 0x06080b,
+            /* Reduced motion gets a genuinely sparser scatter rather than
+               the full field held still — §2.4 asks for a composition,
+               and 64,000 frozen dots is a texture. */
+            count: reduced
+              ? Math.round(particleCount() * 0.3)
+              : particleCount(),
+            core: INK,
+            base: INK,
+            faint: INK,
+            accent: ACCENT,
           });
           if (!ribbon) return; // no WebGL — pure typography, as specified
           attachField(ribbon);
@@ -83,6 +131,11 @@ export default function StudioClient() {
             ribbon.setStory(STORY_REST); // no funnel — the settled ribbon
             ribbon.renderOnce();
           } else {
+            /* On a re-init the field is arriving underneath a panel that
+               is already partly drawn back down, so it must come up at
+               the coverage the scroll is actually at — not at full
+               strength, which would flash. */
+            ribbon.setFade(fadeFor(coverage));
             ribbon.resume();
             if (introPlayed) ribbon.setStory(STORY_REST);
             else playIntro();
@@ -103,7 +156,7 @@ export default function StudioClient() {
       html.classList.remove("er-loading");
       return () => {
         dead = true;
-        if (ribbon) ribbon.dispose();
+        releaseField();
       };
     }
 
@@ -239,6 +292,54 @@ export default function StudioClient() {
         });
       }
 
+      /* ------------------ §2.2 the hero→panel handover -------------- */
+      /* The panel is the section that follows the hero. Its own travel
+         from the fold to the top of the viewport IS the transition, so
+         the trigger measures exactly that and nothing computes a rect in
+         the scroll path — ScrollTrigger caches the geometry and hands
+         back a progress. */
+      const panel = document.querySelector(".er-manifesto");
+      if (panel) {
+        ScrollTrigger.create({
+          trigger: panel,
+          start: "top bottom",
+          end: "top top",
+          onUpdate: (self) => {
+            coverage = self.progress;
+            /* The white ground is a fixed layer behind the canvas, so it
+               has to stop the moment the panel owns the viewport — every
+               section below is transparent over graphite. See the note on
+               `.er-home::before`. */
+            root.dataset.heroCovered = String(coverage >= 1);
+
+            if (coverage >= 1) {
+              /* Fully covered. Stop the loop first — the renderer is not
+                 released until the grace period expires, so overshooting
+                 the boundary and coming straight back costs nothing. */
+              if (ribbon) ribbon.pause();
+              if (!disposeTimer) {
+                disposeTimer = window.setTimeout(() => {
+                  disposeTimer = 0;
+                  if (coverage >= 1) releaseField();
+                }, DISPOSE_GRACE);
+              }
+              return;
+            }
+
+            if (disposeTimer) {
+              window.clearTimeout(disposeTimer);
+              disposeTimer = 0;
+            }
+            if (!ribbon) {
+              mountRibbon(); // came back up after a disposal
+              return;
+            }
+            ribbon.setFade(fadeFor(coverage));
+            ribbon.resume();
+          },
+        });
+      }
+
       /* The closing dissolution is the only other thing that touches the
          field — the section-by-section camera states are gone, because
          there is now one field and one spine rather than a scene being
@@ -314,7 +415,11 @@ export default function StudioClient() {
 
     const onVis = () => {
       if (!ribbon) return;
-      document.hidden ? ribbon.pause() : ribbon.resume();
+      /* Coming back to a visible tab must not restart a loop the panel
+         has already stopped — the field is only alive while some of the
+         hero is still on screen. */
+      if (document.hidden || coverage >= 1) ribbon.pause();
+      else ribbon.resume();
     };
     document.addEventListener("visibilitychange", onVis);
 
@@ -322,12 +427,12 @@ export default function StudioClient() {
       dead = true;
       if ("cancelIdleCallback" in window) window.cancelIdleCallback(idleId);
       else clearTimeout(idleId);
+      if (disposeTimer) window.clearTimeout(disposeTimer);
       window.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onOut);
       document.removeEventListener("visibilitychange", onVis);
       ctx.revert();
-      attachField(null);
-      if (ribbon) ribbon.dispose();
+      releaseField();
     };
   }, []);
 
