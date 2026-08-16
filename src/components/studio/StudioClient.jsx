@@ -51,13 +51,30 @@ export default function StudioClient() {
     let dead = false;
     let introPlayed = false;
 
-    /* THE FIELD SERVES THE WHOLE PAGE. It is created once, lives for the
-     * document, and is released only on unmount. `coverage` is how far
-     * the incoming panel has drawn itself over the hero — 0 clear, 1
-     * fully covered — and the only thing it decides is whether the loop
-     * is worth running. Every scroll-driven value is a pure function of
-     * progress, so scrubbing backwards is exact. */
+    /* THE FIELD IS SCOPED TO THE HERO AND THE METHOD JOURNEY. One scene,
+     * created once, released only on unmount; where it is ALLOWED TO BE
+     * VISIBLE is decided by the zone factors further down. `coverage` is
+     * the inverse of that visibility and the only thing it decides is
+     * whether the loop is worth running. Every scroll-driven value is a
+     * pure function of progress, so scrubbing backwards is exact. */
     let coverage = 0;
+
+    /* §0's structural assert, development only. The canvas is a
+       page-level fixed layer and must stay one: the moment it becomes a
+       child of a section, that section's transforms, stacking context and
+       overflow all start applying to it, and the "field drifting through
+       the services" class of bug becomes possible again. Cheap, runs
+       once, and stripped from the production bundle. */
+    if (process.env.NODE_ENV !== "production") {
+      const host = canvasRef.current;
+      if (host && host.closest("main")) {
+        throw new Error(
+          "[field] the particle canvas is inside <main>. It must be a " +
+            "direct child of .er, above the sections, so no section can " +
+            "own its stacking context. See StudioClient / §0."
+        );
+      }
+    }
 
     const releaseField = () => {
       if (!ribbon) return;
@@ -273,54 +290,97 @@ export default function StudioClient() {
         });
       }
 
-      /* --------------- the panel dip, and nothing more ---------------
-         THE FIELD BELONGS TO THE WHOLE PAGE AGAIN (2026-08-15, at client
-         direction). §2.2's "never renders on any other section" was taken
-         strictly in the previous pass and it cost four sections their
-         choreography — the method journey's five formations, the
-         showcase's colour worlds, the trusted band and the closing
-         disperse. They are all restored, and this trigger no longer
-         disposes anything mid-page.
+      /* ---------------- WHERE THE FIELD IS ALLOWED TO BE --------------
+         Scoped to the HERO and the METHOD JOURNEY, and nowhere else
+         (2026-08-16, client ruling). It is the hero's arrival and it is
+         the five formations the journey narrates; past that it was
+         ambient drift, and from this pass the services section is a row
+         of tinted cards that a point field crossing them only muddies.
 
-         What survives from §2.2 is the part that was always right: no
-         particle is ever seen beside or through the incoming panel. The
-         field fades to nothing by 60% of the panel's coverage, holds at
-         nothing while the panel owns the viewport, and fades back as the
-         panel leaves and the journey arrives behind it.
+         Two zone factors, multiplied, each a pure function of its own
+         trigger's progress — no tweens, no one-shot state, exact when
+         scrubbed backwards in either direction. Multiplying rather than
+         letting two triggers both write `setFade` is the point: two
+         writers race, and whichever fired last would win.
+
+           panelF  1 → 0 → 1   the hero handover. The field is gone by
+                               60% of the panel's coverage, holds at
+                               nothing while the panel owns the viewport,
+                               and returns as the panel clears and the
+                               journey arrives behind it.
+           exitF   1 → 0       the journey's departure. Fades out as the
+                               section's bottom edge rises through the
+                               frame and stays out for everything below.
 
          The trigger spans the panel's ENTIRE pass — top-at-fold to
-         bottom-at-top, two viewports — so one progress value drives both
-         halves. Coverage completes at the midpoint, which is why the
-         fade-out lands at 0.3 (60% of the first half) and the fade-in
-         sits in the last quarter. Still a pure function of progress: no
-         tween, no one-shot state, exact when scrubbed backwards. */
-      const panel = document.querySelector(".er-manifesto");
-      if (panel) {
-        ScrollTrigger.create({
-          trigger: panel,
-          start: "top bottom",
-          end: "bottom top",
-          onUpdate: (self) => {
-            const p = self.progress;
-            const f =
-              p <= FADE_OUT_END
-                ? 1 - p / FADE_OUT_END
-                : p < FADE_IN_START
-                  ? 0
-                  : Math.min(1, (p - FADE_IN_START) / FADE_IN_SPAN);
-            coverage = 1 - f;
-            if (!ribbon) return;
-            ribbon.setFade(f);
-            /* Occluded means genuinely invisible, so the loop stops —
-               that is a real saving and it costs nothing to reverse. The
-               renderer itself stays: it is needed again one section
-               later, and disposing on every pass would cost more than the
-               pause saves. */
-            if (f <= 0.001) ribbon.pause();
-            else ribbon.resume();
-          },
-        });
-      }
+         bottom-at-top, two viewports — so one progress drives both halves
+         of the dip. Coverage completes at the midpoint, which is why the
+         fade-out lands at 0.3 and the fade-in sits in the last quarter. */
+      /* The two zone triggers are created as MEASURERS ONLY — nothing is
+         written from their own callbacks. A single always-on trigger
+         reads both progresses on every scroll and applies the product.
+
+         That indirection is not decoration. `onUpdate` fires only while
+         the scroll is INSIDE a trigger's range, so any jump that clears a
+         range in one frame — a programmatic `scrollTo`, an anchor link, a
+         reload restoring a deep scroll position — skips it entirely and
+         leaves that factor stale. The field kept drifting across the
+         services section for exactly that reason: the exit window is 12%
+         of a viewport and the jump stepped straight over it. Reading
+         `.progress` instead is safe anywhere, because ScrollTrigger
+         clamps it to 0 before start and 1 after end whether or not the
+         callback ever ran. */
+      const panelST = document.querySelector(".er-manifesto")
+        ? ScrollTrigger.create({
+            trigger: ".er-manifesto",
+            start: "top bottom",
+            end: "bottom top",
+          })
+        : null;
+      const exitST = document.querySelector("[data-showcase]")
+        ? ScrollTrigger.create({
+            trigger: "[data-showcase]",
+            start: "top bottom",
+            end: "top 88%",
+          })
+        : null;
+
+      ScrollTrigger.create({
+        start: 0,
+        end: "max",
+        onUpdate: () => {
+          const p = panelST ? panelST.progress : 0;
+          const panelF =
+            p <= FADE_OUT_END
+              ? 1 - p / FADE_OUT_END
+              : p < FADE_IN_START
+                ? 0
+                : Math.min(1, (p - FADE_IN_START) / FADE_IN_SPAN);
+          const exitF = exitST ? 1 - exitST.progress : 1;
+          const f = panelF * exitF;
+          coverage = 1 - f;
+          if (!ribbon) return;
+          ribbon.setFade(f);
+          /* Invisible means the loop stops — a real saving across the
+             services, trusted, record, river and closing sections, and it
+             costs nothing to reverse. The renderer stays: it is needed
+             again on the way back up, and disposing on every pass would
+             cost more than the pause saves.
+
+             `renderOnce()` BEFORE the pause is load-bearing. Pausing does
+             not clear the canvas, it just stops drawing to it — so
+             setting the fade to zero and pausing in the same tick leaves
+             the last frame that WAS drawn sitting there for good. On a
+             smooth scroll the loop happens to render the fade out on its
+             way down and it looks fine; on a jump the uniform changes and
+             nothing ever redraws, which is why the certificate was still
+             painted across the services section. One flush frame. */
+          if (f <= 0.001) {
+            ribbon.renderOnce();
+            ribbon.pause();
+          } else ribbon.resume();
+        },
+      });
 
       /* The closing dissolution is the only other thing that touches the
          field — the section-by-section camera states are gone, because

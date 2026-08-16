@@ -35,13 +35,20 @@ Things that will bite you on this page:
   budget is still two (§7), both spent on the method journey and showcase.
 - **Nothing under `.er` may use a negative z-index** — it does not paint,
   fixed or absolute. Layer with z-index 0 and DOM order instead.
-- The particle field serves the WHOLE page: the method journey's five
-  formations, the showcase's colour worlds, the trusted band and the
-  closing disperse all drive it through `fieldBus`. It is created once and
-  released only on unmount. The only thing scroll changes is a dip — it
-  fades to nothing by 60% of the panel's coverage of the hero, holds
-  there while the panel owns the viewport (loop paused), and returns as
-  the panel clears. Nothing is ever visible beside the incoming panel.
+- The particle field is scoped to the HERO and the METHOD JOURNEY only
+  (2026-08-16). It dips to nothing while the panel covers the hero,
+  returns for the journey's five formations, and is gone before any part
+  of the services section is on screen. Two zone factors are multiplied
+  and read off `.progress` on every scroll — NOT written from the
+  triggers' own `onUpdate`, which fires only inside a trigger's range and
+  is skipped by any jump that clears it in one frame.
+- **Pausing the loop does not clear the canvas.** Setting the fade to zero
+  and pausing in the same tick leaves the last drawn frame painted there
+  for good. `renderOnce()` before `pause()`. This cost three attempts,
+  two of them aimed at the wrong thing entirely.
+- The services section is six tinted cards (`--card-01..06`), keyed by
+  `[data-card]` so no colour literal lives in the component. The fill is
+  the elevation — no shadow on a tinted card.
 - Colour-world hue text is `--hue-NN-text`, a 45/55 mix of the hue into
   `--ink`. The literals are mirrored in THREE places — `studio.css`,
   `StudioShowcase.jsx` and `src/data/services.js`. Change one, change all

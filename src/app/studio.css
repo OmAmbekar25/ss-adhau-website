@@ -1661,7 +1661,27 @@
    untouched; they were authored at L 38-45 and read correctly on white.
    Measured on the new `--bg`: the old light tints were 2.11-2.55:1 and
    would have failed outright; these are 9.83-13.00:1. */
+/* §1.3 — THE SERVICE CARD FILLS. One tinted ground per service, keyed by
+   the slide's own index, so the section component holds no hex at all.
+   Deliberately quiet: the photographs inside them are meant to carry the
+   chroma, and raising the saturation is an edit to these six lines rather
+   than to any section. Hover deepens one step (x0.96, ~4% darker).
+
+   NOTE the brief's own list names services 03-06 as "Structural
+   engineering / Insurance surveys / [service 05] / [service 06]", which
+   are not this firm's. The six are mapped BY INDEX to the six that exist
+   — real estate, plant & machinery, IBC, business, financial reporting,
+   M&A — so the hues land in the order given. §15.
+
+   Every fill measures 16.5-17.1:1 against `--ink`. */
 .er {
+  --card-01: #f4ede6; --card-01-hi: #eae4dd; /* warm stone */
+  --card-02: #e9edf2; --card-02-hi: #e0e4e8; /* cool steel */
+  --card-03: #f5e9e3; --card-03-hi: #ebe0da; /* terracotta tint */
+  --card-04: #e8eeea; --card-04-hi: #dfe4e1; /* sage */
+  --card-05: #efebf2; --card-05-hi: #e5e2e8; /* muted violet */
+  --card-06: #f2efe4; --card-06-hi: #e8e5db; /* ochre tint */
+
   --hue-01: #8a6d3f; --hue-01-text: #514128;
   --hue-02: #3f5c7a; --hue-02-text: #283849;
   --hue-03: #7a3f46; --hue-03-text: #48282c;
@@ -1701,13 +1721,50 @@
   flex: 1 1 auto;
   will-change: transform;
 }
+/* §1 — EACH SERVICE IS A CARD, and the card wraps the whole block: the
+   numeral, the title, the description, the tag line, the CTA and the
+   image. The image is mounted INSIDE it, flush to the card's right and
+   vertical padding edges, rather than floating beside it on bare page.
+
+   The fill IS the elevation — there is no shadow here on purpose. A drop
+   shadow under a tinted card reads as a sticker; the white gutter between
+   two coloured cards is what makes the colour look deliberate.
+
+   `--card` and `--card-hi` are resolved from the slide's index by the
+   `[data-card]` rules below, so no hex reaches the component. */
 .er-scslide {
   flex: 0 0 100vw;
+  padding: clamp(24px, 4vh, 56px) var(--gutter) clamp(80px, 11vh, 132px);
+}
+.er-sccard-shell {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 5fr 7fr;
   align-items: center;
   gap: clamp(32px, 5vw, 88px);
-  padding: clamp(24px, 4vh, 56px) var(--gutter) clamp(80px, 11vh, 132px);
+  height: 100%;
+  padding: 64px;
+  border-radius: 20px;
+  border: 1px solid rgba(11, 11, 12, 0.06);
+  background: var(--card, var(--surface));
+  transition: background-color 0.2s var(--micro);
+}
+.er-sccard-shell:hover {
+  background: var(--card-hi, var(--surface));
+}
+@media (max-width: 1100px) {
+  .er-sccard-shell { padding: 32px; }
+}
+@media (max-width: 640px) {
+  .er-sccard-shell { padding: 24px; }
+}
+/* The image sits flush to the card's right and vertical padding edges, so
+   it reads as mounted in the card rather than dropped on it. */
+.er-sccard-shell > .er-scslide__media {
+  margin: -64px -64px -64px 0;
+  align-self: stretch;
+}
+@media (max-width: 1100px) {
+  .er-sccard-shell > .er-scslide__media { margin: -32px -32px -32px 0; }
 }
 .er-scslide__body { max-width: 34em; }
 .er-scslide__media {
@@ -1718,10 +1775,36 @@
   height: 100%;
 }
 
+/* The six fills and the six hue-text tokens, both keyed by the slide's
+   own index. `--sc-hue-text` is resolved here rather than passed inline
+   from the component precisely so one fewer literal lives in JS — only
+   `--sc-hue` still does, because the WebGL tint needs a real value and
+   cannot read a custom property (Ruling 1).
+
+   `--ink-faint` is darkened one step INSIDE a card. #767679 clears 4.5:1
+   on white by a whisker (4.63) and the card fills are a shade darker than
+   white, which drops the tag line to 3.81-3.93:1. #6a6a6d holds 4.53:1 on
+   the darkest of the six. Scoped to the cards so the site-wide token,
+   which is correct on white, is not moved to solve a local problem. */
+[data-card] { --ink-faint: #6a6a6d; }
+[data-card="01"] { --card: var(--card-01); --card-hi: var(--card-01-hi); --sc-hue-text: var(--hue-01-text); }
+[data-card="02"] { --card: var(--card-02); --card-hi: var(--card-02-hi); --sc-hue-text: var(--hue-02-text); }
+[data-card="03"] { --card: var(--card-03); --card-hi: var(--card-03-hi); --sc-hue-text: var(--hue-03-text); }
+[data-card="04"] { --card: var(--card-04); --card-hi: var(--card-04-hi); --sc-hue-text: var(--hue-04-text); }
+[data-card="05"] { --card: var(--card-05); --card-hi: var(--card-05-hi); --sc-hue-text: var(--hue-05-text); }
+[data-card="06"] { --card: var(--card-06); --card-hi: var(--card-06-hi); --sc-hue-text: var(--hue-06-text); }
+
 /* Text, so it takes the text tint. The carve-out for "index numerals at
    display size" does not reach this one: it is set as an `.er-label` at
    11px, which is small text, so the 4.5 floor applies rather than the 3.0
-   large-text rule. The raw hue measured 2.28-3.77:1 here. */
+   large-text rule.
+
+   §1.3 asks the numeral for "roughly 40% darker" than the card fill. Done
+   literally — scaling the pale fill toward black — that lands at 2.80:1
+   and fails, and the result is a near-neutral grey that has lost the
+   service's identity anyway. The deepening is taken from the service's
+   OWN hue instead: `--hue-NN-text` measures 8.47-10.92:1 on its card and
+   is already the locked token for hue-carrying text. §15. */
 .er-sc__n {
   color: var(--sc-hue-text);
   margin-bottom: 18px;
@@ -1741,6 +1824,10 @@
   will-change: transform;
 }
 .er-sc__tag { margin: 24px 0 0; }
+/* §1.3 asks the CTA border to take a deepened version of the card's hue.
+   It already did: this border has been `--sc-hue` since the colour worlds
+   shipped, and on the new pale fills that measures 4.17-6.72:1, well over
+   the 3.0 floor a non-text boundary answers to. Nothing to change. */
 .er-sc__link {
   display: inline-block;
   margin-top: 32px;
@@ -1775,21 +1862,31 @@
   max-width: min(46vw, 520px);
   will-change: transform;
 }
+/* Inside the card shell the image fills its column edge to edge — the
+   4:5 mask gives way to the card's own height, which is what makes it
+   read as mounted rather than placed. */
+.er-sccard-shell .er-sccard {
+  max-width: none;
+  height: 100%;
+}
+.er-sccard-shell .er-sccard__mask {
+  height: 100%;
+  aspect-ratio: auto;
+  max-height: none;
+  border-radius: 0 20px 20px 0;
+}
+/* §1.2 — mounted in the card, so: 12px radius, no border and NO SHADOW.
+   The two-layer cast-plus-contact shadow this carried was depth against a
+   near-black page; on a tinted card it reads as a sticker. The card's own
+   fill is the elevation. */
 .er-sccard__mask {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
   max-height: 72vh;
-  border-radius: 2px;
-  border: 1px solid var(--hairline);
+  border-radius: 12px;
   overflow: hidden;
-  background: var(--bg-deep);
-  box-shadow:
-    /* Softened for the light world: 0.55/0.4 black was depth against a
-       near-black ground and reads as a bruise on white. Same two-layer
-       cast-plus-contact shape, an order of magnitude lighter. */
-    0 18px 48px rgba(11, 11, 12, 0.10),
-    0 2px 8px rgba(11, 11, 12, 0.06);
+  background: var(--surface);
 }
 /* Inner parallax lives on this element only: the mask stays put, the
    picture inside eases from 1.08 to 1.0 as the slide arrives. */
@@ -1797,11 +1894,11 @@
   position: absolute;
   inset: 0;
   will-change: transform;
-  /* No grade here. The exports arrive already desaturated, duotoned to the
-     site tokens, grained and hue-tinted in their shadows — a second pass
-     in CSS would stack on the first. This element exists only to carry the
-     inner parallax. */
-  background: var(--bg-deep);
+  /* No grade here — the grade belongs to the exports, and a second pass
+     in CSS would stack on the first. This element exists only to carry
+     the inner parallax. TODO(asset): the exports are still the supplier's
+     duotone; §2's full-colour re-grade is blocked on the originals. */
+  background: var(--surface);
 }
 .er-sccard__pic {
   width: 100%;
@@ -1837,18 +1934,39 @@
 .er-scprog__n { color: var(--ink-dim); }
 
 /* stacked fallback — phone, and reduced motion at any width */
+/* The stacked presentation is the same card, one per row. 32px between
+   them per §1.2 — the white gutter is the rhythm. */
 .er-scstack {
   list-style: none;
   margin: clamp(40px, 6vh, 72px) 0 0;
   padding-inline: var(--gutter);
   display: grid;
-  gap: clamp(56px, 9vh, 104px);
+  gap: 32px;
 }
+.er-scstack > li {
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid rgba(11, 11, 12, 0.06);
+  background: var(--card, var(--surface));
+  transition: background-color 0.2s var(--micro);
+}
+.er-scstack > li:hover {
+  background: var(--card-hi, var(--surface));
+}
+@media (max-width: 640px) {
+  .er-scstack > li { padding: 24px; }
+}
+/* §3.3 — the image stacks BELOW the text here. It is authored first in
+   the markup because the pinned track wants it in the media column; one
+   `order` keeps both presentations from needing two component trees. */
+.er-scstack .er-sccard { order: 2; margin-top: clamp(22px, 3vh, 34px); }
+.er-scstack__body { order: 1; }
 /* The stacked card must stay a portrait, not stretch to the measure —
    a 4:5 mask at full width becomes a wall, and object-fit then crops the
    subject to a letterbox. */
 .er-scstack .er-sccard { max-width: min(100%, 460px); }
-.er-scstack__body { margin-top: clamp(22px, 3vh, 34px); }
 @media (prefers-reduced-motion: reduce) {
   .er-sccard__img { transform: none !important; }
 }
