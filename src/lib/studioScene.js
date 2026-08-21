@@ -1020,6 +1020,19 @@ export function createStudioScene(container, opts = {}) {
     story = Math.max(0, Math.min(KEY.length - 1, s));
     dirty = true;
   };
+  /* THE CAMERA PUSH — a dolly toward the field, 0 at rest and 1 fully in.
+     Written straight from scroll progress with no easing of its own, so
+     it stays a pure function of position and scrubs backwards exactly
+     (§7). PUSH_DEPTH is in world units and is deliberately modest: the
+     field is a volume, and pushing far enough to pass through it turns a
+     controlled approach into a fly-through, which is not what this beat
+     is. Read back for the same reason setFade is. */
+  const PUSH_DEPTH = 3.4;
+  let push = 0;
+  const setPush = (v) => {
+    push = Math.max(0, Math.min(1, v));
+  };
+
   const setDisperse = (v) => {
     disperse = clamp01(v);
   };
@@ -1301,7 +1314,9 @@ export function createStudioScene(container, opts = {}) {
     camera.position.set(
       k.px + ptr.x * 0.3 + Math.cos(t * 0.105) * 0.08,
       k.py - ptr.y * 0.2 + Math.sin(t * 0.14) * 0.06,
-      k.pz
+      /* the camera push (see setPush) rides on top of the keyframe's own
+         z, so it composes with the story rather than replacing it */
+      k.pz - push * PUSH_DEPTH
     );
     camTarget.set(k.tx, k.ty, k.tz);
     camera.lookAt(camTarget);
@@ -1344,6 +1359,8 @@ export function createStudioScene(container, opts = {}) {
   return {
     setStory,
     setDisperse,
+    setPush,
+    getPush: () => push,
     setMode,
     setBandOffset,
     setBandAnchors,

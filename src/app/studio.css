@@ -543,6 +543,15 @@
 .er-herostage {
   position: relative;
 }
+/* The hero candidate's extra viewport of sticky hold — see the note in
+   src/app/hero-v2/page.js. Present only on that route. */
+.er-beatspace {
+  height: 100svh;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-beatspace { display: none; }
+}
 
 .er-hero {
   position: sticky;

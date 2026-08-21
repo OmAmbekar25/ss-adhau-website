@@ -37,7 +37,39 @@ function particleCount() {
   return 12000;
 }
 
-export default function StudioClient() {
+/* ---------------------------------------------------------- THE BEAT
+ * `beat` is the hero-transition candidate, opt-in and off on `/`.
+ *
+ * It is a prop rather than a forked component because the scroll
+ * machinery below is 400 lines that both routes need to agree on — the
+ * same reasoning that made the nav and footer components rather than
+ * copies. The CANDIDATE PAGE is duplicated (markup is where a design
+ * experiment needs to be free); this file is shared.
+ *
+ * The phase map is the survey's, expressed against `.er-beatspace` — one
+ * viewport of sticky hold that exists purely to be scrolled through, so
+ * the beat plays with nothing else moving and the panel hands off after
+ * it. Sticky, not pinned: it costs nothing against §7's budget of two.
+ *
+ *   0.00 → 0.45   camera pushes toward the field
+ *   0.00 → 0.30   hero copy fades out — gone before the climax
+ *   0.30 → 0.95   the field disperses along aDrift — the decomposition
+ *   then           the panel rises and its existing dip takes the alpha
+ *
+ * Text is gone before the decomposition climaxes, which is the one thing
+ * every reference in the survey does (Apple, Motion.dev, Flowspark).
+ * Every value is read straight from progress: no tweens, no one-shot
+ * state, exact when scrubbed back up.
+ */
+const BEAT = {
+  pushEnd: 0.45,
+  copyEnd: 0.3,
+  burstStart: 0.3,
+  burstEnd: 0.95,
+};
+const span = (p, a, b) => Math.max(0, Math.min(1, (p - a) / (b - a)));
+
+export default function StudioClient({ beat = false }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -330,6 +362,19 @@ export default function StudioClient() {
          `.progress` instead is safe anywhere, because ScrollTrigger
          clamps it to 0 before start and 1 after end whether or not the
          callback ever ran. */
+      const heroBlock = beat ? document.querySelector(".er-hero__block") : null;
+      /* The beat plays across its OWN viewport of sticky hold, before the
+         panel starts rising — so the decomposition is never happening
+         inside a strip the panel is busy covering. Measurer only, like
+         the two below: read on every scroll, never written from here. */
+      const beatST =
+        beat && document.querySelector(".er-beatspace")
+          ? ScrollTrigger.create({
+              trigger: ".er-beatspace",
+              start: "top top",
+              end: "bottom top",
+            })
+          : null;
       const panelST = document.querySelector(".er-manifesto")
         ? ScrollTrigger.create({
             trigger: ".er-manifesto",
@@ -349,6 +394,7 @@ export default function StudioClient() {
         start: 0,
         end: "max",
         onUpdate: () => {
+          if (beat && !ribbon) return;
           const p = panelST ? panelST.progress : 0;
           const panelF =
             p <= FADE_OUT_END
@@ -357,7 +403,25 @@ export default function StudioClient() {
                 ? 0
                 : Math.min(1, (p - FADE_IN_START) / FADE_IN_SPAN);
           const exitF = exitST ? 1 - exitST.progress : 1;
-          const f = panelF * exitF;
+
+          /* THE HERO BEAT, candidate only. `q` runs 0..1 across the
+             spacer — one viewport of sticky hold with nothing else moving
+             — and the panel's own fade takes over after it. */
+          let f = panelF * exitF;
+          if (beat) {
+            const q = beatST ? beatST.progress : 0;
+            ribbon.setPush(span(q, 0, BEAT.pushEnd));
+            ribbon.setDisperse(span(q, BEAT.burstStart, BEAT.burstEnd));
+            /* The field outlives the copy on purpose: the decomposition
+               is the moment, and it cannot be the moment if it is already
+               fading while it happens. So the beat holds alpha at full
+               and the panel's own dip is what finally takes it. */
+            f = panelF * exitF;
+            if (heroBlock) {
+              heroBlock.style.opacity = String(1 - span(q, 0, BEAT.copyEnd));
+            }
+          }
+
           coverage = 1 - f;
           if (!ribbon) return;
           ribbon.setFade(f);
@@ -483,7 +547,7 @@ export default function StudioClient() {
       ctx.revert();
       releaseField();
     };
-  }, []);
+  }, [beat]);
 
   return <div ref={canvasRef} className="er-canvas" aria-hidden="true" />;
 }
