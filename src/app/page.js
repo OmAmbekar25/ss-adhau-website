@@ -156,10 +156,12 @@ export default function StudioPage() {
 var h=document.documentElement;
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 h.classList.add('er-js');
-/* Runs every load while this page is a candidate. Once-per-session is the
-   brief's behaviour and should be restored before launch by reinstating
-   the sessionStorage guard below. */
-{h.classList.add('er-loading');
+/* ONCE PER SESSION, which is the brief's behaviour. It was running on
+   every load because this page was a candidate at /studio and each visit
+   needed to show the loader; that reason died when it was promoted to /.
+   §15 has said since 2026-07-29 that the guard should come back before
+   launch. A returning visitor now goes straight to the hero. */
+if(!sessionStorage.getItem('er-seen')){h.classList.add('er-loading');
 setTimeout(function(){
 if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 },6000);}

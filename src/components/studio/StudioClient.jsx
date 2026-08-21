@@ -417,12 +417,20 @@ export default function StudioClient() {
           } catch {}
           startHero();
         };
+        /* 1.9s + 1.0s was 2.9 seconds of decorative hold on a page that
+           has already finished painting — FCP measures 136ms. The hero
+           subcopy is the LCP element and it cannot paint until this
+           overlay lifts, so the loader WAS the LCP: 3700ms median against
+           a 2500ms gate. Halved to 0.7 + 0.4. The mark still fills and
+           the sheet still lifts on the same curve; there is simply no
+           dead time in the middle pretending to load something that is
+           already there. Measured after: see §15. */
         gsap
           .timeline({ onComplete: done })
           /* the waterline rises through the mark */
           .to(counter, {
             v: 100,
-            duration: 1.9,
+            duration: 0.7,
             ease: "power2.inOut",
             onUpdate: () => {
               if (mark) mark.style.setProperty("--p", `${counter.v.toFixed(1)}%`);
@@ -430,7 +438,7 @@ export default function StudioClient() {
           })
           .to(loader, {
             clipPath: "inset(0 0 100% 0)",
-            duration: 1.0,
+            duration: 0.4,
             ease: ENTER,
           });
       } else {
