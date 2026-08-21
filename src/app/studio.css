@@ -540,18 +540,131 @@
    travel, then it is gone. Still not a ScrollTrigger pin, so §7's budget
    of two is untouched and both remain spent on the method journey and the
    showcase. */
-.er-herostage {
+.er-herostage,
+.er-pagestage {
   position: relative;
 }
-/* The hero candidate's extra viewport of sticky hold — see the note in
-   src/app/hero-v2/page.js. Present only on that route. */
-.er-beatspace {
+/* ================= THE PAGE STACK (candidate only) ==================
+   Each panel holds at the top while the next one is drawn up over it —
+   the treatment the Principle panel already had against the hero, now
+   carried through Method and the service showcase.
+
+   Sticky, not pinned: §7's budget of two is spent on the journey's own
+   beats and the showcase's track, and this costs nothing against it. All
+   four are siblings of one wrapper because sticky is contained by its
+   parent's box.
+
+   THE RANKS ARE AUTHORED, not left to tree order. Tree order only decides
+   between siblings that are all at z-index `auto`, and the Principle
+   panel already carries `z-index: 1` from when it became the hero's cover
+   — a positive z-index beats `auto` however late the sibling. So the
+   first cut had the Principle panel sitting on top of the Method section
+   that was supposed to be covering it, and the transition simply never
+   appeared. One rank per panel, ascending.
+
+   Every panel is explicitly opaque. That is not decoration — a panel
+   that holds still while another slides over it is only legible if the
+   one on top is solid, which is the defect the first white-inversion
+   pass shipped and had to be corrected for. */
+.er-pagestage {
+  position: relative;
+}
+.er-pagestage > .er-manifesto,
+.er-pagestage > .er-jsec {
+  position: sticky;
+  top: 0;
+}
+.er-pagestage > .er-hero { z-index: 1; }
+.er-pagestage > .er-manifesto { z-index: 2; }
+.er-pagestage > .er-jsec { z-index: 3; }
+.er-pagestage > .er-scsec { z-index: 4; }
+/* The rising edge, identical to the one the Principle panel arrives on:
+   a 1px accent rule the full width and a shadow thrown UPWARD, so the
+   panel reads as a sheet passing over a surface rather than a colour
+   change. */
+.er-pagestage > .er-jsec,
+.er-pagestage > .er-scsec {
+  background: var(--bg);
+  border-top: 1px solid var(--accent);
+  box-shadow: 0 -20px 40px rgba(11, 11, 12, 0.08);
+}
+@media (max-width: 767px) {
+  .er-pagestage > .er-jsec,
+  .er-pagestage > .er-scsec {
+    box-shadow: 0 -14px 28px rgba(11, 11, 12, 0.06);
+  }
+}
+/* A STACKED PANEL MUST FIT THE VIEWPORT, and below 900px one of them
+   does not: the Principle quote is seven lines of large serif and runs
+   past 100svh on a phone. Held sticky it would put its own last lines
+   under the panel arriving over it, with no scroll position that reaches
+   them. So the stack is desktop-only and phones read the same sections in
+   ordinary flow — the same degradation the map journey and the showcase
+   pin already take at this width. The accent rules stay either way: they
+   are the seam between two sections whether or not one slides. */
+@media (max-width: 900px), (prefers-reduced-motion: reduce) {
+  .er-pagestage > .er-manifesto,
+  .er-pagestage > .er-jsec {
+    position: relative;
+  }
+  .er-pagestage > .er-jsec,
+  .er-pagestage > .er-scsec {
+    box-shadow: none;
+  }
+  .er-beatspace,
+  .er-hold {
+    display: none;
+  }
+}
+
+/* The Principle panel's image. The quote keeps its centred treatment and
+   the photograph sits under it as a contained band — NOT a full-bleed
+   plate with the type over it, which would need a scrim, and WI-5 ruled
+   scrims out of this project in favour of quietening the field itself.
+   A contained figure needs neither: the type is on paper, the picture is
+   an object on the same paper. */
+.er-manifesto {
+  flex-direction: column;
+  gap: clamp(18px, 2.6vh, 34px);
+}
+.er-mfig {
+  margin: 0;
+  width: min(1100px, 84vw);
+  border-radius: 12px;
+  overflow: hidden;
+  line-height: 0;
+  flex: 0 0 auto;
+}
+/* The band has to FIT. This panel is sticky at top:0 and exactly one
+   viewport tall, so anything the quote and the figure overflow by is
+   below the fold with no way to scroll to it — the first cut clipped the
+   photograph in half. Sized against the space the quote leaves rather
+   than chosen for its own sake. */
+.er-mfig__pic {
+  width: 100%;
+  height: clamp(104px, 15vh, 170px);
+  object-fit: cover;
+  display: block;
+}
+@media (max-width: 900px) {
+  .er-mfig {
+    width: min(100%, 92vw);
+  }
+  .er-mfig__pic {
+    height: clamp(88px, 11vh, 128px);
+  }
+}
+
+/* One viewport of sticky hold, so a panel has a frame to itself before
+   the next one starts rising over it. `.er-beatspace` buys the hero's,
+   `.er-hold` buys the Principle panel's. Both carry nothing and exist to
+   be scrolled through. Candidate route only. */
+.er-beatspace,
+.er-hold {
   height: 100svh;
   pointer-events: none;
 }
-@media (prefers-reduced-motion: reduce) {
-  .er-beatspace { display: none; }
-}
+
 
 .er-hero {
   position: sticky;

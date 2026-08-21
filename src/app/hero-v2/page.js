@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import "../studio.css";
 import StudioClient from "@/components/studio/StudioClient";
 import StudioFluid from "@/components/studio/StudioFluid";
@@ -212,14 +213,18 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
       <main id="er-main">
         {/* ------------------------- 5.2 HERO -------------------------
-            The hero and the panel that rises over it share one wrapper,
-            and that wrapper is load-bearing: `position: sticky` is
-            contained by its nearest scrolling ancestor's box, so without
-            this the hero's containing block was <main> and it stayed
-            stuck at the top for the WHOLE document — reading through
-            every transparent section below it. The stage ends where the
-            panel ends, which is exactly when the hero should let go. */}
-        <div className="er-herostage">
+            THE PAGE STACK. Hero, Principle, Method and the service
+            showcase are siblings in one wrapper because that is the only
+            arrangement in which each can be COVERED by the next: sticky
+            is contained by its parent's box, so panels that need to hold
+            while their successor rises over them have to share a parent.
+            The wrapper ends after the showcase, and everything below it
+            scrolls normally again.
+
+            Tree order is the layering: these are all positioned at
+            z-index auto, so each later sibling paints over the one before
+            it without a single z-index needing to be authored. */}
+        <div className="er-pagestage">
         <section className="er-hero">
           {/* data-quiet marks a block the field must stay calm behind —
               see StudioQuiet.jsx. Not a scrim: the points inside are dimmed
@@ -286,14 +291,48 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
               <Line>with a name.</Line>
             </h2>
           </blockquote>
+
+          {/* 🔴 TODO(asset) — STAND-IN, NOT THE INTENDED SUBJECT.
+              The brief asks for "a clearest image of something nature
+              vise". There is no nature photograph in this repository:
+              all thirteen are architecture, machinery, documents and
+              bridges, and every one of them is the supplier's baked
+              greyscale with the colour re-grade blocked on originals
+              this container cannot fetch. This is the most open subject
+              in the set — a span seen from below against sky — placed so
+              the composition, the scale and the hand-off into Method can
+              be judged. Swapping it is a one-line data change.
+
+              Worth flagging alongside: the art direction recorded in
+              docs/asset-licenses.md limits imagery to "architectural and
+              material subjects only", so a nature subject is a deviation
+              from that lock as well as an asset we do not hold. */}
+          <figure className="er-mfig">
+            <Image
+              src="/images/pages/page-06-bridge.webp"
+              alt="A bridge span seen from below against open sky"
+              width={1400}
+              height={1750}
+              sizes="(max-width: 900px) 92vw, min(1100px, 84vw)"
+              className="er-mfig__pic"
+            />
+          </figure>
         </section>
-        </div>
+
+        {/* The Principle panel's own hold. Without it the Method panel
+            began rising the instant Principle reached the top — the two
+            boundaries landed on the same scroll position and the panel
+            never had a frame to itself. Each panel in the stack gets one
+            viewport of hold before its successor starts. Carries nothing;
+            it exists to be scrolled through. */}
+        <div className="er-hold" aria-hidden="true" />
 
         {/* ------- 5.4 METHOD — the valuation journey, in this palette ---- */}
         <section
           className="er-section er-jsec"
           aria-labelledby="er-method"
           data-journey
+          data-panel
         >
           <div className="er-wrap er-jhead">
             <p className="er-label er-label--faint er-track">Method</p>
@@ -314,6 +353,7 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
         {/* ------------------- 5.5 SERVICE SHOWCASE ------------------- */}
         <StudioShowcase />
+        </div>
 
         <StudioTrusted />
 
