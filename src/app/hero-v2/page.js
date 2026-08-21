@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import "../studio.css";
 import StudioClient from "@/components/studio/StudioClient";
+import StudioBlossom from "@/components/studio/StudioBlossom";
 import StudioFluid from "@/components/studio/StudioFluid";
 import StudioJourney from "@/components/studio/StudioJourney";
 import StudioTrusted from "@/components/studio/StudioTrusted";
@@ -267,6 +267,12 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
         {/* ---------------------- 5.3 MANIFESTO ----------------------- */}
         <section className="er-section er-manifesto" aria-labelledby="er-principle">
+          {/* The film is authored FIRST so the quote paints over it
+              without either needing a z-index of its own. Client-supplied
+              blossom — the nature subject this panel was asking for, and
+              the one the repository could not supply. */}
+          <StudioBlossom />
+
           <p className="er-label er-label--faint er-section__label er-track">
             Principle
           </p>
@@ -292,31 +298,6 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
             </h2>
           </blockquote>
 
-          {/* 🔴 TODO(asset) — STAND-IN, NOT THE INTENDED SUBJECT.
-              The brief asks for "a clearest image of something nature
-              vise". There is no nature photograph in this repository:
-              all thirteen are architecture, machinery, documents and
-              bridges, and every one of them is the supplier's baked
-              greyscale with the colour re-grade blocked on originals
-              this container cannot fetch. This is the most open subject
-              in the set — a span seen from below against sky — placed so
-              the composition, the scale and the hand-off into Method can
-              be judged. Swapping it is a one-line data change.
-
-              Worth flagging alongside: the art direction recorded in
-              docs/asset-licenses.md limits imagery to "architectural and
-              material subjects only", so a nature subject is a deviation
-              from that lock as well as an asset we do not hold. */}
-          <figure className="er-mfig">
-            <Image
-              src="/images/pages/page-06-bridge.webp"
-              alt="A bridge span seen from below against open sky"
-              width={1400}
-              height={1750}
-              sizes="(max-width: 900px) 92vw, min(1100px, 84vw)"
-              className="er-mfig__pic"
-            />
-          </figure>
         </section>
 
         {/* The Principle panel's own hold. Without it the Method panel

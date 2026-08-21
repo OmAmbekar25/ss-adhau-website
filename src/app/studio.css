@@ -617,41 +617,86 @@
   }
 }
 
-/* The Principle panel's image. The quote keeps its centred treatment and
-   the photograph sits under it as a contained band — NOT a full-bleed
-   plate with the type over it, which would need a scrim, and WI-5 ruled
-   scrims out of this project in favour of quietening the field itself.
-   A contained figure needs neither: the type is on paper, the picture is
-   an object on the same paper. */
-.er-manifesto {
-  flex-direction: column;
-  gap: clamp(18px, 2.6vh, 34px);
-}
-.er-mfig {
-  margin: 0;
-  width: min(1100px, 84vw);
-  border-radius: 12px;
+/* ---- THE PRINCIPLE PANEL'S FILM (candidate only) ----
+   The blossom fills the panel and the quote sits over it. The quote is
+   hidden until the film has finished, and the film then eases back so the
+   type lands on a quiet ground — the video receding, not a scrim over it,
+   which is the distinction WI-5 drew when it ruled scrims out.
+
+   EVERY RULE HERE IS SCOPED TO `.er-lab`, the candidate route's root. The
+   first cut of this block was not, and `.er-js .er-manifesto__quote {
+   visibility: hidden }` matched the SHIPPED home page too, where nothing
+   ever sets `data-revealed` — so the Principle quote went invisible on
+   `/` and stayed that way. A gating rule must never be able to reach a
+   surface that carries no gate. */
+
+/* The panel needs its own stacking context so the film cannot escape it,
+   and `overflow: hidden` so a cover-fitted 16:9 never bleeds past the
+   panel's edges into the ones held above and below it. */
+.er-lab .er-manifesto {
   overflow: hidden;
-  line-height: 0;
-  flex: 0 0 auto;
+  isolation: isolate;
 }
-/* The band has to FIT. This panel is sticky at top:0 and exactly one
-   viewport tall, so anything the quote and the figure overflow by is
-   below the fold with no way to scroll to it — the first cut clipped the
-   photograph in half. Sized against the space the quote leaves rather
-   than chosen for its own sake. */
-.er-mfig__pic {
+.er-lab .er-blossom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.er-lab .er-blossom__v {
   width: 100%;
-  height: clamp(104px, 15vh, 170px);
+  height: 100%;
   object-fit: cover;
   display: block;
+  /* Eases back as the quote arrives. Opacity only, so it composites and
+     never repaints. */
+  transition: opacity 1.1s var(--enter);
 }
-@media (max-width: 900px) {
-  .er-mfig {
-    width: min(100%, 92vw);
+.er-lab .er-blossom[data-played="true"] .er-blossom__v {
+  opacity: 0.16;
+}
+/* The quote and its label ride above the film. The LABEL TAKES A RANK
+   ONLY — it is already absolutely positioned by `.er-section__label`, and
+   giving it `position: relative` here knocked it back into the flex
+   column, where it pushed the centred quote off-axis and printed itself
+   through the middle of the type. An absolutely positioned element can
+   carry a z-index without being re-positioned. */
+.er-lab .er-manifesto .er-section__label {
+  z-index: 1;
+}
+.er-lab .er-manifesto__quote {
+  position: relative;
+  z-index: 1;
+}
+/* THE GATE, AND ITS DEFAULT. The quote is visible unless JS is running to
+   open it again: without the client component nothing sets
+   `data-revealed`, and a no-JS reader must not meet an empty panel.
+   `visibility` rather than `display`, so the quote keeps its box and the
+   panel's height never changes when it arrives — a layout shift here
+   would move the two panels held above and below this one. */
+.er-js .er-lab .er-manifesto__quote {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 1.1s var(--enter),
+    visibility 0s linear 1.1s;
+}
+.er-js .er-lab .er-blossom[data-revealed="true"] ~ .er-manifesto__quote,
+.er-js .er-lab .er-blossom[data-static="true"] ~ .er-manifesto__quote {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 1.1s var(--enter),
+    visibility 0s linear 0s;
+}
+/* Without motion there is no film and nothing to wait for. */
+@media (prefers-reduced-motion: reduce) {
+  .er-lab .er-blossom {
+    display: none;
   }
-  .er-mfig__pic {
-    height: clamp(88px, 11vh, 128px);
+  .er-js .er-lab .er-manifesto__quote {
+    opacity: 1;
+    visibility: visible;
   }
 }
 
