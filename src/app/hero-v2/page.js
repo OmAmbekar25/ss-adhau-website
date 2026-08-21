@@ -121,6 +121,35 @@ const INSTITUTIONS = [
    @handles and stock avatars there are template leftovers, not the
    clients' own, so they are dropped rather than reproduced. */
 
+/* THE PRINCIPLE, AS ONE HORIZONTAL LINE. An array because the film
+   writes it on a word at a time — a nested array is the italic cut. The
+   em dash stands alone on purpose: it is the sentence's own pause, and a
+   reveal that honours it reads as speech rather than as a ticker. */
+const PRINCIPLE = [
+  "A",
+  "valuation",
+  "is",
+  "not",
+  "an",
+  "opinion.",
+  "It",
+  "is",
+  "a",
+  ["em", "defensible"],
+  ["em", "position"],
+  "\u2014",
+  "measured",
+  "on",
+  "site,",
+  "argued",
+  "in",
+  "numbers,",
+  "signed",
+  "with",
+  "a",
+  "name.",
+];
+
 /* A headline line: the mask wrapper is authored, never split at runtime. */
 function Line({ children }) {
   return (
@@ -267,37 +296,19 @@ if(h.getAttribute('data-er-loader')!=='run')h.classList.remove('er-loading');
 
         {/* ---------------------- 5.3 MANIFESTO ----------------------- */}
         <section className="er-section er-manifesto" aria-labelledby="er-principle">
-          {/* The film is authored FIRST so the quote paints over it
-              without either needing a z-index of its own. Client-supplied
-              blossom — the nature subject this panel was asking for, and
-              the one the repository could not supply. */}
-          <StudioBlossom />
-
           <p className="er-label er-label--faint er-section__label er-track">
             Principle
           </p>
-          <blockquote className="er-manifesto__quote" data-manifesto>
-            <h2 id="er-principle" className="er-display er-h2 er-h2--serif" data-quiet>
-              <Line>A valuation is not</Line>
-              <Line>
-                <span className="er-dim">an</span> opinion.
-              </Line>
-              <Line>
-                It is a <em>defensible</em>
-              </Line>
-              <Line>
-                <em>position</em> — measured
-              </Line>
-              <Line>
-                <span className="er-dim">on site,</span> argued
-              </Line>
-              <Line>
-                <span className="er-dim">in numbers,</span> signed
-              </Line>
-              <Line>with a name.</Line>
-            </h2>
-          </blockquote>
+          {/* The film and the line it carries. The copy stays HERE, on the
+              page with the rest of the page's words, and is handed to the
+              component that owns the timing — the film's clock is what
+              writes the line on, so the two cannot live apart.
 
+              One word per token because the reveal is per word. The dim
+              spans the stacked version used are gone: dimming three of
+              seven lines was a second reading order, and against a reveal
+              that already has one it fights rather than adds. */}
+          <StudioBlossom words={PRINCIPLE} />
         </section>
 
         {/* The Principle panel's own hold. Without it the Method panel

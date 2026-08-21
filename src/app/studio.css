@@ -617,18 +617,30 @@
   }
 }
 
-/* ---- THE PRINCIPLE PANEL'S FILM (candidate only) ----
-   The blossom fills the panel and the quote sits over it. The quote is
-   hidden until the film has finished, and the film then eases back so the
-   type lands on a quiet ground — the video receding, not a scrim over it,
-   which is the distinction WI-5 drew when it ruled scrims out.
+/* ---- THE PRINCIPLE PANEL'S FILM, AND ITS LINE (candidate only) ----
+   The blossom loop fills the panel at full strength and the quote lies
+   across it as ONE HORIZONTAL LINE, written on a word at a time by the
+   film's own clock.
 
-   EVERY RULE HERE IS SCOPED TO `.er-lab`, the candidate route's root. The
-   first cut of this block was not, and `.er-js .er-manifesto__quote {
-   visibility: hidden }` matched the SHIPPED home page too, where nothing
-   ever sets `data-revealed` — so the Principle quote went invisible on
-   `/` and stayed that way. A gating rule must never be able to reach a
-   surface that carries no gate. */
+   EVERY RULE HERE IS SCOPED TO `.er-lab`, the candidate route's root. An
+   earlier cut was not, and `.er-js .er-manifesto__quote { visibility:
+   hidden }` matched the shipped home page too, where nothing ever opens
+   the gate — the Principle quote on `/` went invisible and stayed that
+   way. The gate is now per WORD rather than on the quote as a whole, so
+   the failure mode is gone by construction as well as by scoping.
+
+   THE INK IS `--ink`, AND IT IS MEASURED, NOT PICKED. Sampled across all
+   96 frames of the loop, in the exact band the line occupies: the
+   footage there runs a median relative luminance of 0.497, so #0B0B0C
+   holds a median 10.24:1 and only 2.03% of the band falls under the 3:1
+   large-text floor — the river's dark reflections and a few shadowed
+   folds of grass. White is the opposite case and fails outright: it is
+   under 3:1 across 96.29% of the same band. No scrim, no dimmed video
+   and no text-shadow halo: WI-5 ruled scrims out of this project, a
+   halo is a scrim the size of a word, and grading the client's footage
+   to chase the last two percent measured out at a 0.5-point gain for a
+   visibly flatter picture. The type is legible because of what colour
+   it is. */
 
 /* The panel needs its own stacking context so the film cannot escape it,
    and `overflow: hidden` so a cover-fitted 16:9 never bleeds past the
@@ -640,63 +652,128 @@
 .er-lab .er-blossom {
   position: absolute;
   inset: 0;
-  pointer-events: none;
   z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The film takes no pointer; the line takes it back below, so the
+     sentence stays selectable. */
+  pointer-events: none;
 }
 .er-lab .er-blossom__v {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  /* Eases back as the quote arrives. Opacity only, so it composites and
-     never repaints. */
-  transition: opacity 1.1s var(--enter);
 }
-.er-lab .er-blossom[data-played="true"] .er-blossom__v {
-  opacity: 0.16;
+/* THE FRAMING IS A LEGIBILITY DECISION ON NARROW VIEWPORTS. `cover` on a
+   16:9 film in a portrait panel crops hard to the horizontal centre —
+   which is exactly where the tree is, so on a phone the sentence lay
+   across the trunk and canopy and measured 12.36% of its own glyph area
+   under the 3:1 floor, against 2.29% at 1440. Shifting the crop window
+   off centre puts the tree outside the frame and the line back onto sky:
+   0.00% under 3:1, and under 4.5:1 as well. Left rather than right
+   because the right of the frame carries the supplier's watermark.
+
+   Keyed to ASPECT RATIO, not width, because the aspect is the actual
+   cause — a 1024x900 window crops as hard as a phone does. */
+@media (max-aspect-ratio: 4 / 3) {
+  .er-lab .er-blossom__v {
+    object-position: 15% 50%;
+  }
 }
-/* The quote and its label ride above the film. The LABEL TAKES A RANK
-   ONLY — it is already absolutely positioned by `.er-section__label`, and
-   giving it `position: relative` here knocked it back into the flex
-   column, where it pushed the centred quote off-axis and printed itself
-   through the middle of the type. An absolutely positioned element can
-   carry a z-index without being re-positioned. */
+
+/* THE LABEL RIDES THE FILM TOO. It is authored before the film in the
+   panel, so without a rank it paints UNDER the video — and `--ink-faint`
+   is a token tuned for white paper: on the film's pale sky an 11px label
+   at #767679 falls to roughly 3:1 against a 4.5:1 floor. Full ink here,
+   for the same reason the line takes it. RANK AND COLOUR ONLY — it is
+   already absolutely placed by `.er-section__label`, and giving it
+   `position: relative` once knocked it back into the flex column and
+   pushed the centred type off-axis. */
 .er-lab .er-manifesto .er-section__label {
   z-index: 1;
+  color: var(--ink);
 }
+
+/* THE LINE. `nowrap` is the whole point of the treatment, so the size is
+   solved for the string rather than chosen: 110 characters have to sit
+   inside the panel's width at every width the stack runs at. Measured
+   rather than guessed — see §15. */
 .er-lab .er-manifesto__quote {
   position: relative;
   z-index: 1;
+  margin: 0;
+  width: 100%;
+  padding-inline: clamp(16px, 3.5vw, 56px);
+  pointer-events: auto;
 }
-/* THE GATE, AND ITS DEFAULT. The quote is visible unless JS is running to
-   open it again: without the client component nothing sets
-   `data-revealed`, and a no-JS reader must not meet an empty panel.
-   `visibility` rather than `display`, so the quote keeps its box and the
-   panel's height never changes when it arrives — a layout shift here
-   would move the two panels held above and below this one. */
-.er-js .er-lab .er-manifesto__quote {
+.er-lab .er-mline {
+  color: var(--ink);
+  font-weight: 420;
+  /* Solved for the string, not chosen. 110 characters at 1.62vw leave
+     5-13% of the panel's width spare at every stack width — headroom the
+     line needs because `.er-manifesto` clips, so an overflow would not
+     scroll, it would silently cut the sentence off. Measured at 1024,
+     1280, 1440, 1600, 1920 and 2560 in §15. */
+  font-size: clamp(11px, 1.62vw, 30px);
+  line-height: 1.25;
+  letter-spacing: 0.004em;
+  text-align: center;
+  white-space: nowrap;
+}
+.er-lab .er-mline em {
+  font-family: inherit;
+  font-style: italic;
+  font-weight: 420;
+}
+/* `pre` keeps the trailing space inside each word: an inline-block drops
+   a space that lands on its own edge, and without it the sentence
+   arrives with every gap closed up. */
+.er-lab .er-mword {
+  display: inline-block;
+  white-space: pre;
+  transition:
+    opacity 0.5s var(--enter),
+    transform 0.5s var(--enter);
+}
+
+/* THE GATE, PER WORD, AND ITS DEFAULT. Words are visible unless JS is
+   running to bring them in one at a time — without the client component
+   nothing sets `data-in`, and a no-JS reader must meet the finished
+   sentence, not an empty band. */
+.er-js .er-lab .er-mword {
   opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 1.1s var(--enter),
-    visibility 0s linear 1.1s;
+  transform: translateY(0.34em);
 }
-.er-js .er-lab .er-blossom[data-revealed="true"] ~ .er-manifesto__quote,
-.er-js .er-lab .er-blossom[data-static="true"] ~ .er-manifesto__quote {
+.er-js .er-lab .er-mword[data-in] {
   opacity: 1;
-  visibility: visible;
-  transition:
-    opacity 1.1s var(--enter),
-    visibility 0s linear 0s;
+  transform: none;
 }
-/* Without motion there is no film and nothing to wait for. */
+
+/* Below the stack's own breakpoint the panel is in ordinary flow and 110
+   characters cannot hold a line, so the sentence wraps and takes a size
+   it can be read at. The reveal is unaffected — it is per word, not per
+   line. */
+@media (max-width: 900px) {
+  .er-lab .er-mline {
+    font-size: clamp(19px, 4.6vw, 30px);
+    line-height: 1.35;
+    white-space: normal;
+  }
+}
+
+/* Without motion there is no film and nothing to write the line on. */
 @media (prefers-reduced-motion: reduce) {
-  .er-lab .er-blossom {
+  .er-lab .er-blossom__v {
     display: none;
   }
-  .er-js .er-lab .er-manifesto__quote {
+  .er-js .er-lab .er-mword {
     opacity: 1;
-    visibility: visible;
+    transform: none;
+    transition: none;
   }
 }
 

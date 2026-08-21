@@ -277,7 +277,12 @@ export default function StudioClient({ beat = false }) {
       const quote = document.querySelector("[data-manifesto]");
       if (quote) {
         const lines = quote.querySelectorAll(".er-line > span");
-        const label = quote.parentElement.querySelector(".er-track");
+        /* Search from the SECTION, not the quote's parent. On `/` the two
+           are the same element; on the candidate the quote sits inside
+           the film that times it, and a parent-scoped lookup found no
+           label at all — the "Principle" eyebrow stayed at the opacity 0
+           the armed state gives it and never appeared. */
+        const label = quote.closest("section")?.querySelector(".er-track");
         gsap.to(lines, {
           yPercent: 0,
           ease: "none",
